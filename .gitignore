@@ -12,3 +12,6 @@ build/
 
 # Ignore all dist files
 dist/
+
+# Ignore node_modules directory and its contents
+node_modules/
