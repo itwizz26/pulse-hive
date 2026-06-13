@@ -1,0 +1,17 @@
+{
+  "name": "@pulsehive/db",
+  "version": "0.1.0",
+  "private": true,
+  "main": "prismaClient.js",
+  "scripts": {
+    "prisma:generate": "prisma generate --schema=./prisma/schema.prisma",
+    "migrate:dev": "prisma migrate dev --name init --schema=./prisma/schema.prisma",
+    "seed": "node seed.js"
+  },
+  "devDependencies": {
+    "prisma": "^5.8.0"
+  },
+  "dependencies": {
+    "@prisma/client": "^5.8.0"
+  }
+}

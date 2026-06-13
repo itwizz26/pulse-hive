@@ -1,0 +1,59 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native"]
+}
+
+model Tenant {
+  id        String    @id @default(cuid())
+  name      String
+  orders    Order[]
+  payments  Payment[]
+  createdAt DateTime  @default(now())
+}
+
+model Order {
+  id             String    @id @default(cuid())
+  tenantId       String
+  tenant         Tenant    @relation(fields: [tenantId], references: [id])
+  reference      String
+  date           DateTime  @default(now())
+  customerName   String
+  phone          String
+  address        String
+  quantity       Int
+  totalAmount    Float
+  isPaid         Boolean   @default(false)
+  status         String
+  trackingNumber String?
+  payments       Payment[]
+  createdAt      DateTime  @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, status])
+  @@index([tenantId, date])
+}
+
+model Payment {
+  id           String   @id @default(cuid())
+  tenantId     String
+  tenant       Tenant   @relation(fields: [tenantId], references: [id])
+  customerName String
+  amount       Float
+  date         DateTime @default(now())
+  reference    String?
+  matched      Boolean  @default(false)
+  orderId      String?
+  order        Order?   @relation(fields: [orderId], references: [id])
+  createdAt    DateTime @default(now())
+
+  @@index([tenantId])
+  @@index([tenantId, matched])
+  @@index([tenantId, createdAt])
+  @@index([tenantId, orderId])
+  @@index([orderId])
+}

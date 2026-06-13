@@ -1,17 +1,50 @@
-# Ignore all .pyc files
-*.pyc
+# Aider
+.aider.*
 
-# Ignore all log files
-*.log
-
-# Ignore all temp files
-*.tmp
-
-# Ignore all build artifacts
-build/
-
-# Ignore all dist files
-dist/
-
-# Ignore node_modules directory and its contents
-node_modules/
+# Node modules                                                                                                                                                            
+*/node_modules/                                                                                                                                                             
+                                                                                                                                                                          
+# Logs                                                                                                                                                                    
+*/logs/                                                                                                                                                                     
+*/*.log                                                                                                                                                                     
+                                                                                                                                                                          
+# IDEs                                                                                                                                                                    
+.vscode/                                                                                                                                                                  
+.idea/                                                                                                                                                                    
+                                                                                                                                                                          
+# Build artifacts                                                                                                                                                         
+*/build/                                                                                                                                                                    
+*/dist/                                                                                                                                                                     
+*/coverage/                                                                                                                                                                 
+                                                                                                                                                                          
+# Temporary files                                                                                                                                                         
+tmp/                                                                                                                                                                      
+*/temp/                                                                                                                                                                     
+                                                                                                                                                                          
+# Cache files                                                                                                                                                             
+*/.cache/                                                                                                                                                                   
+*/.cache/*                                                                                                                                                                  
+                                                                                                                                                                          
+# Docker files                                                                                                                                                            
+.dockerignore                                                                                                                                                             
+Dockerfile                                                                                                                                                                
+                                                                                                                                                                          
+# Git hooks                                                                                                                                                               
+.git/hooks/                                                                                                                                                               
+                                                                                                                                                                          
+# npm cache                                                                                                                                                               
+*/npm-debug.log*                                                                                                                                                            
+package-lock.json                                                                                                                                                         
+                                                                                                                                                                          
+# yarn cache                                                                                                                                                              
+.yarn-integrity*                                                                                                                                                          
+                                                                                                                                                                          
+# Next.js build artifacts                                                                                                                                                 
+*/.next/                                                                                                                                                                    
+*/public/                                                                                                                                                                   
+*/static/                                                                                                                                                                   
+                                                                                                                                                                          
+# React Native project files                                                                                                                                              
+*/android/                                                                                                                                                                  
+*/ios/                                                                                                                                                                      
+*/build/
