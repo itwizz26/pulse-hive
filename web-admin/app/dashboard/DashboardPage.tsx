@@ -1,11 +1,22 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { apiCall } from '@/lib/api';
+import React, { useEffect, useState } from 'react';
+// import { apiCall } from '@/lib/api'; // Commented out to match your setup context
 
-export default function Dashboard() {
-    const [stats, setStats] = useState(null);
-    const [loading, setLoading] = useState(true);
+// 1. Define the structural metric signature for full system tracking
+interface DashboardStats {
+    totalOrders: number;
+    totalRevenue: number;
+    pendingPayments: number;
+    readyToShip: number;
+    conversionRate: number;
+    averageOrderValue: number;
+}
+
+export default function DashboardPage() {
+    // 2. Set strict typing bounds on the state engines
+    const [stats, setStats] = useState<DashboardStats | null>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
         // TODO: fetch dashboard stats from API
@@ -20,7 +31,8 @@ export default function Dashboard() {
         setLoading(false);
     }, []);
 
-    if (loading) {
+    // 3. Early return guards ensure that the 'stats' variable is guaranteed to be hydrated below
+    if (loading || !stats) {
         return (
             <div className="flex justify-center items-center h-[60vh] text-slate-400 text-base font-medium tracking-widest animate-pulse">
                 <span className="mr-3">⚡</span> LOADING SYSTEM DIAGNOSTICS...
@@ -108,7 +120,7 @@ export default function Dashboard() {
                     </h3>
                     <div className="flex flex-col gap-5">
                         <div>
-                          <div className="flex justify-between text-sm mb-2 text-slate-500">
+                            <div className="flex justify-between text-sm mb-2 text-slate-500">
                                 <span>Conversion Rate</span>
                                 <span className="text-slate-900 font-semibold">{stats.conversionRate}%</span>
                             </div>

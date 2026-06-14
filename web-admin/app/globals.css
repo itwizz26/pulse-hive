@@ -1,5 +1,9 @@
 @import "tailwindcss";
 
+/* Ensure TypeScript extensions are captured in the compile path */
+@source "../app/**/*.{js,ts,jsx,tsx}";
+@source "../components/**/*.{js,ts,jsx,tsx}";
+
 
 @layer base {
   :root {

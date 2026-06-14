@@ -1,5 +1,6 @@
 import './globals.css';
 import { Inter } from 'next/font/google';
+import React from 'react';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -12,7 +13,13 @@ export const metadata = {
     description: 'Your modern and efficient platform for managing orders and payments.',
 };
 
-export default function RootLayout({ children }) {
+// 1. Define an interface for the component props
+interface RootLayoutProps {
+    children: React.ReactNode;
+}
+
+// 2. Explicitly type the Functional Component
+export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="en" className={`${inter.variable} antialiased`}>
             <head>
@@ -20,18 +27,21 @@ export default function RootLayout({ children }) {
             </head>
             <body className="bg-slate-50 text-slate-900 min-h-screen font-sans">
                 <div className="flex flex-col min-h-screen">
-                    {/* Glassmorphic Navigation Bar */}
-                    <nav className="sticky top-0 z-50 w-full bg-slate-100/80 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-4 flex items-center justify-between transition-all">
+                    
+                    <nav className="sticky top-0 z-50 w-full bg-slate-100/80 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between transition-all">
                         <div className="flex items-center gap-3">
                             <div className="flex items-center justify-center">
-                                <div className="pulsating-logo w-8 h-8 rounded-full bg-indigo-600"></div>
+                                <img 
+                                    src="/pulsehive-logo.svg" 
+                                    alt="PulseHive Logo" 
+                                    className="w-8 h-8 object-contain" 
+                                />
                             </div>
                             <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
                                 PulseHive<span className="text-indigo-600">.</span>
                             </h1>
                         </div>
                         
-                        {/* Interactive Navigation Links */}
                         <ul className="hidden md:flex items-center gap-1 flex-grow justify-end p-1 rounded-xl">
                             <li>
                                 <a href="/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
@@ -55,19 +65,15 @@ export default function RootLayout({ children }) {
                             </li>
                         </ul>
 
-                        {/* Extra Action / User Slot to balance the header alignment */}
-                        <div className="flex items-center gap-3">
+                        <div className="flex items-center gap-3 ml-4">
                             <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
                                 DM
                             </div>
                         </div>
                     </nav>
 
-                    {/* Dashboard Layout Container */}
-                    <main className="flex-1 w-full">
-                        <div className="px-6 lg:px-12">
-                            {children}
-                        </div>
+                    <main className="flex-1 w-full px-6 pt-6 pb-8">
+                        {children}
                     </main>
                 </div>
             </body>
