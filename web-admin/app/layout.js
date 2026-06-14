@@ -32,7 +32,7 @@ export default function RootLayout({ children }) {
                         </div>
                         
                         {/* Interactive Navigation Links */}
-                        <ul className="hidden md:flex items-center gap-1 bg-slate-100/80 p-1 rounded-xl border border-slate-200/40">
+                        <ul className="hidden md:flex items-center gap-1 flex-grow justify-end p-1 rounded-xl">
                             <li>
                                 <a href="/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
                                     Dashboard
@@ -64,7 +64,7 @@ export default function RootLayout({ children }) {
                     </nav>
 
                     {/* Dashboard Layout Container */}
-                    <main className="flex-1 w-full px-6 lg:px-12 py-8">
+                    <main className="flex-1 w-full px-6 lg:px-12">
                         {children}
                     </main>
                 </div>
