@@ -1,14 +1,14 @@
 /* Global styles */
 :root {
-  --primary-color: #08111f; /* Dark background */
+  --primary-color: #f3f4f6; /* Light gray background */
   --secondary-color: #10b981; /* Emerald green */
   --accent-color: #10b981; /* Emerald green for highlights */
-  --text-color-light: #f8fafc; /* Light text */
-  --text-color-dark: #0f172a; /* Dark text */
-  --card-background: rgba(255, 255, 255, 0.1);
-  --card-backdrop-filter: blur(20px);
-  --border-color: rgba(255, 255, 255, 0.2);
-  --shadow-color: rgba(16, 185, 129, 0.15);
+  --text-color-light: #1f2937; /* Dark text for light background */
+  --text-color-dark: #0f172a; /* Darker text */
+  --card-background: rgba(255, 255, 255, 0.7); /* More opaque white cards */
+  --card-backdrop-filter: blur(15px); /* Softer blur */
+  --border-color: rgba(0, 0, 0, 0.1); /* Subtle dark border */
+  --shadow-color: rgba(16, 185, 129, 0.1); /* Lighter shadow */
   --button-hover-bg: rgba(16, 185, 129, 0.9);
 }
 
@@ -22,9 +22,9 @@ body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
-  background: var(--primary-color);
+  background-color: var(--primary-color); /* Use light background */
   background-attachment: fixed;
-  color: var(--text-color-light);
+  color: var(--text-color-light); /* Use dark text for light background */
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -38,16 +38,16 @@ body {
 }
 
 .navbar {
-  background: rgba(8, 17, 31, 0.6); /* Slightly transparent dark background */
+  background: rgba(255, 255, 255, 0.7); /* Light transparent background */
   backdrop-filter: var(--card-backdrop-filter);
   -webkit-backdrop-filter: var(--card-backdrop-filter);
   border-bottom: 1px solid var(--border-color);
-  color: var(--text-color-light);
+  color: var(--text-color-dark); /* Dark text for navbar */
   padding: 1rem 2rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3); /* Softer, more premium shadow */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Lighter shadow */
   position: sticky; /* Keep navbar at top */
   top: 0;
   z-index: 1000; /* Ensure it stays on top */
@@ -61,16 +61,16 @@ body {
 }
 
 .logo-img {
-  width: 45px; /* Slightly larger logo */
-  height: 45px;
-  filter: brightness(0) invert(1); /* Make logo white */
+  width: 40px; /* Slightly smaller logo */
+  height: 40px;
+  filter: invert(30%) sepia(80%) saturate(1000%) hue-rotate(120deg); /* Make logo green and visible */
 }
 
 .logo {
   font-size: 1.75rem; /* Larger font size */
   font-weight: 700; /* Bolder */
   color: var(--secondary-color); /* Use accent color for logo text */
-  text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); /* Glowing effect */
+  text-shadow: none; /* Remove glow for clarity on light background */
 }
 
 .nav-links {
@@ -80,7 +80,7 @@ body {
 }
 
 .nav-links a {
-  color: var(--text-color-light);
+  color: var(--text-color-light); /* Keep links light for contrast */
   text-decoration: none;
   font-weight: 500; /* Slightly lighter for a modern feel */
   transition: color 0.3s ease, text-shadow 0.3s ease;
@@ -105,7 +105,7 @@ body {
 
 .nav-links a:hover {
   color: var(--secondary-color);
-  text-shadow: 0 0 8px rgba(16, 185, 129, 0.4); /* Subtle glow on hover */
+  text-shadow: none; /* Remove glow on hover */
 }
 
 .nav-links a:hover::after {
@@ -126,7 +126,7 @@ body {
   backdrop-filter: var(--card-backdrop-filter);
   border-radius: 1rem;
   border: 1px solid var(--border-color);
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.35); /* Deeper shadow */
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Lighter shadow */
   padding: 2rem; /* More padding inside cards */
   margin-bottom: 2rem; /* More margin between cards */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
@@ -134,7 +134,7 @@ body {
 
 .card:hover {
   transform: translateY(-5px); /* Slight lift on hover */
-  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.5); /* Enhanced shadow on hover */
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
 
 .btn {
@@ -146,13 +146,13 @@ body {
   cursor: pointer;
   font-weight: 600;
   font-size: 1rem;
-  box-shadow: 0 8px 25px var(--shadow-color); /* Premium shadow */
+  box-shadow: 0 5px 15px var(--shadow-color); /* Lighter shadow */
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .btn:hover {
   background: linear-gradient(135deg, rgba(5, 150, 105, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%); /* Hover gradient */
-  box-shadow: 0 12px 30px rgba(16, 185, 129, 0.4); /* Enhanced hover shadow */
+  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); /* Enhanced hover shadow */
   transform: translateY(-2px); /* Lift effect */
 }
 
@@ -169,24 +169,21 @@ th, td {
 }
 
 th {
-  background-color: rgba(255, 255, 255, 0.15); /* Lighter header background */
+  background-color: rgba(17, 24, 39, 0.1); /* Slightly darker header background for contrast */
   backdrop-filter: var(--card-backdrop-filter);
   -webkit-backdrop-filter: var(--card-backdrop-filter);
   font-weight: 700; /* Bolder header */
   color: var(--secondary-color);
   border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
-  text-shadow: 0 0 5px rgba(16, 185, 129, 0.3);
+  text-shadow: none;
 }
 
 td {
   background: var(--card-background);
   backdrop-filter: var(--card-backdrop-filter);
   border-radius: 0.75rem; /* Rounded corners for data cells */
-  border-top: 1px solid var(--border-color); /* Add top border for visual separation */
-  border-left: 1px solid var(--border-color);
-  border-right: 1px solid var(--border-color);
-  border-bottom: 1px solid var(--border-color); /* Full border for data cells */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2); /* Shadow for data cells */
+  border: 1px solid var(--border-color); /* Consistent border for data cells */
+  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Very subtle shadow for data cells */
   transition: transform 0.2s ease;
 }
 
