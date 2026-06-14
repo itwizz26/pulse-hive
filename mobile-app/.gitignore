@@ -1,5 +1,5 @@
 # Expo
-.expo/*
+.expo/
 !.expo/README.md
 !.expo/package.json
 web-build/
