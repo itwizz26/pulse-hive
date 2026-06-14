@@ -148,8 +148,13 @@ services:
     container_name: pulsehive-web-admin
     ports:
       - "3000:3000"
+    command: npm run dev
     depends_on:
       - api
+    environment:
+      # CRITICAL FOR WINDOWS/WSL2 HOT RELOAD
+      - WATCHPACK_POLLING=true
+      - CHOKIDAR_USEPOLLING=true
     develop:
       watch:
         - path: ./web-admin
