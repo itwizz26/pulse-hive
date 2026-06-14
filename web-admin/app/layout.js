@@ -17,7 +17,7 @@ export default function RootLayout({ children }) {
                 <nav className="navbar">
                     <div className="logo-container">
                         <img src="/pulsehive-logo.svg" alt="PulseHive logo" className="logo-img" />
-                        <h1 className="logo">PulseHive</h1>
+                        <h1 className="logo">PulseHive1</h1>
                     </div>
                     <ul className="nav-links">
                         <li><a href="/dashboard">Dashboard</a></li>
