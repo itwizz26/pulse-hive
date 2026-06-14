@@ -1,6 +1,9 @@
+'use client';
+
 import './globals.css';
-import { Inter } from 'next/font/google';
 import React from 'react';
+import { Inter } from 'next/font/google';
+import { usePathname } from 'next/navigation';
 
 const inter = Inter({
     subsets: ['latin'],
@@ -8,18 +11,12 @@ const inter = Inter({
     variable: '--font-inter',
 });
 
-export const metadata = {
-    title: 'PulseHive | Premium Admin',
-    description: 'Your modern and efficient platform for managing orders and payments.',
-};
+export default function RootLayout({ children }: { children: React.ReactNode }) {
+    const pathname = usePathname();
+    
+    // Check if the user is currently looking at the root path gate
+    const isLoginPage = pathname === '/';
 
-// 1. Define an interface for the component props
-interface RootLayoutProps {
-    children: React.ReactNode;
-}
-
-// 2. Explicitly type the Functional Component
-export default function RootLayout({ children }: RootLayoutProps) {
     return (
         <html lang="en" className={`${inter.variable} antialiased`}>
             <head>
@@ -28,49 +25,52 @@ export default function RootLayout({ children }: RootLayoutProps) {
             <body className="bg-slate-50 text-slate-900 min-h-screen font-sans">
                 <div className="flex flex-col min-h-screen">
                     
-                    <nav className="sticky top-0 z-50 w-full bg-slate-100/80 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between transition-all">
-                        <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center pl-9">
-                                <img 
-                                    src="/pulsehive-logo.svg" 
-                                    alt="PulseHive Logo" 
-                                    className="w-8 h-8 object-contain" 
-                                />
+                    {/* Only render the system navbar track if NOT on the gateway login file */}
+                    {!isLoginPage && (
+                        <nav className="sticky top-0 z-50 w-full bg-slate-100/80 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between transition-all">
+                            <div className="flex items-center gap-3 pl-9">
+                                <div className="flex items-center justify-center">
+                                    <img 
+                                        src="/pulsehive-logo.svg" 
+                                        alt="PulseHive Logo" 
+                                        className="w-8 h-8 object-contain" 
+                                    />
+                                </div>
+                                <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
+                                    PulseHive<span className="text-indigo-600">.</span>
+                                </h1>
                             </div>
-                            <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
-                                PulseHive<span className="text-indigo-600">.</span>
-                            </h1>
-                        </div>
-                        
-                        <ul className="hidden md:flex items-center gap-1 grow justify-end p-1 rounded-xl">
-                            <li>
-                                <a href="/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
-                                    Dashboard
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/orders" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
-                                    Orders
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/payments" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
-                                    Payments
-                                </a>
-                            </li>
-                            <li>
-                                <a href="/reconciliation" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
-                                    Reconciliation
-                                </a>
-                            </li>
-                        </ul>
+                            
+                            <ul className="hidden md:flex items-center gap-1 flex-grow justify-end p-1 rounded-xl">
+                                <li>
+                                    <a href="/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
+                                        Dashboard
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/orders" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
+                                        Orders
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/payments" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
+                                        Payments
+                                    </a>
+                                </li>
+                                <li>
+                                    <a href="/reconciliation" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
+                                        Reconciliation
+                                    </a>
+                                </li>
+                            </ul>
 
-                        <div className="flex items-center gap-3 ml-4 pr-9">
-                            <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
-                                DM
+                            <div className="flex items-center gap-3 ml-4 pr-9">
+                                <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
+                                    DM
+                                </div>
                             </div>
-                        </div>
-                    </nav>
+                        </nav>
+                    )}
 
                     <main className="flex-1 w-full px-6 pt-6 pb-8">
                         {children}
