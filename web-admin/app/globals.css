@@ -1,67 +1,41 @@
 @import "tailwindcss";
 
-/* Ensure TypeScript extensions are captured in the compile path */
-@source "../app/**/*.{js,ts,jsx,tsx}";
-@source "../components/**/*.{js,ts,jsx,tsx}";
-
-
-@layer base {
-  :root {
-    --primary-color: #f8fafc; /* Sleek slate-50 light background */
-    --secondary-color: #6366f1; /* Premium Indigo */
-    --accent-color: #10b981; 
-    --text-color-light: #0f172a; 
-    --text-color-dark: #1e293b; 
-    --card-background: rgba(255, 255, 255, 0.75); 
-    --card-backdrop-filter: blur(12px); 
-    --border-color: rgba(0, 0, 0, 0.06); 
-  }
-
-  * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
-  }
-
-  body {
-    background-color: var(--primary-color);
-    color: var(--text-color-light);
-  }
-
-  @keyframes pulse-logo {
-    0% {
-      transform: scale(0.2);
-      opacity: 0.5;
-    }
-    50% {
-      transform: scale(1);
-      opacity: 1;
-    }
-    100% {
-      transform: scale(0.2);
-      opacity: 0.5;
-    }
-  }
-
-  .pulsating-logo {
-    animation: pulse-logo 2s infinite ease-in-out;
-  }
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui;
 }
 
-@layer components {
-  .layout {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    overflow-x: hidden;
-  }
+@utility ph-workspace-canvas {
+  @apply min-h-screen w-full bg-slate-950 text-slate-100 overflow-y-auto selection:bg-indigo-500/30 selection:text-white;
+}
 
-  .pulse-card {
-    background: var(--card-background);
-    backdrop-filter: var(--card-backdrop-filter);
-    border: 1px solid var(--border-color);
-    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
-    /* FIXED LINE BELOW: Changed to native min-h-fit and clean standard utility syntax */
-    @apply rounded-2xl p-7 mb-6 transition-all duration-300 ease-in-out shadow-sm hover:-translate-y-1 hover:shadow-md;
-  }
+@utility ph-glow-orb-indigo {
+  @apply absolute w-[500px] h-[500px] bg-indigo-600/5 rounded-full blur-[140px] pointer-events-none z-0;
+}
+
+@utility ph-glow-orb-emerald {
+  @apply absolute w-[500px] h-[500px] bg-emerald-600/5 rounded-full blur-[140px] pointer-events-none z-0;
+}
+
+@utility ph-telemetry-grid {
+  @apply absolute inset-0 bg-[linear-gradient(to_right,#ffffff01_1px,transparent_1px),linear-gradient(to_bottom,#ffffff01_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none z-0;
+}
+
+@utility ph-glass-panel {
+  @apply bg-slate-900/40 backdrop-blur-xl border border-white/[0.06] rounded-2xl shadow-2xl relative z-10 transition-all duration-200;
+}
+
+@utility ph-ledger-table {
+  @apply w-full text-left border-collapse;
+}
+
+@utility ph-ledger-th {
+  @apply px-6 py-4 border-b border-white/[0.06] bg-white/[0.02] text-[11px] font-bold text-slate-400 tracking-wider uppercase;
+}
+
+@utility ph-ledger-tr {
+  @apply border-b border-white/[0.04] text-sm text-slate-300 hover:bg-white/[0.01] transition-colors;
+}
+
+@utility ph-ledger-td {
+  @apply px-6 py-4 whitespace-nowrap;
 }

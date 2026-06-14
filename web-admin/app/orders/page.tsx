@@ -1,80 +1,34 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-// import { apiCall } from '@/lib/api'; // Ready for integration
-
-// 1. Define a strict type union for predictable tracking statuses
-export type OrderStatus = 'pending' | 'completed' | 'cancelled' | 'processing';
-
-// 2. Map out the full core layout data model for system orders
-export interface Order {
-    id: string | number;
-    reference: string;
-    customerName: string;
-    totalAmount: number;
-    status: OrderStatus;
-    date: string | Date;
-}
+import React from 'react';
 
 export default function OrdersPage() {
-    // 3. Initialize the state explicitly as an array of the Order interface
-    const [orders, setOrders] = useState<Order[]>([]);
-    const [loading, setLoading] = useState<boolean>(true);
+  return (
+    <div className="space-y-6">
+      <div>
+        <h1 className="text-2xl font-black tracking-tight text-white">Orders Data Ledger</h1>
+        <p className="text-xs text-slate-400 mt-1">Operational stream tracking pipeline records.</p>
+      </div>
 
-    useEffect(() => {
-        // TODO: fetch orders from API
-        // const fetchOrders = async () => {
-        //   try {
-        //     const data = await apiCall<Order[]>('/orders');
-        //     setOrders(data);
-        //   } catch (error) {
-        //     console.error('Failed to stream telemetry:', error);
-        //   } finally {
-        //     setLoading(false);
-        //   }
-        // };
-        
-        setOrders([]);
-        setLoading(false);
-    }, []);
-
-    if (loading) return <p>Loading...</p>;
-
-    return (
-        <div>
-        <h1>Orders</h1>
-        {orders.length === 0 ? (
-            <p>No orders yet.</p>
-        ) : (
-            <div className="card">
-            <table>
-                <thead>
-                <tr>
-                    <th>Order ID</th>
-                    <th>Customer</th>
-                    <th>Amount</th>
-                    <th>Status</th>
-                    <th>Date</th>
-                </tr>
-                </thead>
-                <tbody>
-                {orders.map((order) => (
-                    <tr key={order.id}>
-                    <td>{order.reference}</td>
-                    <td>{order.customerName}</td>
-                    <td>R {order.totalAmount.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</td>
-                    <td>
-                        <span className={`status-badge status-${order.status}`}>
-                        {order.status}
-                        </span>
-                    </td>
-                    <td>{new Date(order.date).toLocaleDateString('en-ZA')}</td>
-                    </tr>
-                ))}
-                </tbody>
-            </table>
-            </div>
-        )}
-        </div>
-    );
+      {/* Applied the clean CSS layer selectors directly */}
+      <div className="ph-glass-panel overflow-hidden">
+        <table className="ph-ledger-table">
+          <thead>
+            <tr>
+              <th className="ph-ledger-th">Order ID</th>
+              <th className="ph-ledger-th">Customer Client</th>
+              <th className="ph-ledger-th">Amount Balance</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr className="ph-ledger-tr">
+              <td className="ph-ledger-td font-mono font-bold text-indigo-400">#PH-INV-091</td>
+              <td className="ph-ledger-td font-medium text-white">Cosmetics Vendor Dev</td>
+              <td className="ph-ledger-td font-mono">R 4,250.00</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 }
