@@ -21,9 +21,9 @@ export default function RootLayout({ children }) {
             <body className="bg-slate-50 text-slate-900 min-h-screen font-sans">
                 <div className="flex flex-col min-h-screen">
                     {/* Glassmorphic Navigation Bar */}
-                    <nav className="sticky top-0 z-50 w-full bg-white/75 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-4 flex items-center justify-between transition-all">
+                    <nav className="sticky top-0 z-50 w-full bg-slate-100/80 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-4 flex items-center justify-between transition-all">
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center p-2 bg-indigo-50 rounded-xl border border-indigo-100/50">
+                            <div className="flex items-center justify-center">
                                 <div className="pulsating-logo w-8 h-8 rounded-full bg-indigo-600"></div>
                             </div>
                             <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
@@ -64,7 +64,7 @@ export default function RootLayout({ children }) {
                     </nav>
 
                     {/* Dashboard Layout Container */}
-                    <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8">
+                    <main className="flex-1 w-full px-6 lg:px-12 py-8">
                         {children}
                     </main>
                 </div>
