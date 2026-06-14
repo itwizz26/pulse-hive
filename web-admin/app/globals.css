@@ -1,57 +1,46 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@import "tailwindcss";
+
+@source "../app/**/*.{js,ts,jsx,tsx}";
+@source "../components/**/*.{js,ts,jsx,tsx}";
 
 @layer base {
-    :root {
-        --primary-color: #e5e7eb; 
-        --secondary-color: #10b981; 
-        --accent-color: #10b981; 
-        --text-color-light: #111827; 
-        --text-color-dark: #0f172a; 
-        --card-background: rgba(255, 255, 255, 0.85); 
-        --card-backdrop-filter: blur(20px); 
-        --border-color: rgba(0, 0, 0, 0.08); 
-        --shadow-color: rgba(16, 185, 129, 0.15); 
-        --button-hover-bg: rgba(16, 185, 129, 0.95); 
-    }
+  :root {
+    --primary-color: #f8fafc; /* Sleek slate-50 light background */
+    --secondary-color: #6366f1; /* Premium Indigo */
+    --accent-color: #10b981; 
+    --text-color-light: #0f172a; 
+    --text-color-dark: #1e293b; 
+    --card-background: rgba(255, 255, 255, 0.75); 
+    --card-backdrop-filter: blur(12px); 
+    --border-color: rgba(0, 0, 0, 0.06); 
+  }
 
-    * {
-        @apply m-0 p-0 box-border;
-    }
+  * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+  }
 
-    body {
-        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-        'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue', sans-serif;
-        background-color: var(--primary-color);
-        background-attachment: fixed;
-        color: var(--text-color-light);
-        @apply min-height[100vh] flex flex-col;
-    }
-    }
+  body {
+    background-color: var(--primary-color);
+    color: var(--text-color-light);
+  }
+}
 
-    @layer components {
-    .layout {
-        @apply flex flex-col min-h-screen overflow-x-hidden;
-    }
+@layer components {
+  .layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
 
-    /* Custom glassmorphic cards configured to look clean on light backgrounds */
-    .pulse-card {
-        background: var(--card-background);
-        backdrop-filter: var(--card-backdrop-filter);
-        border: 1px solid var(--border-color);
-        box-shadow: 0 15px 35px rgba(0, 0, 0, 0.06);
-        @apply rounded-2xl p-7 mb-10 transition-all duration-300 ease-in-out hover:-translate-y-2 hover:shadow-2xl;
-    }
-
-    .btn-premium {
-        background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%);
-        box-shadow: 0 10px 25px var(--shadow-color);
-        @apply px-8 py-4 border-none rounded-xl text-white font-bold text-base cursor-pointer transition-all duration-300 hover:translate-y-[-3px];
-    }
-
-    .btn-premium:hover {
-        background: linear-gradient(135deg, rgba(5, 150, 105, 1) 0%, rgba(16, 185, 129, 1) 100%);
-        box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3);
-    }
+  .pulse-card {
+    background: var(--card-background);
+    backdrop-filter: var(--card-backdrop-filter);
+    border: 1px solid var(--border-color);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
+    /* FIXED LINE BELOW: Changed to native min-h-fit and clean standard utility syntax */
+    @apply rounded-2xl p-7 mb-6 transition-all duration-300 ease-in-out shadow-sm hover:-translate-y-1 hover:shadow-md;
+  }
 }

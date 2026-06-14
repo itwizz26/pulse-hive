@@ -1,13 +1,16 @@
-FROM node:18-alpine
-
+FROM node:20-alpine
 WORKDIR /app
 
-COPY package.json ./
-RUN npm install --production
+# Copy dependency manifests first
+COPY package*.json ./
 
+# Clear cache and install all packages
+RUN npm install
+
+# Copy source configuration files
 COPY . .
-RUN npm run build
 
 EXPOSE 3000
-ENV PORT=3000
-CMD ["npm", "run", "start"]
+
+# Execute next framework binary command inside dev runtime mode
+CMD ["npm", "run", "dev"]

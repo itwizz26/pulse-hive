@@ -1,11 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // For Next.js 13, 14, 15, and 16+
+  output: 'standalone', 
+  
   webpack: (config, { dev, isServer }) => {
     if (dev && !isServer) {
       config.watchOptions = {
-        poll: 1000,      // Check for changes every second
-        aggregateTimeout: 300, // Delay before rebuilding
+        poll: 1000,
+        aggregateTimeout: 300,
       };
     }
     return config;
