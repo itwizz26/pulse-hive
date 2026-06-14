@@ -16,7 +16,7 @@ export default function RootLayout({ children }) {
     return (
         <html lang="en" className={`${inter.variable} antialiased`}>
             <head>
-                <link rel="icon" href="/favicon.ico" sizes="any" />
+                <link rel="icon" href="/pulsehive-logo.svg" sizes="any" />
             </head>
             <body className="bg-slate-50 text-slate-900 min-h-screen font-sans">
                 <div className="flex flex-col min-h-screen">
