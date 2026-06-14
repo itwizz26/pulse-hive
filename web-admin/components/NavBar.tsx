@@ -32,16 +32,23 @@ export default function Navbar() {
             
             {/* Left Brand Container */}
             <div className="flex items-center gap-3 shrink-0">
-                <img src="/pulsehive-logo.svg" alt="PulseHive Logo" className="w-8 h-8 object-contain" />
-                <h1 className="text-xl font-black tracking-tight text-white">
+                <div className="relative w-6 h-6 flex items-center justify-center">
+                    <div className="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-40"></div>
+                    <img 
+                        src="/pulsehive-logo.svg" 
+                        alt="Logo" 
+                        className="relative z-10 w-full h-full" 
+                    />
+                </div>
+                <span className="font-black text-lg tracking-tight text-white">
                     PulseHive<span className="text-indigo-500">.</span>
-                </h1>
+                </span>
             </div>
             
             {/* Navigation Tracks Aligned to Right Side */}
             <ul className="hidden md:flex items-center gap-1 p-1 ml-auto mr-6">
                 {[
-                    { name: 'Overview', path: '/dashboard' },
+                    { name: 'Dashboard', path: '/dashboard' },
                     { name: 'Orders', path: '/orders' },
                     { name: 'Money In', path: '/payments' },
                     { name: 'Payment Matcher', path: '/reconciliation' },
