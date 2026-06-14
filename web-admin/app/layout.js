@@ -64,8 +64,10 @@ export default function RootLayout({ children }) {
                     </nav>
 
                     {/* Dashboard Layout Container */}
-                    <main className="flex-1 w-full px-6 lg:px-12">
-                        {children}
+                    <main className="flex-1 w-full">
+                        <div className="px-6 lg:px-12">
+                            {children}
+                        </div>
                     </main>
                 </div>
             </body>
