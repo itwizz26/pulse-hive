@@ -23,8 +23,8 @@ export default function RootLayout({ children }) {
                     {/* Glassmorphic Navigation Bar */}
                     <nav className="sticky top-0 z-50 w-full bg-white/75 backdrop-blur-md border-b border-slate-200/80 px-6 lg:px-12 py-4 flex items-center justify-between transition-all">
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center p-2 bg-indigo-50 rounded-xl border border-indigo-100/50 animate-pulse">
-                                <img src="/pulsehive-logo.svg" alt="PulseHive logo" className="w-8 h-8 object-contain" />
+                            <div className="flex items-center justify-center p-2 bg-indigo-50 rounded-xl border border-indigo-100/50">
+                                <div className="pulsating-logo w-8 h-8 rounded-full bg-indigo-600"></div>
                             </div>
                             <h1 className="text-xl font-extrabold tracking-tight text-slate-900">
                                 PulseHive<span className="text-indigo-600">.</span>
