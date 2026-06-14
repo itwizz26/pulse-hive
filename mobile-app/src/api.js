@@ -23,6 +23,10 @@ export async function fetchPayments(tenantId) {
   return res.data;
 }
 
+export function setToken(token) {
+  api.defaults.headers.common['Authorization'] = `Bearer ${token}`;
+}
+
 export async function createOrder(tenantId, payload) {
   const res = await api.post('/orders', { tenantId, ...payload });
   return res.data;
