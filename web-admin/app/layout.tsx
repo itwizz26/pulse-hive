@@ -30,7 +30,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                     
                     <nav className="sticky top-0 z-50 w-full bg-slate-100/80 backdrop-blur-md border-b border-slate-200/80 px-6 py-4 flex items-center justify-between transition-all">
                         <div className="flex items-center gap-3">
-                            <div className="flex items-center justify-center">
+                            <div className="flex items-center justify-center pl-9">
                                 <img 
                                     src="/pulsehive-logo.svg" 
                                     alt="PulseHive Logo" 
@@ -65,7 +65,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             </li>
                         </ul>
 
-                        <div className="flex items-center gap-3 ml-4">
+                        <div className="flex items-center gap-3 ml-4 pr-9">
                             <div className="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs font-bold shadow-sm">
                                 DM
                             </div>
