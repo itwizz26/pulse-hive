@@ -1,54 +1,25 @@
-# Aider
-.aider.*
-.env*
+# IDEs and Editors
+.vscode/
+.idea/
 
-# Node modules                                                                                                                                                            
-*/node_modules/
-*/*/node_modules/                                                                                                                                                          
-*/*.expo/
+# System Files
+.DS_Store
+Thumbs.db
 
-# Logs                                                                                                                                                                    
-*/logs/                                                                                                                                                                     
-*/*.log                                                                                                                                                                     
-                                                                                                                                                                          
-# IDEs                                                                                                                                                                    
-.vscode/                                                                                                                                                                  
-.idea/                                                                                                                                                                    
-                                                                                                                                                                          
-# Build artifacts                                                                                                                                                         
-*/build/                                                                                                                                                                    
-*/dist/                                                                                                                                                                     
-*/coverage/                                                                                                                                                                 
-                                                                                                                                                                          
-# Temporary files                                                                                                                                                         
-*/tmp/                                                                                                                                                                      
-*/temp/                                                                                                                                                                     
-                                                                                                                                                                          
-# Cache files                                                                                                                                                             
-*/.cache/                                                                                                                                                                   
-*/.cache/*                                                                                                                                                                  
-                                                                                                                                                                          
-# Docker files                                                                                                                                                            
-.dockerignore                                                                                                                                                             
-Dockerfile                                                                                                                                                                
-                                                                                                                                                                          
-# Git hooks                                                                                                                                                               
-.git/hooks/                                                                                                                                                               
-                                                                                                                                                                          
-# npm cache                                                                                                                                                               
-*/npm-debug.log*                                                                                                                                                            
-package-lock.json                                                                                                                                                         
-                                                                                                                                                                          
-# yarn cache                                                                                                                                                              
-.yarn-integrity*                                                                                                                                                          
-                                                                                                                                                                          
-# Next.js build artifacts                                                                                                                                                 
-*/.next/                                                                                                                                                                    
-*/public/                                                                                                                                                                   
-*/static/                                                                                                                                                                   
-                                                                                                                                                                          
-# React Native project files                                                                                                                                              
-*/android/                                                                                                                                                                  
-*/ios/                                                                                                                                                                      
-*/build/
+# Node / Dependencies (Root level)
+.eslintcache
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment files (Root level)
+.env
+.env*.local
+
+# Developer Tooling / AI
 .aider*
+.aider.tags.cache*/
