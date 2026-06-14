@@ -20,5 +20,15 @@
 **/obj
 **/secrets.dev.yaml
 **/values.dev.yaml
+
+# Next.js Build Artifacts & Cache
+**/.next
+**/out
+
+# System Files
+**/.DS_Store
+**/Thumbs.db
+
+# Documentation
 LICENSE
 README.md
