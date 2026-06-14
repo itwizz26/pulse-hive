@@ -6,11 +6,11 @@ import Link from 'next/link';
 
 // Centralized Document Title Registry Map
 const ROUTE_TITLES: Record<string, string> = {
-    '/': 'Authentication Gateway',
-    '/dashboard': 'Telemetry Dashboard',
-    '/orders': 'Orders Data Ledger',
-    '/payments': 'Payment Processing Gateways',
-    '/reconciliation': 'Automated Reconciliation Matrix',
+    '/': 'Sign In',
+    '/dashboard': 'Business Overview',
+    '/orders': 'Customer Orders',
+    '/payments': 'Money Coming In',
+    '/reconciliation': 'Payment Matcher',
 };
 
 export default function Navbar() {
@@ -41,10 +41,10 @@ export default function Navbar() {
             {/* Navigation Tracks Aligned to Right Side */}
             <ul className="hidden md:flex items-center gap-1 p-1 ml-auto mr-6">
                 {[
-                    { name: 'Dashboard', path: '/dashboard' },
+                    { name: 'Overview', path: '/dashboard' },
                     { name: 'Orders', path: '/orders' },
-                    { name: 'Payments', path: '/payments' },
-                    { name: 'Reconciliation', path: '/reconciliation' },
+                    { name: 'Money In', path: '/payments' },
+                    { name: 'Payment Matcher', path: '/reconciliation' },
                 ].map((tab) => {
                     const isActive = pathname === tab.path;
                     return (

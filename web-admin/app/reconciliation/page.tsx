@@ -1,186 +1,166 @@
 'use client';
 
-import React, { useEffect, useState } from 'react';
-// import { apiCall } from '@/lib/api';
+import React, { useState } from 'react';
 
-// Temporary inline structures for dependencies to ensure zero compilation breaks
-interface Payment {
+// Simplified layout records for easy tracking
+interface SimpleBankDeposit {
     id: string;
-    customerName: string;
+    paidBy: string;
     amount: number;
+    bankRef: string;
     date: string;
 }
 
-interface Order {
+interface SimpleCustomerOrder {
     id: string;
-    reference: string;
     customerName: string;
-    totalAmount: number;
+    amount: number;
+    orderNum: string;
+    items: string;
 }
 
-export interface ReconciliationReport {
-    totalPayments: number;
-    totalOrders: number;
-    discrepancy: number;
-    unmatchedPayments: Payment[];
-    unmatchedOrders: Partial<Order>[];
-}
+export default function PaymentMatcherPage() {
+    // Mock data for payments sitting in the bank with bad/missing references
+    const [unmatchedDeposits, setUnmatchedDeposits] = useState<SimpleBankDeposit[]>([
+        { id: 'b1', paidBy: 'Thabo M.', amount: 450.00, bankRef: 'SKINCARE', date: '14 June' },
+        { id: 'b2', paidBy: 'S Jenkins', amount: 1250.00, bankRef: 'ABCD-EFT', date: '14 June' },
+    ]);
 
-export default function ReconciliationPage() {
-    const [reconciliation, setReconciliation] = useState<ReconciliationReport | null>(null);
-    const [loading, setLoading] = useState<boolean>(true);
+    // Mock data for orders waiting to be paid
+    const [unpaidOrders, setUnpaidOrders] = useState<SimpleCustomerOrder[]>([
+        { id: 'o1', customerName: 'Thabo Molefe', amount: 450.00, orderNum: 'PH-9042', items: 'Capsules x1' },
+        { id: 'o2', customerName: 'Sarah Jenkins', amount: 1250.00, orderNum: 'PH-3312', items: 'Cream x2, Capsules x1' },
+    ]);
 
-    useEffect(() => {
-        // Mock data provided to test conditional balancing states
-        setReconciliation({
-            totalPayments: 84500.00,
-            totalOrders: 84500.00,
-            discrepancy: 0,
-            unmatchedPayments: [],
-            unmatchedOrders: [],
-        });
-        setLoading(false);
-    }, []);
+    // Selection states for clicking and matching items
+    const [selectedDeposit, setSelectedDeposit] = useState<SimpleBankDeposit | null>(null);
+    const [selectedOrder, setSelectedOrder] = useState<SimpleCustomerOrder | null>(null);
 
-    if (loading || !reconciliation) {
-        return (
-            <div className="flex justify-center items-center h-[60vh] text-slate-500 text-xs font-mono tracking-widest animate-pulse">
-                <span className="w-2 h-2 rounded-full bg-indigo-500 animate-ping mr-3"></span>
-                COMPILING RECONCILIATION MATRIX...
-            </div>
-        );
-    }
+    // Click handler to connect the bank deposit to the order
+    const handleLinkRecords = () => {
+        if (!selectedDeposit || !selectedOrder) return;
+
+        alert(`Success! Linked ${selectedDeposit.paidBy}'s payment of R${selectedDeposit.amount} to order ${selectedOrder.orderNum}`);
+        
+        // Remove them from the unmatched screen lists
+        setUnmatchedDeposits(unmatchedDeposits.filter(d => d.id !== selectedDeposit.id));
+        setUnpaidOrders(unpaidOrders.filter(o => o.id !== selectedOrder.id));
+        
+        // Reset selections
+        setSelectedDeposit(null);
+        setSelectedOrder(null);
+    };
 
     return (
         <div className="space-y-10">
             
-            {/* Page Header Block matching Dashboard specification */}
+            {/* Header Block */}
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
                 <div>
                     <div className="text-[11px] font-bold uppercase text-indigo-400 tracking-widest mb-1.5">
-                        Ledger Verification // Core Engine
+                        Fix Unmatched Payments
                     </div>
                     <h1 className="text-3xl font-black tracking-tight text-white">
-                        Payment Reconciliation
+                        Payment Matcher
                     </h1>
-                </div>
-                <div className="flex items-center">
-                    <div className="bg-white/[0.02] border border-white/[0.08] px-4 py-2 rounded-xl text-xs text-slate-300 flex items-center gap-2.5 font-mono font-semibold">
-                        <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                        Status: Live Synced
-                    </div>
+                    <p className="text-xs text-slate-400 mt-1">
+                        Connect bank deposits with missing references to your customer orders.
+                    </p>
                 </div>
             </div>
 
-            {/* Mobile-Responsive Metrics Strip */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                
-                {/* Total Payments */}
-                <div className="ph-glass-panel p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Payments Received</span>
-                        <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                    </div>
-                    <div className="text-3xl font-black tracking-tight text-white mb-2 font-mono">
-                        R {reconciliation.totalPayments.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[11px] text-slate-500 font-medium">Inbound clearing channels</div>
+            {/* Quick Match Tool Interaction Strip */}
+            {selectedDeposit && selectedOrder && (
+                <div className="bg-indigo-600/20 border border-indigo-500/30 rounded-2xl p-4 flex flex-col sm:flex-row items-center justify-between gap-4 animate-in fade-in zoom-in-95 duration-200">
+                    <p className="text-sm font-medium text-slate-200">
+                        Link <span className="text-white font-bold font-mono">R {selectedDeposit.amount}</span> from <span className="text-white font-bold">{selectedDeposit.paidBy}</span> to <span className="text-white font-bold">{selectedOrder.customerName}'s</span> order (<span className="text-indigo-400 font-mono font-bold">{selectedOrder.orderNum}</span>)?
+                    </p>
+                    <button 
+                        onClick={handleLinkRecords}
+                        className="bg-indigo-600 hover:bg-indigo-500 text-white px-5 py-2.5 rounded-xl text-xs font-bold transition-all shadow-md"
+                    >
+                        Confirm Match & Clear
+                    </button>
                 </div>
+            )}
 
-                {/* Total Paid Orders */}
-                <div className="ph-glass-panel p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Total Paid Orders</span>
-                        <span className="w-2 h-2 rounded-full bg-indigo-500"></span>
-                    </div>
-                    <div className="text-3xl font-black tracking-tight text-white mb-2 font-mono">
-                        R {reconciliation.totalOrders.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}
-                    </div>
-                    <div className="text-[11px] text-slate-500 font-medium">Pipeline distribution value</div>
-                </div>
-
-                {/* Discrepancy Tracking Card */}
-                <div className="ph-glass-panel p-6">
-                    <div className="flex justify-between items-center mb-4">
-                        <span className="text-[11px] font-bold text-slate-400 uppercase tracking-wider">Discrepancy Variance</span>
-                        <span className={`w-2 h-2 rounded-full ${reconciliation.discrepancy === 0 ? 'bg-emerald-400' : 'bg-amber-400 animate-ping'}`}></span>
-                    </div>
-                    <div className={`text-3xl font-black tracking-tight mb-2 font-mono ${reconciliation.discrepancy === 0 ? 'text-emerald-400' : 'text-amber-400'}`}>
-                        {reconciliation.discrepancy === 0 ? '✓ Balanced' : `R ${reconciliation.discrepancy.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}`}
-                    </div>
-                    <div className="text-[11px] text-slate-500 font-medium">
-                        {reconciliation.discrepancy === 0 ? 'Audit matrix perfectly cleared' : 'Requires dynamic log matching'}
-                    </div>
-                </div>
-            </div>
-
-            {/* Split Ledger Table Real Estate */}
+            {/* Split Screen Workspace Grid */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                 
-                {/* Panel Left: Unmatched Payments */}
-                <div className="ph-glass-panel p-6">
-                    <h3 className="text-md font-bold mb-4 text-white flex items-center gap-2">
-                        <span className="text-rose-400">⚠️</span> Unmatched Payments Stream
+                {/* Column 1: Money in the Bank */}
+                <div className="ph-glass-panel p-6 space-y-4">
+                    <h3 className="text-md font-bold text-white flex items-center gap-2">
+                        <span>💰</span> 1. Money In Bank (Unmatched)
                     </h3>
-                    
-                    {reconciliation.unmatchedPayments.length === 0 ? (
-                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-4 text-center">
-                            <p className="text-xs font-semibold text-emerald-400 font-mono">✓ CLEAR: All transactional captures matched to live orders.</p>
+                    <p className="text-xs text-slate-400">Payments that landed in your account but haven't been linked to an order yet.</p>
+
+                    {unmatchedDeposits.length === 0 ? (
+                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-6 text-center text-xs font-semibold text-emerald-400">
+                            🎉 Awesome! No unmatched bank payments left.
                         </div>
                     ) : (
-                        <div className="overflow-x-auto rounded-xl border border-white/[0.04]">
-                            <table className="ph-ledger-table">
-                                <thead>
-                                    <tr>
-                                        <th className="ph-ledger-th">Customer</th>
-                                        <th className="ph-ledger-th">Amount</th>
-                                        <th className="ph-ledger-th text-right">Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {reconciliation.unmatchedPayments.map((p) => (
-                                        <tr key={p.id} className="ph-ledger-tr">
-                                            <td className="ph-ledger-td font-semibold text-white truncate max-w-[140px]">{p.customerName}</td>
-                                            <td className="ph-ledger-td font-mono text-emerald-400 font-bold">R {p.amount.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</td>
-                                            <td className="ph-ledger-td font-mono text-xs text-slate-400 text-right">{new Date(p.date).toLocaleDateString('en-ZA')}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="space-y-3">
+                            {unmatchedDeposits.map((deposit) => (
+                                <div 
+                                    key={deposit.id}
+                                    onClick={() => setSelectedDeposit(deposit)}
+                                    className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                                        selectedDeposit?.id === deposit.id 
+                                            ? 'bg-indigo-600/20 border-indigo-500' 
+                                            : 'bg-slate-950/40 border-white/[0.04] hover:bg-white/[0.02]'
+                                    }`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-sm font-semibold text-white">{deposit.paidBy || 'Unknown Payer'}</p>
+                                            <p className="text-[11px] text-slate-500 font-mono mt-1">Bank Reference: {deposit.bankRef}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-emerald-400 font-mono">R {deposit.amount.toFixed(2)}</p>
+                                            <p className="text-[10px] text-slate-500 mt-1">{deposit.date}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
 
-                {/* Panel Right: Pending Payment Orders */}
-                <div className="ph-glass-panel p-6">
-                    <h3 className="text-md font-bold mb-4 text-white flex items-center gap-2">
-                        <span className="text-amber-400">🕒</span> Pending Payment Orders
+                {/* Column 2: Customer Orders waiting for Payment */}
+                <div className="ph-glass-panel p-6 space-y-4">
+                    <h3 className="text-md font-bold text-white flex items-center gap-2">
+                        <span>📦</span> 2. Unpaid Orders
                     </h3>
-                    
-                    {reconciliation.unmatchedOrders.length === 0 ? (
-                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-4 text-center">
-                            <p className="text-xs font-semibold text-emerald-400 font-mono">✓ CLEAR: Zero pending collections in current dispatch stack.</p>
+                    <p className="text-xs text-slate-400">Orders created by customers that are still waiting for a matching bank payment.</p>
+
+                    {unpaidOrders.length === 0 ? (
+                        <div className="bg-emerald-500/5 border border-emerald-500/10 rounded-xl p-6 text-center text-xs font-semibold text-emerald-400">
+                            🎉 Awesome! All active orders have been paid for.
                         </div>
                     ) : (
-                        <div className="overflow-x-auto rounded-xl border border-white/[0.04]">
-                            <table className="ph-ledger-table">
-                                <thead>
-                                    <tr>
-                                        <th className="ph-ledger-th">Order Ref</th>
-                                        <th className="ph-ledger-th">Customer</th>
-                                        <th className="ph-ledger-th text-right">Amount</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {reconciliation.unmatchedOrders.map((o) => (
-                                        <tr key={o.id} className="ph-ledger-tr">
-                                            <td className="ph-ledger-td font-mono text-xs text-indigo-400 font-bold">{o.reference}</td>
-                                            <td className="ph-ledger-td font-semibold text-white truncate max-w-[140px]">{o.customerName}</td>
-                                            <td className="ph-ledger-td font-mono text-slate-300 font-bold text-right">R {o.totalAmount?.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="space-y-3">
+                            {unpaidOrders.map((order) => (
+                                <div 
+                                    key={order.id}
+                                    onClick={() => setSelectedOrder(order)}
+                                    className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
+                                        selectedOrder?.id === order.id 
+                                            ? 'bg-indigo-600/20 border-indigo-500' 
+                                            : 'bg-slate-950/40 border-white/[0.04] hover:bg-white/[0.02]'
+                                    }`}
+                                >
+                                    <div className="flex justify-between items-start">
+                                        <div>
+                                            <p className="text-sm font-semibold text-white">{order.customerName}</p>
+                                            <p className="text-[11px] text-slate-400 mt-1">{order.items}</p>
+                                            <p className="text-[10px] text-indigo-400 font-mono mt-1 font-bold">{order.orderNum}</p>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-sm font-bold text-slate-200 font-mono">R {order.amount.toFixed(2)}</p>
+                                        </div>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     )}
                 </div>
