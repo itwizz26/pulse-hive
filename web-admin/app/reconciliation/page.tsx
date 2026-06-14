@@ -2,8 +2,8 @@
 
 import React, { useEffect, useState } from 'react';
 // import { apiCall } from '@/lib/api';
-import { Payment } from '../payments/PaymentsPage'; // Adjust relative import based on your architecture path
-import { Order } from '../orders/OrdersPage'; // Adjust relative import based on your architecture path
+import { Payment } from '../payments/page';
+import { Order } from '../orders/page';
 
 // 1. Structural blueprint for the full ledger reconciliation metrics payload
 export interface ReconciliationReport {

@@ -42,7 +42,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                             </h1>
                         </div>
                         
-                        <ul className="hidden md:flex items-center gap-1 flex-grow justify-end p-1 rounded-xl">
+                        <ul className="hidden md:flex items-center gap-1 grow justify-end p-1 rounded-xl">
                             <li>
                                 <a href="/dashboard" className="px-4 py-2 rounded-lg text-sm font-semibold text-slate-700 hover:text-slate-900 transition-all hover:bg-white inline-block">
                                     Dashboard
