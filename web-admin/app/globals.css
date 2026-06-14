@@ -1,15 +1,15 @@
 /* Global styles */
 :root {
-  --primary-color: #f3f4f6; /* Light gray background */
+  --primary-color: #e5e7eb; /* Lighter gray background */
   --secondary-color: #10b981; /* Emerald green */
   --accent-color: #10b981; /* Emerald green for highlights */
-  --text-color-light: #1f2937; /* Dark text for light background */
+  --text-color-light: #111827; /* Dark text for light background */
   --text-color-dark: #0f172a; /* Darker text */
-  --card-background: rgba(255, 255, 255, 0.7); /* More opaque white cards */
-  --card-backdrop-filter: blur(15px); /* Softer blur */
-  --border-color: rgba(0, 0, 0, 0.1); /* Subtle dark border */
-  --shadow-color: rgba(16, 185, 129, 0.1); /* Lighter shadow */
-  --button-hover-bg: rgba(16, 185, 129, 0.9);
+  --card-background: rgba(255, 255, 255, 0.85); /* More opaque white cards */
+  --card-backdrop-filter: blur(20px); /* Slightly stronger blur */
+  --border-color: rgba(0, 0, 0, 0.08); /* Very subtle dark border */
+  --shadow-color: rgba(16, 185, 129, 0.15); /* Slightly more pronounced shadow */
+  --button-hover-bg: rgba(16, 185, 129, 0.95); /* Brighter hover */
 }
 
 * {
@@ -38,16 +38,16 @@ body {
 }
 
 .navbar {
-  background: rgba(255, 255, 255, 0.7); /* Light transparent background */
+  background: rgba(255, 255, 255, 0.8); /* Lighter transparent background */
   backdrop-filter: var(--card-backdrop-filter);
   -webkit-backdrop-filter: var(--card-backdrop-filter);
   border-bottom: 1px solid var(--border-color);
   color: var(--text-color-dark); /* Dark text for navbar */
-  padding: 1rem 2rem;
+  padding: 1rem 2.5rem; /* Slightly more padding */
   display: flex;
   justify-content: space-between;
   align-items: center;
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1); /* Lighter shadow */
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08); /* Lighter shadow, more spread */
   position: sticky; /* Keep navbar at top */
   top: 0;
   z-index: 1000; /* Ensure it stays on top */
@@ -61,14 +61,14 @@ body {
 }
 
 .logo-img {
-  width: 40px; /* Slightly smaller logo */
-  height: 40px;
-  filter: invert(30%) sepia(80%) saturate(1000%) hue-rotate(120deg); /* Make logo green and visible */
+  width: 45px; /* Slightly larger logo */
+  height: 45px;
+  filter: brightness(0) sepia(1) saturate(1000%) hue-rotate(120deg); /* Make logo greener and more vibrant */
 }
 
 .logo {
-  font-size: 1.75rem; /* Larger font size */
-  font-weight: 700; /* Bolder */
+  font-size: 1.9rem; /* Larger font size */
+  font-weight: 800; /* Bolder */
   color: var(--secondary-color); /* Use accent color for logo text */
   text-shadow: none; /* Remove glow for clarity on light background */
 }
@@ -76,16 +76,16 @@ body {
 .nav-links {
   display: flex;
   list-style: none;
-  gap: 2.5rem; /* Increased spacing */
+  gap: 3rem; /* Increased spacing */
 }
 
 .nav-links a {
   color: var(--text-color-light); /* Keep links light for contrast */
   text-decoration: none;
-  font-weight: 500; /* Slightly lighter for a modern feel */
+  font-weight: 600; /* Bolder font weight */
   transition: color 0.3s ease, text-shadow 0.3s ease;
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.5rem;
+  padding: 0.6rem 1rem; /* More padding for links */
+  border-radius: 0.75rem; /* More rounded corners */
   position: relative;
   overflow: hidden; /* For underline effect */
 }
@@ -114,9 +114,9 @@ body {
 
 .container {
   flex: 1;
-  padding: 2.5rem; /* More padding */
-  max-width: 1400px; /* Wider container */
-  margin: 2rem auto; /* Add margin top/bottom */
+  padding: 3rem; /* More padding */
+  max-width: 1500px; /* Wider container */
+  margin: 2.5rem auto; /* Add margin top/bottom */
   width: 100%;
   background: transparent; /* Container itself is transparent */
 }
@@ -124,78 +124,78 @@ body {
 .card {
   background: var(--card-background);
   backdrop-filter: var(--card-backdrop-filter);
-  border-radius: 1rem;
+  border-radius: 1.25rem; /* More rounded corners for cards */
   border: 1px solid var(--border-color);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1); /* Lighter shadow */
-  padding: 2rem; /* More padding inside cards */
-  margin-bottom: 2rem; /* More margin between cards */
+  box-shadow: 0 15px 35px rgba(0, 0, 0, 0.1); /* Deeper, more premium shadow */
+  padding: 2.5rem; /* More padding inside cards */
+  margin-bottom: 2.5rem; /* More margin between cards */
   transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
 .card:hover {
-  transform: translateY(-5px); /* Slight lift on hover */
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
+  transform: translateY(-8px); /* More pronounced lift on hover */
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15); /* Enhanced shadow on hover */
 }
 
 .btn {
-  padding: 0.85rem 1.75rem;
+  padding: 1rem 2rem; /* More padding */
   border: none; /* Remove border, rely on background and shadow */
-  border-radius: 0.75rem; /* More rounded corners */
-  background: linear-gradient(135deg, rgba(16, 185, 129, 0.9) 0%, rgba(5, 150, 105, 0.9) 100%); /* Gradient button */
+  border-radius: 0.85rem; /* More rounded corners */
+  background: linear-gradient(135deg, rgba(16, 185, 129, 0.95) 0%, rgba(5, 150, 105, 0.95) 100%); /* Gradient button */
   color: white;
   cursor: pointer;
-  font-weight: 600;
-  font-size: 1rem;
-  box-shadow: 0 5px 15px var(--shadow-color); /* Lighter shadow */
+  font-weight: 700; /* Bolder font weight */
+  font-size: 1.05rem; /* Slightly larger font size */
+  box-shadow: 0 10px 25px var(--shadow-color); /* More pronounced shadow */
   transition: background 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
 }
 
 .btn:hover {
-  background: linear-gradient(135deg, rgba(5, 150, 105, 0.95) 0%, rgba(16, 185, 129, 0.95) 100%); /* Hover gradient */
-  box-shadow: 0 10px 20px rgba(16, 185, 129, 0.2); /* Enhanced hover shadow */
-  transform: translateY(-2px); /* Lift effect */
+  background: linear-gradient(135deg, rgba(5, 150, 105, 1) 0%, rgba(16, 185, 129, 1) 100%); /* Solid hover gradient */
+  box-shadow: 0 15px 35px rgba(16, 185, 129, 0.3); /* Enhanced hover shadow with more glow */
+  transform: translateY(-3px); /* More pronounced lift effect */
 }
 
 table {
   width: 100%;
   border-collapse: separate; /* Use separate for rounded corners on cells */
-  border-spacing: 0 0.75rem; /* Space between rows */
+  border-spacing: 0 1rem; /* More space between rows */
 }
 
 th, td {
   text-align: left;
-  padding: 1rem 1.25rem; /* More padding */
+  padding: 1.25rem 1.5rem; /* More padding */
   border-bottom: none; /* Remove default border-bottom */
 }
 
 th {
-  background-color: rgba(17, 24, 39, 0.1); /* Slightly darker header background for contrast */
+  background-color: rgba(17, 24, 39, 0.15); /* Slightly darker header background for contrast */
   backdrop-filter: var(--card-backdrop-filter);
   -webkit-backdrop-filter: var(--card-backdrop-filter);
-  font-weight: 700; /* Bolder header */
+  font-weight: 800; /* Bolder header */
   color: var(--secondary-color);
-  border-radius: 0.75rem 0.75rem 0 0; /* Rounded top corners */
+  border-radius: 0.85rem 0.85rem 0 0; /* Rounded top corners */
   text-shadow: none;
 }
 
 td {
   background: var(--card-background);
   backdrop-filter: var(--card-backdrop-filter);
-  border-radius: 0.75rem; /* Rounded corners for data cells */
+  border-radius: 0.85rem; /* Rounded corners for data cells */
   border: 1px solid var(--border-color); /* Consistent border for data cells */
-  box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08); /* Very subtle shadow for data cells */
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.07); /* Subtle shadow for data cells */
   transition: transform 0.2s ease;
 }
 
 td:hover {
-  transform: translateX(5px); /* Slight move on hover */
+  transform: translateX(8px); /* More pronounced move on hover */
 }
 
 /* Specific overrides for any elements within tables */
 table tr:last-child td:first-child {
-  border-radius: 0 0 0 0.75rem; /* Rounded bottom-left corner */
+  border-radius: 0 0 0 0.85rem; /* Rounded bottom-left corner */
 }
 
 table tr:last-child td:last-child {
-  border-radius: 0 0 0.75rem 0; /* Rounded bottom-right corner */
+  border-radius: 0 0 0.85rem 0; /* Rounded bottom-right corner */
 }
