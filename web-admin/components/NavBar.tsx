@@ -6,7 +6,7 @@ import Link from 'next/link';
 
 // Centralized Document Title Registry Map
 const ROUTE_TITLES: Record<string, string> = {
-    '/': 'Sign In',
+    '/': 'Automated Reconciliation',
     '/dashboard': 'Business Overview',
     '/orders': 'Customer Orders',
     '/payments': 'Money Coming In',
@@ -22,7 +22,7 @@ export default function Navbar() {
     // Watch the active browser routing tracks and set document titles dynamically
     useEffect(() => {
         const pageTitle = ROUTE_TITLES[pathname] || 'Operational Console';
-        document.title = `${pageTitle} // PulseHive`;
+        document.title = `PulseHive // ${pageTitle}`;
     }, [pathname]);
 
     if (isLoginPage) return null;

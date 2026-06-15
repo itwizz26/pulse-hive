@@ -3,12 +3,6 @@ import './globals.css';
 import React from 'react';
 import { Inter } from 'next/font/google';
 import Navbar from '@/components/NavBar';
-import type { Metadata } from "next";
-
-export const metadata: Metadata = {
-  title: "PulseHive | Automated Reconciliation",
-  description: "Connect your bank and automate your ledger.",
-};
 
 const inter = Inter({
     subsets: ['latin'],
