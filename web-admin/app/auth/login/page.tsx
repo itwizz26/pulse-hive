@@ -92,16 +92,36 @@ export default function LoginPage() {
                             {isLoading ? "Authenticating..." : (isLogin ? "Sign In" : "Register Account")}
                         </button>
 
-                        <div className="relative pt-6">
-                            <div className="absolute inset-0 flex items-center">
-                                <div className="w-full border-t border-white/[0.06]"></div>
-                            </div>
-                            <div className="relative flex justify-center text-[10px] uppercase">
-                                <span className="bg-slate-900/50 px-2 text-slate-500 font-bold tracking-widest">Or continue with</span>
-                            </div>
+                        <div className="relative pt-6 flex items-center">
+                            <div className="flex-grow border-t border-white/[0.06]"></div>
+                            <span className="flex-shrink-0 mx-4 text-[10px] uppercase text-slate-500 font-bold tracking-widest">
+                                Or
+                            </span>
+                            <div className="flex-grow border-t border-white/[0.06]"></div>
                         </div>
 
-                        <button type="button" className="w-full mt-4 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-2">
+                        <button 
+                            type="button" 
+                            className="w-full mt-4 px-5 py-3 bg-white/5 hover:bg-white/10 border border-white/5 text-white text-sm font-semibold rounded-xl transition-all flex items-center justify-center gap-3"
+                        >
+                            <svg className="w-4 h-4" viewBox="0 0 24 24">
+                                <path
+                                    fill="#EA4335"
+                                    d="M5.266 9.765A7.077 7.077 0 0 1 12 4.9c1.908 0 3.616.716 4.95 1.884l3.655-3.655C17.95 1.543 15.257 0 12 0 7.382 0 3.42 2.592 1.346 6.368l3.92 3.397z"
+                                />
+                                <path
+                                    fill="#34A853"
+                                    d="M23.64 12.27c0-.79-.07-1.55-.2-2.27H12v4.45h6.45c-.27 1.45-1.1 2.68-2.3 3.48l3.35 2.6c1.96-1.8 3.14-4.45 3.14-7.66z"
+                                />
+                                <path
+                                    fill="#4A90E2"
+                                    d="M12 24c3.24 0 5.96-1.07 7.94-2.9l-3.35-2.6c-1.12.75-2.55 1.2-4.59 1.2-3.53 0-6.52-2.39-7.58-5.6l-3.92 3.39C3.42 21.408 7.382 24 12 24z"
+                                />
+                                <path
+                                    fill="#FBBC05"
+                                    d="M4.42 14.54c-.27-.8-.42-1.65-.42-2.54s.15-1.74.42-2.54l-3.92-3.4C.48 7.54 0 9.7 0 12c0 2.3.48 4.46 1.34 6.46l3.08-2.92z"
+                                />
+                            </svg>
                             <span>Continue with Google</span>
                         </button>
 
