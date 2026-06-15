@@ -12,17 +12,6 @@ export default function LandingPage() {
             {/* HERO: Now includes the footer as the final element in the stack */}
             <main className="relative z-10 flex-grow w-full max-w-7xl mx-auto flex flex-col items-center justify-center text-center px-8">
                 
-                {/* Branding */}
-                <div className="flex items-center gap-3 mb-8">
-                    <div className="relative w-6 h-6 flex items-center justify-center">
-                         <div className="absolute inset-0 bg-indigo-500 rounded-full animate-ping opacity-40"></div>
-                         <img src="/pulsehive-logo.svg" alt="Logo" className="relative z-10 w-full h-full" />
-                    </div>
-                    <span className="font-black text-lg tracking-tight text-white">
-                        PulseHive<span className="text-indigo-500">.</span>
-                    </span>
-                </div>
-
                 <h1 className="text-5xl font-black tracking-tighter max-w-2xl leading-[1.1] mb-6">
                     Automate your business reconciliation.
                 </h1>
@@ -47,7 +36,7 @@ export default function LandingPage() {
 
                 {/* Footer now sits naturally below the buttons */}
                 <div className="text-[10px] font-mono tracking-wider text-slate-600 uppercase">
-                    PulseHive // Workspace Management Platform v1.0.0
+                    Workspace Management Portal v1.0.0
                 </div>
             </main>
         </div>

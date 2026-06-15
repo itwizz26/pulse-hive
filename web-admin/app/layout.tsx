@@ -2,7 +2,13 @@
 import './globals.css';
 import React from 'react';
 import { Inter } from 'next/font/google';
-import Navbar from '@/components/NavBar';
+import LayoutWrapper from './LayoutWrapper'; // Import the new wrapper
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "PulseHive | Automated Reconciliation",
+  description: "Connect your bank and automate your ledger.",
+};
 
 const inter = Inter({
     subsets: ['latin'],
@@ -21,12 +27,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <div className="ph-telemetry-grid"></div>
 
                 <div className="flex flex-col min-h-screen relative z-10">
-                    {/* Dynamic Title and Navigation Component */}
-                    <Navbar />
-
-                    <main className="flex-1 w-full px-4 sm:px-6 lg:px-8 py-8">
+                    <LayoutWrapper>
                         {children}
-                    </main>
+                    </LayoutWrapper>
                 </div>
             </body>
         </html>

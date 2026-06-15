@@ -1,8 +1,14 @@
+'use client';
+
 import React from 'react';
 import Link from 'next/link';
 import BackButton from '@/components/BackButton';
 
 export default function NotFound() {
+    // In a production environment, you would replace this with a real session check
+    // e.g., const { status } = useSession(); 
+    const isAuthenticated = false; 
+
     return (
         <div className="flex flex-col items-center justify-center min-h-[80vh] px-6 text-center bg-slate-950 text-white font-sans selection:bg-indigo-500/30">
             
@@ -23,18 +29,27 @@ export default function NotFound() {
                     Let's get you back on track
                 </h1>
                 <p className="text-sm text-slate-400 leading-relaxed font-medium">
-                    The link you clicked might be broken, or the page may have moved. Use the buttons below to head back to your business tools.
+                    The link you clicked might be broken, or the page may have moved. Use the buttons below to head back to your workspace or home.
                 </p>
             </div>
 
             {/* Modern Navigation Actions */}
             <div className="flex flex-col sm:flex-row gap-3 w-full max-w-xs sm:max-w-none justify-center items-center">
-                <Link 
-                    href="/dashboard"
-                    className="w-full sm:w-auto px-5 py-2.5 bg-linear-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 active:scale-[0.98] text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-950/50 transition-all inline-flex items-center justify-center gap-2"
-                >
-                    Return to Dashboard
-                </Link>
+                {isAuthenticated ? (
+                    <Link 
+                        href="/dashboard"
+                        className="w-full sm:w-auto px-5 py-2.5 bg-linear-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 active:scale-[0.98] text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-950/50 transition-all inline-flex items-center justify-center gap-2"
+                    >
+                        Return to Dashboard
+                    </Link>
+                ) : (
+                    <Link 
+                        href="/"
+                        className="w-full sm:w-auto px-5 py-2.5 bg-linear-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 active:scale-[0.98] text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-950/50 transition-all inline-flex items-center justify-center gap-2"
+                    >
+                        Return to Homepage
+                    </Link>
+                )}
                 
                 {/* Secondary Go Back Action */}
                 <div className="w-full sm:w-auto">
@@ -44,7 +59,7 @@ export default function NotFound() {
 
             {/* Clean System Footer */}
             <div className="mt-20 text-[10px] font-mono tracking-widest text-slate-600 uppercase">
-                PulseHive Portal // Error Reference Code 404
+                Error Reference Code 404
             </div>
         </div>
     );

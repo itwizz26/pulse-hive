@@ -1,7 +1,9 @@
 'use client';
 
 import React, { useState } from 'react';
+import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { PulseHiveLogo } from '@/components/PulseHiveLogo';
 
 type OnboardingStep = 1 | 2 | 3;
 
@@ -60,14 +62,15 @@ export default function RegisterPage() {
     return (
         <div className="fixed inset-0 min-h-screen w-full flex bg-slate-950 overflow-hidden font-sans">
             
-            {/* LEFT SIDE: Information Canvas - Exactly 50% width on large screens */}
+            {/* LEFT SIDE: Information Canvas */}
             <div className="relative hidden lg:flex lg:w-1/2 bg-slate-900 flex-col justify-between p-16 border-r border-white/5">
                 <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px]"></div>
 
-                {/* Spacer to align content vertically */}
-                <div></div>
+                {/* Logo integrated here */}
+                <div className="relative z-10">
+                    <PulseHiveLogo />
+                </div>
 
-                {/* Left Panel Context Information */}
                 <div className="relative z-10 space-y-6 max-w-md mx-auto lg:mx-0">
                     <div className="text-[10px] font-mono tracking-widest text-indigo-400 uppercase font-bold">
                         Setup Status // Step 0{currentStep} of 03
@@ -106,7 +109,6 @@ export default function RegisterPage() {
                         </>
                     )}
 
-                    {/* Step Tracker Visualiser */}
                     <div className="flex gap-2 pt-4">
                         <div className={`h-1 rounded-full transition-all duration-300 ${currentStep >= 1 ? 'w-12 bg-indigo-500' : 'w-4 bg-slate-800'}`}></div>
                         <div className={`h-1 rounded-full transition-all duration-300 ${currentStep >= 2 ? 'w-12 bg-indigo-500' : 'w-4 bg-slate-800'}`}></div>
@@ -114,19 +116,16 @@ export default function RegisterPage() {
                     </div>
                 </div>
 
-                {/* Footer Flag */}
                 <div className="relative z-10 text-[10px] font-mono tracking-wider text-slate-600 uppercase">
-                    Workspace Management Console
+                    Workspace Management Portal v1.0.0
                 </div>
             </div>
 
-            {/* RIGHT SIDE: Exactly 50% width on large screens with explicit top layout offset */}
+            {/* RIGHT SIDE: Authentication Form */}
             <div className="w-full lg:w-1/2 min-h-screen flex flex-col pt-24 pb-16 px-6 sm:px-12 md:px-24 items-center overflow-y-auto bg-gradient-to-b from-slate-950 via-slate-900 to-slate-950">
                 
-                {/* Horizontal configuration block sized precisely with your login template */}
                 <div className="w-full max-w-[440px] bg-slate-900/30 backdrop-blur-xl border border-white/[0.05] p-8 sm:p-10 rounded-3xl shadow-2xl">
                     
-                    {/* Step Title Header Bar */}
                     <div className="flex items-center justify-between border-b border-white/[0.06] pb-5 mb-6">
                         <div>
                             <h3 className="text-lg font-bold text-white tracking-tight">
@@ -147,10 +146,8 @@ export default function RegisterPage() {
                         )}
                     </div>
 
-                    {/* Step Driven Inputs */}
                     <form onSubmit={handleNextStep} className="space-y-5">
                         
-                        {/* STEP 1: Identity Data */}
                         {currentStep === 1 && (
                             <div className="space-y-4 animate-in fade-in duration-300">
                                 <div className="space-y-1.5">
@@ -189,7 +186,6 @@ export default function RegisterPage() {
                             </div>
                         )}
 
-                        {/* STEP 2: Financial Properties */}
                         {currentStep === 2 && (
                             <div className="space-y-4 animate-in fade-in duration-300">
                                 <div className="space-y-1.5">
@@ -221,19 +217,16 @@ export default function RegisterPage() {
                                     </select>
                                 </div>
                                 <div className="p-3.5 rounded-xl border border-indigo-500/10 bg-indigo-500/[0.02] text-[11px] text-indigo-300/80 leading-relaxed">
-                                    🛡️ <strong>Security Setup Note:</strong> Bank file tracking operations work through completely isolated data records. The system cannot make transfers, authorise changes, or edit your account login details.
+                                    🛡️ <strong>Security Setup Note:</strong> Bank file tracking operations work through completely isolated data records.
                                 </div>
                             </div>
                         )}
 
-                        {/* STEP 3: Automated Engine Options */}
                         {currentStep === 3 && (
                             <div className="space-y-4 animate-in fade-in duration-300">
                                 <label className="text-[10px] font-bold text-slate-400 tracking-wider uppercase block">Payment Matching Strategy</label>
                                 
                                 <div className="grid grid-cols-1 gap-3">
-                                    
-                                    {/* Automatic Strategy Option */}
                                     <div 
                                         onClick={() => updateField('matchMethod', 'automatic')}
                                         className={`p-4 rounded-xl border transition-all cursor-pointer select-none ${formData.matchMethod === 'automatic' ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-lg' : 'bg-slate-950/40 border-white/5 text-slate-400 hover:border-white/10'}`}
@@ -243,11 +236,10 @@ export default function RegisterPage() {
                                             Automatic Invoice Matching
                                         </div>
                                         <p className="text-[11px] text-slate-400 leading-relaxed font-medium pl-6">
-                                            Incoming cash deposits will match up and close open customer invoices instantly whenever the tracking system finds a valid order reference number.
+                                            Incoming cash deposits will match up and close open customer invoices instantly.
                                         </p>
                                     </div>
 
-                                    {/* Manual Strategy Option */}
                                     <div 
                                         onClick={() => updateField('matchMethod', 'manual')}
                                         className={`p-4 rounded-xl border transition-all cursor-pointer select-none ${formData.matchMethod === 'manual' ? 'bg-indigo-600/10 border-indigo-500 text-white shadow-lg' : 'bg-slate-950/40 border-white/5 text-slate-400 hover:border-white/10'}`}
@@ -257,14 +249,13 @@ export default function RegisterPage() {
                                             Manual Verification Queue
                                         </div>
                                         <p className="text-[11px] text-slate-400 leading-relaxed font-medium pl-6">
-                                            The layout identifies matching items and shows you recommendations, but leaves them pending until a team manager reviews and approves them.
+                                            Identifies matches but leaves them pending for manager approval.
                                         </p>
                                     </div>
                                 </div>
                             </div>
                         )}
 
-                        {/* Navigation Form Submission Button */}
                         <button
                             type="submit"
                             disabled={isSubmitting}
@@ -276,7 +267,7 @@ export default function RegisterPage() {
                                         <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                                         <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z" />
                                     </svg>
-                                    <span className="font-medium tracking-wide">Configuring new business workspace...</span>
+                                    <span className="font-medium tracking-wide">Configuring...</span>
                                 </>
                             ) : (
                                 <>
@@ -285,10 +276,15 @@ export default function RegisterPage() {
                                 </>
                             )}
                         </button>
+
+                        <div className="pt-6 text-center">
+                            <Link href="/" className="text-[10px] text-slate-500 hover:text-indigo-400 uppercase tracking-widest font-bold transition-colors">
+                                ← Return to homepage
+                            </Link>
+                        </div>
                     </form>
                 </div>
             </div>
-
         </div>
     );
 }
