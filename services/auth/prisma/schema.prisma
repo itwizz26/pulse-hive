@@ -1,15 +1,15 @@
-// auth/prisma/schema.prisma
 generator client {
-  provider = "prisma-client-js"
+  	provider = "prisma-client-js"
 }
 
 datasource db {
-  provider = "postgresql"
+  	provider = "postgresql"
 }
 
 model User {
-  id           String   @id @default(uuid())
-  email        String   @unique
-  passwordHash String
-  createdAt    DateTime @default(now())
+	id        String   @id @default(uuid())
+	email     String   @unique
+	password  String
+	createdAt DateTime @default(now())
+	updatedAt DateTime @updatedAt
 }
