@@ -50,9 +50,14 @@ services:
     image: postgres:15-alpine
     container_name: pulsehive-postgres
     environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
-      POSTGRES_DB: pulsehive
+      POSTGRES_USER: pulse_user
+      POSTGRES_PASSWORD: P4ssw0rd
+      POSTGRES_DB: pulsehive_auth
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulse_user -d pulsehive_auth"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
     ports:
       - "5432:5432"
     volumes:
@@ -86,7 +91,7 @@ services:
     ports:
       - "4001:4001"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pulsehive
+      DATABASE_URL: postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_orders
       EVENT_BUS_URL: http://event-bus:5000
     depends_on:
       - postgres
@@ -109,7 +114,7 @@ services:
     ports:
       - "4002:4002"
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@postgres:5432/pulsehive
+      DATABASE_URL: postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_payments
       EVENT_BUS_URL: http://event-bus:5000
     depends_on:
       - postgres
@@ -127,11 +132,16 @@ services:
   auth:
     build:
       context: ./services/auth
-    container_name: pulsehive-auth-service
+    env_file:
+      - ./services/auth/.env
     ports:
       - "4003:4003"
+    container_name: pulsehive-auth-service
     environment:
-      AUTH_SECRET: ${AUTH_SECRET:-dev-secret}
+      - DATABASE_URL=postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_auth
+    depends_on:
+      postgres:
+        condition: service_healthy
     develop:
       watch:
         - path: ./services/auth
