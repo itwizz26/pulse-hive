@@ -7,7 +7,7 @@ import healthRoutes from './routes/healthRoutes';
 import authRoutes from './routes/authRoutes';
 
 const app = express();
-const PORT = Number(process.env.PORT) || 4003;
+const PORT = Number(process.env.PORT) || 4001;
 
 // Basic Middleware
 app.use(helmet()); // Security headers
@@ -15,8 +15,8 @@ app.use(cors());   // Handle cross-origin requests
 app.use(express.json()); // Parse incoming JSON payloads
 
 // Routes
-app.use('/api/v1/health', healthRoutes);
-app.use('/api/v1/auth', authRoutes);
+app.use('/health', healthRoutes);
+app.use('/auth', authRoutes);
 
 // MUST be after routes
 app.use(errorHandler);

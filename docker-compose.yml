@@ -18,34 +18,6 @@ services:
       retries: 5
       start_period: 20s
 
-  event-bus:
-    build:
-      context: ./services/event-bus
-    container_name: pulsehive-event-bus
-    ports:
-      - "5000:5000"
-    environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
-      EVENT_SUBSCRIBERS: payment.matched=http://orders:4001/events,order.created=http://payments:4002/events
-    depends_on:
-      rabbitmq:
-        condition: service_healthy
-    healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:5000/health', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 20s
-    develop:
-      watch:
-        - path: ./services/event-bus
-          target: /app
-          action: sync
-          ignore:
-            - node_modules/
-        - path: ./services/event-bus/package.json
-          action: rebuild
-
   postgres:
     image: postgres:15-alpine
     container_name: pulsehive-postgres
@@ -83,13 +55,36 @@ services:
         - path: ./services/api/package.json
           action: rebuild
 
+  auth:
+    build:
+      context: ./services/auth
+    env_file:
+      - ./services/auth/.env
+    ports:
+      - "4001:4001"
+    container_name: pulsehive-auth-service
+    environment:
+      - DATABASE_URL=postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_auth
+    depends_on:
+      postgres:
+        condition: service_healthy
+    develop:
+      watch:
+        - path: ./services/auth
+          target: /app
+          action: sync
+          ignore:
+            - node_modules/
+        - path: ./services/auth/package.json
+          action: rebuild
+
   orders:
     build:
       context: .
       dockerfile: services/orders/Dockerfile
     container_name: pulsehive-orders-service
     ports:
-      - "4001:4001"
+      - "4002:4002"
     environment:
       DATABASE_URL: postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_orders
       EVENT_BUS_URL: http://event-bus:5000
@@ -112,7 +107,7 @@ services:
       dockerfile: services/payments/Dockerfile
     container_name: pulsehive-payments-service
     ports:
-      - "4002:4002"
+      - "4003:4003"
     environment:
       DATABASE_URL: postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_payments
       EVENT_BUS_URL: http://event-bus:5000
@@ -129,27 +124,32 @@ services:
         - path: ./services/payments/package.json
           action: rebuild
 
-  auth:
+  event-bus:
     build:
-      context: ./services/auth
-    env_file:
-      - ./services/auth/.env
+      context: ./services/event-bus
+    container_name: pulsehive-event-bus
     ports:
-      - "4003:4003"
-    container_name: pulsehive-auth-service
+      - "5000:5000"
     environment:
-      - DATABASE_URL=postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_auth
+      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      EVENT_SUBSCRIBERS: payment.matched=http://orders:4001/events,order.created=http://payments:4002/events
     depends_on:
-      postgres:
+      rabbitmq:
         condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:5000/health', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
     develop:
       watch:
-        - path: ./services/auth
+        - path: ./services/event-bus
           target: /app
           action: sync
           ignore:
             - node_modules/
-        - path: ./services/auth/package.json
+        - path: ./services/event-bus/package.json
           action: rebuild
 
   web-admin:
