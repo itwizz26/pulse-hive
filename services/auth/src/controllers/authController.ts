@@ -34,7 +34,7 @@ export const signin = async (req: Request, res: Response, next: NextFunction) =>
         }
 
         // 2. Verify password
-        const isValid = await AuthService.verifyPassword(password, user.passwordHash);
+        const isValid = await AuthService.verifyPassword(password, user.password);
         if (!isValid) {
             return res.status(401).json({ error: 'Invalid credentials' });
         }
