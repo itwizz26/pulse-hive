@@ -1,27 +1,26 @@
 import { Injectable } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest, FastifyReply } from 'fastify';
+import * as jwt from 'jsonwebtoken';
+import { IRequestUserContext } from '../common/interfaces/request-context.interface';
 
 @Injectable()
 export class ProxyService {
     private routeMapping: Record<string, string> = {};
+    private jwtSecret: string;
 
     constructor(private readonly configService: ConfigService) {
+        this.jwtSecret = this.configService.get<string>('JWT_SECRET')!;
         this.routeMapping = {
         auth: this.configService.get<string>('AUTH_SERVICE_URL')!,
         orders: this.configService.get<string>('ORDER_SERVICE_URL')!,
         payments: this.configService.get<string>('PAYMENT_SERVICE_URL')!,
         };
-
-        Object.entries(this.routeMapping).forEach(([segment, target]) => {
-        console.log(`[Gateway Engine] /api/v1/${segment} -> ${target}`);
-        });
     }
 
     async forward(req: FastifyRequest, reply: FastifyReply) {
-        // req.url is /api/v1/auth/login?param=1
         const urlParts = req.url.split('?')[0].split('/').filter(Boolean);
-        const targetKey = urlParts[2]; // Index 0: api, Index 1: v1, Index 2: [service]
+        const targetKey = urlParts[2];
 
         const baseTarget = this.routeMapping[targetKey];
         if (!baseTarget) {
@@ -32,42 +31,72 @@ export class ProxyService {
         });
         }
 
-        // Reconstruct the exact path and query string to pass along
         const downstreamPath = req.url.replace(`/api/v1/${targetKey}`, '');
         const downstreamUrl = `${baseTarget}${downstreamPath}`;
 
         try {
-        // Forward headers, preserving correlation IDs, and setting correct proxy footprints
         const forwardHeaders: Record<string, string> = {};
+        
         Object.entries(req.headers).forEach(([key, value]) => {
             if (value && typeof value === 'string') {
             forwardHeaders[key] = value;
             }
         });
+
+        const isAuthRoute = targetKey === 'auth';
+        
+        if (!isAuthRoute) {
+            const authHeader = req.headers['authorization'];
+            if (!authHeader || !authHeader.startsWith('Bearer ')) {
+            return reply.code(401).send({
+                statusCode: 401,
+                error: 'Unauthorized',
+                message: 'Missing or malformed Authorization bearer token at system ingress.',
+            });
+            }
+
+            const token = authHeader.split(' ')[1];
+            
+            try {
+            // 💡 Typecast using our clean structural interface
+            const decoded = jwt.verify(token, this.jwtSecret) as unknown as IRequestUserContext;
+            
+            // Hydrate the verified context downstream
+            forwardHeaders['x-user-id'] = decoded.id; // Map to .id safely
+            forwardHeaders['x-user-role'] = decoded.role;
+            if (decoded.tenantId) {
+                forwardHeaders['x-tenant-id'] = decoded.tenantId;
+            }
+
+            delete forwardHeaders['authorization'];
+
+            } catch (jwtError: any) {
+            return reply.code(401).send({
+                statusCode: 401,
+                error: 'Unauthorized',
+                message: `Inbound token validation failed: ${jwtError.message}`,
+            });
+            }
+        }
+
         forwardHeaders['x-forwarded-for'] = req.ip;
         forwardHeaders['host'] = new URL(baseTarget).host;
 
-        // Execute high-speed native pass-through fetch
         const response = await fetch(downstreamUrl, {
             method: req.method,
             headers: forwardHeaders,
             body: ['POST', 'PUT', 'PATCH'].includes(req.method) ? JSON.stringify(req.body) : undefined,
-            duplex: 'half', // Required by Node's fetch spec for bodies
+            duplex: 'half',
         } as any);
 
-        // Copy response headers back to client
         response.headers.forEach((value, key) => {
             reply.header(key, value);
         });
 
-        // Handle stream or text extraction
         const responseData = await response.text();
-        
         try {
-            // If it's JSON, send it back structured properly
             return reply.code(response.status).send(JSON.parse(responseData));
         } catch {
-            // Fallback to text if the service returns plain text/html
             return reply.code(response.status).send(responseData);
         }
 

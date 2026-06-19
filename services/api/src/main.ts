@@ -2,34 +2,32 @@ import { NestFactory } from '@nestjs/core';
 import { FastifyAdapter, NestFastifyApplication } from '@nestjs/platform-fastify';
 import { AppModule } from './app.module';
 import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.interceptor';
 
 async function bootstrap() {
 	const logger = new Logger('PulsehiveGateway');
-	
-	// Fastify configuration optimized for proxy throughput
-	const adapter = new FastifyAdapter({ 
-		logger: false, // Handled via enterprise logging interceptor instead
-		trustProxy: true 
-	});
 
 	const app = await NestFactory.create<NestFastifyApplication>(
 		AppModule,
-		adapter
+		new FastifyAdapter({ logger: false })
 	);
 
-	// Global Middlewares/Interceptors
+	const configService = app.get(ConfigService);
+	const port = configService.get<number>('PORT', 4000);
+	const allowedOrigins = configService.get<string>('ALLOWED_ORIGINS', '*');
+
 	app.enableCors({
-		origin: process.env.ALLOWED_ORIGINS?.split(',') || '*',
+		origin: allowedOrigins === '*' ? true : allowedOrigins.split(','),
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
 		credentials: true,
+		allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With, X-Correlation-ID',
 	});
-	
+
+	// 💡 CRITICAL: Activate global distributed tracing across the ingress perimeter
 	app.useGlobalInterceptors(new CorrelationIdInterceptor());
 
-	const port = process.env.PORT || 4000;
 	await app.listen(port, '0.0.0.0');
-	
 	logger.log(`🚀 Pulsehive API Gateway active on: http://localhost:${port}`);
 }
 
