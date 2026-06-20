@@ -1,5 +1,5 @@
 {
-  "name": "auth-nestjs",
+  "name": "@pulsehive/auth-service",
   "version": "0.0.1",
   "description": "",
   "author": "",
@@ -84,5 +84,14 @@
     ],
     "coverageDirectory": "../coverage",
     "testEnvironment": "node"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "prisma",
+      "@prisma/engines",
+      "bcrypt",
+      "esbuild",
+      "unrs-resolver"
+    ]
   }
 }

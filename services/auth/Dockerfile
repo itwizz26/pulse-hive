@@ -2,22 +2,21 @@ FROM node:22-alpine
 
 WORKDIR /app
 
-# 💡 Use corepack to reliably activate pnpm on alpine
+# Enable corepack for reliable pnpm integration inside Node 22
 RUN corepack enable && corepack prepare pnpm@latest --activate
 
-# Copy structural definitions
+# Copy your package.json (which now contains the secure pnpm whitelist) and lockfile
 COPY package.json pnpm-lock.yaml ./
 
-# Install dependencies including devDependencies
+# This will now pass flawlessly because pnpm reads the rule directly out of package.json
 RUN pnpm install
 
-# Copy application layers
+# Copy the rest of the application layers
 COPY . .
 
-# Generate Prisma types initially inside the node_modules core
+# Initialize Prisma Client models
 RUN pnpm prisma generate
 
 EXPOSE 4001
 
-# Default fallback if command is not overwritten by compose
 CMD ["pnpm", "run", "start:dev"]

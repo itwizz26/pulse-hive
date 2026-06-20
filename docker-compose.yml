@@ -11,8 +11,8 @@ services:
       - "5672:5672"
       - "15672:15672"
     environment:
-      RABBITMQ_DEFAULT_USER: guest
-      RABBITMQ_DEFAULT_PASS: guest
+      RABBITMQ_DEFAULT_USER: ${RABBITMQ_DEFAULT_USER}
+      RABBITMQ_DEFAULT_PASS: ${RABBITMQ_DEFAULT_PASS}
     healthcheck:
       test: ["CMD-SHELL", "rabbitmq-diagnostics ping || exit 1"]
       interval: 10s
@@ -28,9 +28,9 @@ services:
     image: postgres:15-alpine
     container_name: pulsehive-postgres
     environment:
-      POSTGRES_USER: pulse_user
-      POSTGRES_PASSWORD: P4ssw0rd
-      POSTGRES_DB: pulsehive_auth
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U pulse_user -d pulsehive_auth"]
       interval: 5s
@@ -53,13 +53,13 @@ services:
     ports:
       - "4000:4000"
     environment:
-      - NODE_ENV=development
-      - PORT=4000
-      - ALLOWED_ORIGINS=*
-      - AUTH_SERVICE_URL=http://auth:4001
-      - ORDER_SERVICE_URL=http://orders:4002
-      - PAYMENT_SERVICE_URL=http://payments:4003
-      - JWT_SECRET=a7d8d93ba2089e2e9759a036fb56fd9a0109b06f51ec1433b5eb0f5d556fcf18
+      - NODE_ENV=${NODE_ENV}
+      - PORT=${API_PORT}
+      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
+      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
+      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
+      - PAYMENT_SERVICE_URL=${PAYMENT_SERVICE_URL}
+      - JWT_SECRET=${JWT_SECRET}
     depends_on:
       - orders
       - payments
@@ -79,14 +79,12 @@ services:
   auth:
     build:
       context: ./services/auth
-    env_file:
-      - ./services/auth/.env
     ports:
       - "4001:4001"
     container_name: pulsehive-auth-service
     environment:
-      - DATABASE_URL=postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_auth?schema=public
-      - JWT_SECRET=ZwhoeAnZDzsCTWtzY145bBx0yJAXtJdGqZfC6ZgR2MeMNlFgBac3diMgh6oizKRF0mTOo9wJx1djqUvYRvjcXL
+      - DATABASE_URL=${AUTH_DATABASE_URL}
+      - JWT_SECRET=${JWT_SECRET}
       - PORT=4001
     command: sh -c "pnpm prisma db push && pnpm run start:dev"
     depends_on:
@@ -112,8 +110,8 @@ services:
     ports:
       - "4002:4002"
     environment:
-      DATABASE_URL: postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_orders
-      EVENT_BUS_URL: http://events:5000
+      DATABASE_URL: ${ORDERS_DATABASE_URL}
+      EVENT_BUS_URL: ${EVENT_BUS_URL}
     depends_on:
       - postgres
       - events
@@ -137,8 +135,8 @@ services:
     ports:
       - "4003:4003"
     environment:
-      DATABASE_URL: postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_payments
-      EVENT_BUS_URL: http://events:5000
+      DATABASE_URL: ${PAYMENT_DATABASE_URL}
+      EVENT_BUS_URL: ${EVENT_BUS_URL}
     depends_on:
       - postgres
       - events
@@ -161,7 +159,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      RABBITMQ_URL: amqp://guest:guest@rabbitmq:5672
+      RABBITMQ_URL: ${RABBITMQ_URL}
       EVENT_SUBSCRIBERS: payment.matched=http://orders:4002/events,order.created=http://payments:4003/events
     depends_on:
       rabbitmq:
@@ -195,9 +193,9 @@ services:
     depends_on:
       - api
     environment:
-      - NODE_ENV=development
-      - WATCHPACK_POLLING=true
-      - CHOKIDAR_USEPOLLING=true
+      - NODE_ENV=${NODE_ENV}
+      - WATCHPACK_POLLING=${WATCHPACK_POLLING}
+      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING}
     networks:
       - pulsehive-mesh
     develop:
