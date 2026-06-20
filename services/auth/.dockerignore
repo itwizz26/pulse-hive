@@ -1,0 +1,7 @@
+# services/auth/.dockerignore
+node_modules
+dist
+.pnpm-store
+pnpm-lock.yaml
+.npmrc
+.env
