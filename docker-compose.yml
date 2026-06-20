@@ -59,6 +59,7 @@ services:
       - AUTH_SERVICE_URL=http://auth:4001
       - ORDER_SERVICE_URL=http://orders:4002
       - PAYMENT_SERVICE_URL=http://payments:4003
+      - JWT_SECRET=a7d8d93ba2089e2e9759a036fb56fd9a0109b06f51ec1433b5eb0f5d556fcf18
     depends_on:
       - orders
       - payments
@@ -84,7 +85,10 @@ services:
       - "4001:4001"
     container_name: pulsehive-auth-service
     environment:
-      - DATABASE_URL=postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_auth
+      - DATABASE_URL=postgresql://pulse_user:P4ssw0rd@postgres:5432/pulsehive_auth?schema=public
+      - JWT_SECRET=ZwhoeAnZDzsCTWtzY145bBx0yJAXtJdGqZfC6ZgR2MeMNlFgBac3diMgh6oizKRF0mTOo9wJx1djqUvYRvjcXL
+      - PORT=4001
+    command: sh -c "pnpm prisma db push && pnpm run start:dev"
     depends_on:
       postgres:
         condition: service_healthy
