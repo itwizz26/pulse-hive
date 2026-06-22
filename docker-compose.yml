@@ -88,8 +88,8 @@ services:
     environment:
       - DATABASE_URL=${AUTH_DATABASE_URL}
       - JWT_SECRET=${JWT_SECRET}
-      - PORT=4001
-    command: sh -c "pnpm prisma db push && pnpm run start:dev"
+      - NODE_ENV=${NODE_ENV}
+    command: sh -c "npx prisma db push --url=$$DATABASE_URL && npm run start:dev"
     depends_on:
       postgres:
         condition: service_healthy

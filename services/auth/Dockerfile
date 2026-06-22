@@ -1,22 +1,28 @@
+# --- Stage 1: Build Application Layer ---
+FROM node:22-alpine AS builder
+
+WORKDIR /app
+
+COPY package.json ./
+RUN npm install
+COPY . .
+RUN npx prisma generate
+RUN npm run build
+
+# --- Stage 2: Clean Runtime Execution ---
 FROM node:22-alpine
 
 WORKDIR /app
 
-# Enable corepack and install a stable pnpm version natively
-RUN corepack enable && corepack prepare pnpm@latest --activate
+# Pull execution layers from Stage 1
+COPY --from=builder /app/package.json ./
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/prisma ./prisma
 
-# Copy the package.json manifest
-COPY package.json ./
-
-# 🚀 The ultimate bypass: explicitly pass the ignore flag to turn off the security gate entirely
-RUN pnpm install --ignore-scripts=false
-
-# Copy your service source code
-COPY . .
-
-# Generate Prisma Client models
-RUN pnpm prisma generate
+COPY --from=builder /app/tsconfig.json /app/nest-cli.json ./
+COPY --from=builder /app/src ./src
 
 EXPOSE 4001
 
-CMD ["pnpm", "run", "start:dev"]
+CMD ["sh", "-c", "npx prisma generate && npm run start:dev"]
