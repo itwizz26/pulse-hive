@@ -3,14 +3,15 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-    const app = await NestFactory.create(AppModule);
+	const app = await NestFactory.create(AppModule);
 
-    // 💡 Auto-validate all incoming requests globally
-    app.useGlobalPipes(new ValidationPipe({
-      whitelist: true, // Strips out properties that are not on the DTO
-      transform: true, // Auto-transforms payloads to match their DTO classes
-    }));
+	// 💡 Auto-validate all incoming requests globally
+	app.useGlobalPipes(new ValidationPipe({
+		whitelist: true,
+		transform: true,
+	}));
 
-    await app.listen(4001, '0.0.0.0');
+	await app.listen(4001, '0.0.0.0');
+	console.log(`Auth service running on: ${await app.getUrl()}`);
 }
 bootstrap();
