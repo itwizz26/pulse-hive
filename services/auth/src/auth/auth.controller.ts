@@ -4,12 +4,29 @@ import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { AuthGuard } from '@nestjs/passport';
 
-@Controller('auth') // 💡 Base prefix. Together with the gateway, this targets: /api/v1/auth/*
+/**
+ * 💡 Base prefix. Together with the gateway,
+ * this targets: /api/v1/auth/*
+ */
+@Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}
 
     /**
-     * 1. Public Registration Endpoint
+     * Health Check Endpoint
+     * Route: GET /api/v1/auth/health
+     */
+    @Get('health')
+    healthCheck() {
+        return {
+            status: 'ok',
+            timestamp: new Date().toISOString(),
+            service: 'auth-service'
+        };
+    }
+
+    /**
+     * Public Registration Endpoint
      * Route: POST /api/v1/auth/register
      */
     @Post('register')
@@ -18,7 +35,7 @@ export class AuthController {
     }
 
     /**
-     * 2. Public Login Endpoint
+     * Public Login Endpoint
      * Route: POST /api/v1/auth/login
      */
     @HttpCode(HttpStatus.OK)
@@ -28,7 +45,7 @@ export class AuthController {
     }
 
     /**
-     * 3. Protected Profile Endpoint
+     * Protected Profile Endpoint
      * Route: GET /api/v1/auth/profile
      * 💡 UseGuards(AuthGuard('jwt')) automatically intercepts the request, runs your
      * JwtStrategy validation step, and populates the incoming request with a `user` footprint.

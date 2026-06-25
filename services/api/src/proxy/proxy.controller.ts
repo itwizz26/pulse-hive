@@ -2,7 +2,7 @@ import { Controller, All, Req, Res } from '@nestjs/common';
 import { FastifyRequest, FastifyReply } from 'fastify';
 import { ProxyService } from './proxy.service';
 
-@Controller('api/v1')
+@Controller()
 export class ProxyController {
     constructor(private readonly proxyService: ProxyService) {}
 

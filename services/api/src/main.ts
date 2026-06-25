@@ -6,7 +6,7 @@ import { ConfigService } from '@nestjs/config';
 import { CorrelationIdInterceptor } from './common/interceptors/correlation-id.interceptor';
 
 async function bootstrap() {
-	const logger = new Logger('PulsehiveGateway');
+	const logger = new Logger('PulseHiveGateway');
 
 	const app = await NestFactory.create<NestFastifyApplication>(
 		AppModule,
@@ -27,6 +27,7 @@ async function bootstrap() {
 	// 💡 CRITICAL: Activate global distributed tracing across the ingress perimeter
 	app.useGlobalInterceptors(new CorrelationIdInterceptor());
 
+	app.setGlobalPrefix('api/v1');
 	await app.listen(port, '0.0.0.0');
 	logger.log(`🚀 Pulsehive API Gateway active on: http://localhost:${port}`);
 }

@@ -1,8 +1,11 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { Logger } from '@nestjs/common';
 
 async function bootstrap() {
+	const logger = new Logger('PulseHiveAuth');
+
 	const app = await NestFactory.create(AppModule);
 
 	// 💡 Auto-validate all incoming requests globally
@@ -11,7 +14,9 @@ async function bootstrap() {
 		transform: true,
 	}));
 
+	app.setGlobalPrefix('api/v1');
+	
 	await app.listen(4001, '0.0.0.0');
-	console.log(`Auth service running on: ${await app.getUrl()}`);
+	logger.log(`Auth service running on: ${await app.getUrl()}`);
 }
 bootstrap();

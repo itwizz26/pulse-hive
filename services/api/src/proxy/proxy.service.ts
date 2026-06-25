@@ -31,7 +31,7 @@ export class ProxyService {
         });
         }
 
-        const downstreamPath = req.url.replace(`/api/v1/${targetKey}`, '');
+        const downstreamPath = req.url;
         const downstreamUrl = `${baseTarget}${downstreamPath}`;
 
         try {
