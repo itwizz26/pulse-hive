@@ -8,7 +8,7 @@ import * as bcrypt from 'bcrypt';
 export class AuthService {
     constructor(
         private readonly jwtService: JwtService,
-        private readonly prisma: PrismaService, // 💡 Available automatically thanks to @Global()
+        private readonly prisma: PrismaService,
     ) {}
 
     async validateUser(email: string, pass: string): Promise<any> {
@@ -54,11 +54,41 @@ export class AuthService {
             email: dto.email,
             password: hashedPassword,
             role: dto.role || 'user',
+            displayName: dto.email.split('@')[0],
         },
     });
 
     // Strip the sensitive password field out before returning the profile payload
     const { password, ...result } = newUser;
         return result;
+    }
+
+    async updateProfile(userId: string, updateData: { displayName?: string, bio?: string }) {
+        try {
+            return await this.prisma.user.update({
+                where: { id: userId },
+                data: updateData,
+            });
+        } catch (error) {
+            throw new BadRequestException('User profile could not be updated.');
+        }
+    }
+
+    async onboardCompany(userId: string, companyName: string) {
+        // We use a transaction to ensure both operations succeed or both fail
+        return await this.prisma.$transaction(async (tx) => {
+            // Create the tenant
+            const newTenant = await tx.tenant.create({
+                data: { name: companyName },
+            });
+
+            // Link the user to this tenant
+            await tx.user.update({
+                where: { id: userId },
+                data: { tenantId: newTenant.id },
+            });
+
+            return newTenant;
+        });
     }
 }
