@@ -10,5 +10,5 @@ export class RegisterDto {
 
     @IsString()
     @IsOptional()
-    role?: string; // Optional custom roles like 'admin' or 'customer'
+    role?: string;
 }

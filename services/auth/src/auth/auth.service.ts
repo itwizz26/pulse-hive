@@ -27,7 +27,7 @@ export class AuthService {
     async login(user: any) {
         const payload = { id: user.id, role: user.role };
         return {
-        accessToken: this.jwtService.sign(payload),
+            accessToken: this.jwtService.sign(payload),
         };
     }
 
@@ -35,7 +35,9 @@ export class AuthService {
     async register(dto: RegisterDto) {
     // Check if user already exists
     const existingUser = await this.prisma.user.findUnique({
-        where: { email: dto.email },
+        where: { 
+            email: dto.email
+        },
     });
 
     if (existingUser) {
@@ -49,9 +51,9 @@ export class AuthService {
     // Write to PostgreSQL
     const newUser = await this.prisma.user.create({
         data: {
-        email: dto.email,
-        password: hashedPassword,
-        role: dto.role || 'user',
+            email: dto.email,
+            password: hashedPassword,
+            role: dto.role || 'user',
         },
     });
 

@@ -19,9 +19,9 @@ export class AuthController {
     @Get('health')
     healthCheck() {
         return {
-            status: 'ok',
+            status: 'OK',
             timestamp: new Date().toISOString(),
-            service: 'auth-service'
+            service: 'Auth Service'
         };
     }
 
