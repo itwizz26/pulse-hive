@@ -4,7 +4,7 @@ networks:
 
 services:
   rabbitmq:
-    image: rabbitmq:3.12-management-alpine
+    image: rabbitmq:management-alpine
     container_name: pulsehive-rabbitmq
     user: "999:999"
     ports:
@@ -25,7 +25,7 @@ services:
       - rabbitmq_data:/var/lib/rabbitmq
 
   postgres:
-    image: postgres:15-alpine
+    image: postgres:latest
     container_name: pulsehive-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
