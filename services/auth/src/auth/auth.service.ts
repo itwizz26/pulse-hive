@@ -1,6 +1,8 @@
-import { Injectable, UnauthorizedException, BadRequestException } from '@nestjs/common';
+import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
 import { PrismaService } from '../../prisma/prisma.service';
 import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { JwtService } from '@nestjs/jwt';
 import * as bcrypt from 'bcrypt';
 
@@ -24,9 +26,16 @@ export class AuthService {
         return null;
     }
 
-    async login(user: any) {
-        // Standardize: use 'sub' for the user identifier
-        const payload = { sub: user.id, role: user.role }; 
+    async login(loginDto: LoginDto) {
+        const user = await this.validateUser(loginDto.email, loginDto.password);
+        
+        // 🚀 THIS IS THE MISSING PIECE
+        // Ensure the object passed to sign() contains the ID and role
+        const payload = { 
+            id: user.id,      // Must include this
+            role: user.role   // Must include this
+        };
+        
         return {
             accessToken: this.jwtService.sign(payload),
         };
@@ -64,6 +73,25 @@ export class AuthService {
         return result;
     }
 
+    async getProfile(userId: string): Promise<UserResponseDto> {
+        const user = await this.prisma.user.findUnique({
+            where: { id: userId },
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                displayName: true,
+                bio: true,
+                tenantId: true,
+                createdAt: true,
+                // 'password' is omitted here by default
+            },
+        });
+
+        if (!user) throw new NotFoundException('User not found');
+        return user;
+    }
+
     async updateProfile(userId: string, updateData: { displayName?: string, bio?: string }) {
         try {
             return await this.prisma.user.update({
@@ -75,7 +103,10 @@ export class AuthService {
         }
     }
 
-    async onboardCompany(userId: string, companyName: string) {
+    async onboardCompany(currentUserId: string, companyName: string) {
+        // const userExists = await this.prisma.user.findUnique({ where: { id: currentUserId } });
+        // console.log('--- Does User exist in DB?', !!userExists);
+
         // We use a transaction to ensure both operations succeed or both fail
         return await this.prisma.$transaction(async (tx) => {
             // Create the tenant
@@ -85,7 +116,7 @@ export class AuthService {
 
             // Link the user to this tenant
             await tx.user.update({
-                where: { id: userId },
+                where: { id: currentUserId },
                 data: { tenantId: newTenant.id },
             });
 

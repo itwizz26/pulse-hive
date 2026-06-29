@@ -3,6 +3,7 @@ import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
+import { UserResponseDto } from './dto/user-response.dto';
 import { AuthGuard } from '@nestjs/passport';
 
 /**
@@ -53,9 +54,9 @@ export class AuthController {
      */
     @Get('profile')
     @UseGuards(AuthGuard('gateway'))
-    getProfile(@Req() req: any) {
+    async getProfile(@Req() req: any): Promise<UserResponseDto> {
         // Returns the clean token payload data: { id: "usr_...", role: "admin" }
-        return req.user;
+        return await this.authService.getProfile(req.user.id);
     }
 
     /**
@@ -64,7 +65,9 @@ export class AuthController {
      */
     @Post('onboard')
     @UseGuards(AuthGuard('gateway'))
-    async onboard(@Req() req: Request, @Body() body: { companyName: string }) {
+    async onboard(@Req() req: Request, @Body() body: { name: string }) {
+        console.log('Controller body:', body);
+
         const user = req.user as any;
 
         // Use optional chaining or a null check
@@ -72,6 +75,6 @@ export class AuthController {
             throw new UnauthorizedException('User not found in request');
         }
 
-        return await this.authService.onboardCompany(user.id, body.companyName);
+        return await this.authService.onboardCompany(user.id, body.name);
     }
 }

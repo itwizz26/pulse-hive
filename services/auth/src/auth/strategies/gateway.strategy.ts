@@ -12,13 +12,15 @@ export class GatewayStrategy extends PassportStrategy(Strategy, 'gateway') {
 
     async validate(req: Request): Promise<any> {
         const userId = req.headers['x-user-id'];
-        const role = req.headers['x-user-role'];
-
-        if (!userId) {
-        throw new UnauthorizedException('No user context provided by gateway');
+        const userRole = req.headers['x-user-role'];
+        
+        if (!userId || userId === 'undefined') {
+            throw new UnauthorizedException('No user context provided by gateway');
         }
 
-        // Return the user object to be attached to req.user
-        return { id: userId, role: role };
+        return { 
+            id: userId,
+            role: userRole
+        };
     }
 }
