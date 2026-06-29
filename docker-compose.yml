@@ -41,7 +41,7 @@ services:
     networks:
       - pulsehive-mesh
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - postgres_data:/var/lib/postgresql
       - ./services/db/config/init.sql:/docker-entrypoint-initdb.d/init.sql
 
   api:
