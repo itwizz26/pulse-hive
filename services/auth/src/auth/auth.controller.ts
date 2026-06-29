@@ -11,9 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
  */
 @Controller('auth')
 export class AuthController {
-    constructor(private readonly authService: AuthService) {
-        console.log("AuthController initialized!");
-    }
+    constructor(private readonly authService: AuthService) {}
 
     /**
      * Health Check Endpoint
@@ -54,7 +52,7 @@ export class AuthController {
      * JwtStrategy validation step, and populates the incoming request with a `user` footprint.
      */
     @Get('profile')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('gateway'))
     getProfile(@Req() req: any) {
         // Returns the clean token payload data: { id: "usr_...", role: "admin" }
         return req.user;
@@ -65,10 +63,10 @@ export class AuthController {
      * Route: GET /api/v1/auth/onboard
      */
     @Post('onboard')
-    @UseGuards(AuthGuard('jwt'))
+    @UseGuards(AuthGuard('gateway'))
     async onboard(@Req() req: Request, @Body() body: { companyName: string }) {
-        const user = req.user as any; 
-        
+        const user = req.user as any;
+
         // Use optional chaining or a null check
         if (!user || !user.id) {
             throw new UnauthorizedException('User not found in request');

@@ -4,26 +4,26 @@ import { PassportModule } from '@nestjs/passport';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
-import { JwtStrategy } from './strategies/jwt.strategy';
+import { GatewayStrategy } from './strategies/gateway.strategy';
 
 @Module({
     imports: [
         PassportModule,
         ConfigModule.forRoot({
-            isGlobal: true, // This makes ConfigService available everywhere
+            isGlobal: true,
         }),
         
-        // 2. Use registerAsync to inject ConfigService
+        // Use registerAsync to inject ConfigService
         JwtModule.registerAsync({
-            imports: [ConfigModule], // Make ConfigModule available to this module
+            imports: [ConfigModule],
             useFactory: async (configService: ConfigService) => ({
                 secret: configService.get<string>('JWT_SECRET'),
                 signOptions: { expiresIn: '60m' },
             }),
-            inject: [ConfigService], // Inject the service
+            inject: [ConfigService],
         }),
     ],
     controllers: [AuthController],
-    providers: [AuthService, JwtStrategy],
+    providers: [AuthService, GatewayStrategy],
 })
 export class AuthModule {}
