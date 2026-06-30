@@ -10,7 +10,7 @@ export function useAuthGuard() {
         const token = localStorage.getItem('token');
         const email = localStorage.getItem('userEmail');
 
-        if (!token) {
+        if (!token || token === 'undefined') {
             router.push('/auth/login');
         } else {
             setIsAuthenticated(true);

@@ -27,17 +27,17 @@ export default function LoginPage() {
         try {
             // Inside handleAuth
             if (isLogin) {
-                // Pass 'true' for isPublic
-                const response = await apiCall<AuthResponse>('/auth/login', { 
+                // Pass 'true' for public page
+                const response = await apiCall<AuthResponse>('/auth/signin', { 
                     method: 'POST',
                     body: JSON.stringify({ email, password }) 
                 }, true); 
                 
-                localStorage.setItem('token', response.token);
+                localStorage.setItem('token', response.accessToken);
                 router.push('/dashboard');
             } else {
                 // 1. Register process
-                await apiCall('/auth/register', {
+                await apiCall<AuthResponse>('/auth/signup', {
                     method: 'POST',
                     body: JSON.stringify({ email, password }) 
                 }, true); 
@@ -52,12 +52,12 @@ export default function LoginPage() {
                 await new Promise(resolve => setTimeout(resolve, 4000));
 
                 // 4. Log them in to get the token
-                const loginResponse = await apiCall<AuthResponse>('/auth/login', { 
+                const loginResponse = await apiCall<AuthResponse>('/auth/signin', { 
                     method: 'POST',
                     body: JSON.stringify({ email, password }) 
                 }, true);
                 
-                localStorage.setItem('token', loginResponse.token);
+                localStorage.setItem('token', loginResponse.accessToken);
                 localStorage.setItem('userEmail', email);
                 
                 // 5. Final redirect
@@ -111,7 +111,7 @@ export default function LoginPage() {
                                 onClick={() => setIsLogin(!isLogin)}
                                 className="text-indigo-400 hover:text-indigo-300 font-semibold ml-1 transition-colors"
                             >
-                                {isLogin ? "Register here" : "Sign in instead"}
+                                {isLogin ? "Sign up here" : "Sign in instead"}
                             </button>
                         </p>
                     </div>
@@ -154,7 +154,7 @@ export default function LoginPage() {
                             disabled={isLoading}
                             className="w-full mt-4 px-5 py-3.5 bg-linear-to-r from-indigo-600 to-indigo-500 hover:from-indigo-500 hover:to-indigo-600 active:scale-[0.99] text-white text-sm font-semibold rounded-xl shadow-md shadow-indigo-950/50 transition-all flex items-center justify-center gap-2.5 disabled:opacity-60"
                         >
-                            {isLoading ? (isLogin ? "Authenticating..." : "Registering...") : (isLogin ? "Sign In" : "Register Account")}
+                            {isLoading ? (isLogin ? "Authenticating..." : "Registering...") : (isLogin ? "Sign In" : "Sign Up")}
                         </button>
 
                         <div className="relative pt-6 flex items-center">

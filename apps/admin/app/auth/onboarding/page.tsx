@@ -4,8 +4,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PulseHiveLogo } from '@/components/PulseHiveLogo';
 import { RegistrationData } from '@/types/onboarding';
-import { authCall } from '@/lib/api-client';
+import { apiCall } from '@/lib/api-client';
 import { useAuthGuard } from '@/lib/hooks/useAuthGuard';
+import { AuthResponse } from '@/types/auth';
 
 type OnboardingStep = 1 | 2 | 3;
 
@@ -47,10 +48,11 @@ export default function OnboardingPage() {
 
     const handleSignOut = async () => {
         try {
-            await authCall('/api/v1/auth/signout', { method: 'POST' });
-        } catch (error) {
-            console.error('Sign out error:', error);
+            await apiCall<AuthResponse>('/auth/signout', { 
+                method: 'POST' 
+            }, true);
         } finally {
+            localStorage.clear();
             router.push('/');
         }
     };
@@ -58,13 +60,17 @@ export default function OnboardingPage() {
     const handleSubmit = async () => {
         setIsSubmitting(true);
         try {
-            await authCall('/api/v1/onboard', {
+            // Send the full form data. Ensure 'isPublic' is false!
+            await apiCall<AuthResponse>('/auth/onboard', {
                 method: 'POST',
                 body: JSON.stringify(formData),
-            });
+            }, false); 
+            
+            // This will only execute if the call above succeeds
             router.push('/dashboard');
         } catch (error) {
             console.error('Submission error:', error);
+            // Do NOT redirect here, otherwise errors send them to login
         } finally {
             setIsSubmitting(false);
         }

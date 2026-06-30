@@ -4,14 +4,17 @@ import React, { useState, useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PulseHiveLogo } from '@/components/PulseHiveLogo';
+import { apiCall } from '@/lib/api-client';
+import { useUser } from '@/lib/hooks/useUser';
 
 export default function Navbar() {
     const pathname = usePathname();
     const router = useRouter();
-    
+    const user = useUser();
+
     // 1. Identify context
     const isAuthPage = pathname?.startsWith('/auth');
-    const isDashboardRoute = ['/dashboard', '/orders', '/payments', '/reconciliation', '/onboarding'].includes(pathname);
+    const isDashboardRoute = ['/dashboard', '/orders', '/payments', '/reconciliation', '/onboarding', 'profile'].includes(pathname);
     
     // 2. Logic: Show public links if not on internal/auth pages
     const showPublicLinks = !isDashboardRoute && !isAuthPage;
@@ -80,21 +83,57 @@ export default function Navbar() {
                 </Link>
             ) : (
                 <div className="relative py-2" onMouseEnter={() => setIsMenuOpen(true)} onMouseLeave={() => setIsMenuOpen(false)}>
-                    <button className="w-9 h-9 rounded-full bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500">DM</button>
+                    <button className="w-9 h-9 rounded-full bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500">
+                        {user?.initials || '--'}
+                    </button>
                     {isMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-slate-900/95 backdrop-blur-xl border border-white/8 p-1.5 rounded-xl shadow-2xl animate-in fade-in slide-in-from-top-1">
-                            {/* Restored Flyout Content */}
+                        <div className="absolute right-0 mt-2 w-52 bg-slate-900/95 backdrop-blur-xl border border-white/8 p-1.5 rounded-xl shadow-2xl animate-in fade-in slide-in-from-top-1">
+                            
+                            {/* User Identity Section */}
                             <div className="px-3 py-2 border-b border-white/5 mb-1">
-                                <p className="text-xs font-bold text-white">Daniel Mathebula</p>
-                                <p className="text-[10px] text-slate-500 font-mono mt-0.5">Administrator</p>
+                                <p className="text-xs font-bold text-white">{user?.displayName || 'Loading...'}</p>
+                                <p className="text-[10px] text-slate-500 font-mono mt-0.5 uppercase">{user?.role || 'User'}</p>
                             </div>
-                            <button 
-                                onClick={() => router.push('/')} 
-                                className="w-full text-left px-3 py-2 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-between group"
-                            >
-                                <span>Sign Out Session</span>
-                                <span className="transition-transform duration-150 group-hover:translate-x-0.5">→</span>
-                            </button>
+
+                            {/* Account Group */}
+                            <div className="py-1">
+                                <Link href="/profile" className="w-full text-left px-3 py-2 hover:bg-white/5 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition-colors block">
+                                    My Profile
+                                </Link>
+                                <Link href="/billing" className="w-full text-left px-3 py-2 hover:bg-white/5 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition-colors block">
+                                    Billing & Subscription
+                                </Link>
+                            </div>
+
+                            {/* System Group */}
+                            <div className="py-1 border-t border-white/5 mt-1">
+                                <Link href="/notifications" className="w-full text-left px-3 py-2 hover:bg-white/5 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition-colors block">
+                                    Notifications
+                                </Link>
+                                <Link href="/support" className="w-full text-left px-3 py-2 hover:bg-white/5 text-slate-300 hover:text-white rounded-lg text-xs font-semibold transition-colors block">
+                                    Support & Documentation
+                                </Link>
+                            </div>
+
+                            {/* Sign Out Section */}
+                            <div className="py-1 border-t border-white/5 mt-1">
+                                <button 
+                                    onClick={async () => {
+                                        try {
+                                            await apiCall('/auth/signout', { method: 'POST' });
+                                        } catch (error) {
+                                            console.error('Signout failed:', error);
+                                        } finally {
+                                            localStorage.clear();
+                                            router.push('/auth/login');
+                                        }
+                                    }} 
+                                    className="w-full text-left px-3 py-2 hover:bg-rose-500/10 text-rose-400 hover:text-rose-300 rounded-lg text-xs font-bold transition-colors flex items-center justify-between group"
+                                >
+                                    <span>Sign Out Session</span>
+                                    <span className="transition-transform duration-150 group-hover:translate-x-0.5">→</span>
+                                </button>
+                            </div>
                         </div>
                     )}
                 </div>

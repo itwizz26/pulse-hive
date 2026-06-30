@@ -45,7 +45,7 @@ export default function DashboardPage() {
         <div className="space-y-10">
             
             {/* Professional Header Block */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/6 pb-6">
                 <div>
                     <div className="text-[11px] font-bold uppercase text-indigo-400 tracking-widest mb-1.5">
                         Operational Status Summary
@@ -55,7 +55,7 @@ export default function DashboardPage() {
                     </h1>
                 </div>
                 <div className="flex items-center">
-                    <div className="bg-white/[0.02] border border-white/[0.08] px-4 py-2 rounded-xl text-xs text-slate-300 flex items-center gap-2.5 font-sans font-semibold">
+                    <div className="bg-white/2 border border-white/8 px-4 py-2 rounded-xl text-xs text-slate-300 flex items-center gap-2.5 font-sans font-semibold">
                         <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                         Live updates active
                     </div>
@@ -128,9 +128,9 @@ export default function DashboardPage() {
                                 <span>Sales Conversion Rate</span>
                                 <span className="text-white font-mono">{stats.conversionRate}%</span>
                             </div>
-                            <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden border border-white/[0.04]">
+                            <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden border border-white/4">
                                 <div 
-                                    className="h-full bg-gradient-to-r from-indigo-500 to-purple-500 rounded-full" 
+                                    className="h-full bg-linear-to-r from-indigo-500 to-purple-500 rounded-full" 
                                     style={{ width: `${stats.conversionRate * 10}%` }}
                                 ></div>
                             </div>
@@ -141,8 +141,8 @@ export default function DashboardPage() {
                                 <span>Average Order Value</span>
                                 <span className="text-white font-mono">R {stats.averageOrderValue.toLocaleString('en-ZA', { minimumFractionDigits: 2 })}</span>
                             </div>
-                            <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden border border-white/[0.04]">
-                                <div className="w-3/4 h-full bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full"></div>
+                            <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden border border-white/4">
+                                <div className="w-3/4 h-full bg-linear-to-r from-emerald-500 to-teal-500 rounded-full"></div>
                             </div>
                         </div>
                         
@@ -151,8 +151,8 @@ export default function DashboardPage() {
                                 <span>Payment Auto-Matching Success</span>
                                 <span className="text-emerald-400 font-mono font-bold">98.2%</span>
                             </div>
-                            <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden border border-white/[0.04]">
-                                <div className="w-[98.2%] h-full bg-gradient-to-r from-blue-500 to-indigo-500 rounded-full"></div>
+                            <div className="h-1.5 bg-slate-950 rounded-full overflow-hidden border border-white/4">
+                                <div className="w-[98.2%] h-full bg-linear-to-r from-blue-500 to-indigo-500 rounded-full"></div>
                             </div>
                         </div>
                     </div>
@@ -164,15 +164,15 @@ export default function DashboardPage() {
                         <span className="text-emerald-400">✨</span> Real-time Store Activity
                     </h3>
                     <div className="flex flex-col gap-1.5 text-xs">
-                        <div className="flex justify-between items-center py-2.5 border-b border-white/[0.04] text-slate-300">
+                        <div className="flex justify-between items-center py-2.5 border-b border-white/4 text-slate-300">
                             <span className="font-sans truncate max-w-[70%]">📬 New payment notification received via bank integration</span>
                             <span className="text-slate-500 text-[10px] font-mono">Just now</span>
                         </div>
-                        <div className="flex justify-between items-center py-2.5 border-b border-white/[0.04] text-slate-300">
+                        <div className="flex justify-between items-center py-2.5 border-b border-white/4 text-slate-300">
                             <span className="font-sans truncate max-w-[70%]">🤖 System auto-matched reference label to unpaid order #1094</span>
                             <span className="text-slate-500 text-[10px] font-mono">5m ago</span>
                         </div>
-                        <div className="flex justify-between items-center py-2.5 border-b border-white/[0.04] text-slate-300">
+                        <div className="flex justify-between items-center py-2.5 border-b border-white/4 text-slate-300">
                             <span className="font-sans truncate max-w-[70%]">🛍️ New order entry created manually (R 1,250.00)</span>
                             <span className="text-slate-500 text-[10px] font-mono">12m ago</span>
                         </div>
