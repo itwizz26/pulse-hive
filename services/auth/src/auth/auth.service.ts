@@ -98,15 +98,19 @@ export class AuthService {
         return user;
     }
 
-    async updateProfile(userId: string, updateData: { displayName?: string, bio?: string }) {
-        try {
-            return await this.prisma.user.update({
-                where: { id: userId },
-                data: updateData,
-            });
-        } catch (error) {
-            throw new BadRequestException('User profile could not be updated.');
-        }
+    async updateProfile(userId: string, data: { displayName: string }) {
+        return await this.prisma.user.update({
+            where: { id: userId },
+            data: {
+                displayName: data.displayName,
+            },
+            select: {
+                id: true,
+                email: true,
+                displayName: true,
+                role: true,
+            },
+        });
     }
 
     async onboardCompany(currentUserId: string, companyName: string) {

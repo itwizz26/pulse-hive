@@ -1,4 +1,4 @@
-import { Controller, Post, Get, Body, UseGuards, Req, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
+import { Controller, Post, Patch, Get, Body, UseGuards, Req, HttpCode, HttpStatus, UnauthorizedException } from '@nestjs/common';
 import type { Request } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
@@ -70,6 +70,17 @@ export class AuthController {
     async getProfile(@Req() req: any): Promise<UserResponseDto> {
         // Returns the clean token payload data: { id: "usr_...", role: "admin" }
         return await this.authService.getProfile(req.user.id);
+    }
+
+    // auth.controller.ts
+    @Patch('profile')
+    @UseGuards(AuthGuard('gateway'))
+    async updateProfile(
+        @Req() req: Request, 
+        @Body() updateDto: { displayName: string }
+    ) {
+        const user = req.user as any;
+        return await this.authService.updateProfile(user.id, updateDto);
     }
 
     /**
