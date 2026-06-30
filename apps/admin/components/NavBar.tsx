@@ -35,7 +35,7 @@ export default function Navbar() {
     if (isAuthPage) return null;
 
     return (
-        <nav className="sticky top-0 z-50 w-full bg-slate-900/40 backdrop-blur-xl border-b border-white/[0.06] px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
+        <nav className="sticky top-0 z-50 w-full bg-slate-900/40 backdrop-blur-xl border-b border-white/6 px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
             {/* Logo */}
             <div className="relative z-10">
                 <PulseHiveLogo />
@@ -82,9 +82,9 @@ export default function Navbar() {
                 <div className="relative py-2" onMouseEnter={() => setIsMenuOpen(true)} onMouseLeave={() => setIsMenuOpen(false)}>
                     <button className="w-9 h-9 rounded-full bg-indigo-600 text-white text-xs font-bold hover:bg-indigo-500">DM</button>
                     {isMenuOpen && (
-                        <div className="absolute right-0 mt-2 w-48 bg-slate-900/95 backdrop-blur-xl border border-white/[0.08] p-1.5 rounded-xl shadow-2xl animate-in fade-in slide-in-from-top-1">
+                        <div className="absolute right-0 mt-2 w-48 bg-slate-900/95 backdrop-blur-xl border border-white/8 p-1.5 rounded-xl shadow-2xl animate-in fade-in slide-in-from-top-1">
                             {/* Restored Flyout Content */}
-                            <div className="px-3 py-2 border-b border-white/[0.05] mb-1">
+                            <div className="px-3 py-2 border-b border-white/5 mb-1">
                                 <p className="text-xs font-bold text-white">Daniel Mathebula</p>
                                 <p className="text-[10px] text-slate-500 font-mono mt-0.5">Administrator</p>
                             </div>
