@@ -46,6 +46,13 @@ export async function getProfile(): Promise<UserProfile> {
     return apiCall<UserProfile>('/auth/profile');
 }
 
+export async function updateProfile(data: { displayName: string }) {
+    return apiCall('/auth/profile', {
+        method: 'PATCH',
+        body: JSON.stringify(data),
+    });
+}
+
 export async function onboardCompany(data: any) {
     return apiCall('/auth/onboard', {
         method: 'POST',
