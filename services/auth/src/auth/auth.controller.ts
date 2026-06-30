@@ -29,21 +29,34 @@ export class AuthController {
 
     /**
      * Public Registration Endpoint
-     * Route: POST /api/v1/auth/register
+     * Route: POST /api/v1/auth/signup
      */
-    @Post('register')
+    @Post('signup')
     async register(@Body() registerDto: RegisterDto) {
-        return this.authService.register(registerDto);
+        return this.authService.signup(registerDto);
     }
 
     /**
      * Public Login Endpoint
-     * Route: POST /api/v1/auth/login
+     * Route: POST /api/v1/auth/signin
      */
     @HttpCode(HttpStatus.OK)
-    @Post('login')
+    @Post('signin')
     async login(@Body() loginDto: LoginDto) {
-        return this.authService.login(loginDto);
+        return this.authService.singin(loginDto);
+    }
+
+    /**
+     * Protected Logout Endpoint
+     * Route: POST /api/v1/auth/signout
+     */
+    @Post('signout')
+    @UseGuards(AuthGuard('gateway'))
+    @HttpCode(HttpStatus.OK)
+    async logout(@Req() req: Request) {
+        const user = req.user as any;
+        await this.authService.signout(user.id);
+        return { success: true };
     }
 
     /**
@@ -63,18 +76,17 @@ export class AuthController {
      * Protected Company Onboarding Endpoint
      * Route: GET /api/v1/auth/onboard
      */
+    // auth.controller.ts
     @Post('onboard')
     @UseGuards(AuthGuard('gateway'))
-    async onboard(@Req() req: Request, @Body() body: { name: string }) {
-        console.log('Controller body:', body);
-
+    async onboard(@Req() req: Request, @Body() body: any) {
         const user = req.user as any;
 
-        // Use optional chaining or a null check
         if (!user || !user.id) {
             throw new UnauthorizedException('User not found in request');
         }
 
-        return await this.authService.onboardCompany(user.id, body.name);
+        // Access the businessName field from your formData
+        return await this.authService.onboardCompany(user.id, body.businessName);
     }
 }

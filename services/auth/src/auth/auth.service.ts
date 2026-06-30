@@ -26,7 +26,7 @@ export class AuthService {
         return null;
     }
 
-    async login(loginDto: LoginDto) {
+    async singin(loginDto: LoginDto) {
         const user = await this.validateUser(loginDto.email, loginDto.password);
         
         // 🚀 THIS IS THE MISSING PIECE
@@ -41,8 +41,14 @@ export class AuthService {
         };
     }
 
-    // Add this method into your existing AuthService class:
-    async register(dto: RegisterDto) {
+    async signout(userId: string) {
+        // 💡 If you decide to implement a blacklist (e.g., in Redis), 
+        // you would add the token to the blacklist here.
+        console.log(`User ${userId} has logged out.`);
+        return { message: 'Successfully logged out' };
+    }
+
+    async signup(dto: RegisterDto) {
         // Check if user already exists
         const existingUser = await this.prisma.user.findUnique({
             where: { 
@@ -104,23 +110,22 @@ export class AuthService {
     }
 
     async onboardCompany(currentUserId: string, companyName: string) {
-        // const userExists = await this.prisma.user.findUnique({ where: { id: currentUserId } });
-        // console.log('--- Does User exist in DB?', !!userExists);
+        try {
+            return await this.prisma.$transaction(async (tx) => {
+                const newTenant = await tx.tenant.create({
+                    data: { name: companyName },
+                });
 
-        // We use a transaction to ensure both operations succeed or both fail
-        return await this.prisma.$transaction(async (tx) => {
-            // Create the tenant
-            const newTenant = await tx.tenant.create({
-                data: { name: companyName },
+                await tx.user.update({
+                    where: { id: currentUserId },
+                    data: { tenantId: newTenant.id },
+                });
+
+                return newTenant;
             });
-
-            // Link the user to this tenant
-            await tx.user.update({
-                where: { id: currentUserId },
-                data: { tenantId: newTenant.id },
-            });
-
-            return newTenant;
-        });
+        } catch (error) {
+            console.error('Prisma Error:', error);
+            throw error;
+        }
     }
 }
