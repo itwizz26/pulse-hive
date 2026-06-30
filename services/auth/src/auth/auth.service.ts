@@ -43,33 +43,33 @@ export class AuthService {
 
     // Add this method into your existing AuthService class:
     async register(dto: RegisterDto) {
-    // Check if user already exists
-    const existingUser = await this.prisma.user.findUnique({
-        where: { 
-            email: dto.email
-        },
-    });
+        // Check if user already exists
+        const existingUser = await this.prisma.user.findUnique({
+            where: { 
+                email: dto.email
+            },
+        });
 
-    if (existingUser) {
-        throw new BadRequestException('A user account with this email address already exists.');
-    }
+        if (existingUser) {
+            throw new BadRequestException('A user account with this email address already exists.');
+        }
 
-    // Hash the password using native bcrypt bindings we unlocked earlier
-    const salt = await bcrypt.genSalt(10);
-    const hashedPassword = await bcrypt.hash(dto.password, salt);
+        // Hash the password using native bcrypt bindings we unlocked earlier
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(dto.password, salt);
 
-    // Write to PostgreSQL
-    const newUser = await this.prisma.user.create({
-        data: {
-            email: dto.email,
-            password: hashedPassword,
-            role: dto.role || 'user',
-            displayName: dto.email.split('@')[0],
-        },
-    });
+        // Write to PostgreSQL
+        const newUser = await this.prisma.user.create({
+            data: {
+                email: dto.email,
+                password: hashedPassword,
+                role: dto.role || 'user',
+                displayName: dto.email.split('@')[0],
+            },
+        });
 
-    // Strip the sensitive password field out before returning the profile payload
-    const { password, ...result } = newUser;
+        // Strip the sensitive password field out before returning the profile payload
+        const { password, ...result } = newUser;
         return result;
     }
 

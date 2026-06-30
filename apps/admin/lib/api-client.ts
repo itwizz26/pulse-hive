@@ -2,8 +2,13 @@ import { UserProfile } from '@/types/user';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
 
-export async function apiCall<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
-    const token = typeof window !== 'undefined' ? localStorage.getItem('token') : null;
+export async function apiCall<T>(
+    endpoint: string, 
+    options: RequestInit = {}, 
+    isPublic: boolean = false
+): Promise<T> {
+    // Only fetch token if it's NOT a public endpoint
+    const token = !isPublic && typeof window !== 'undefined' ? localStorage.getItem('token') : null;
     
     const headers = {
         'Content-Type': 'application/json',

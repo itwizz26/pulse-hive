@@ -7,10 +7,10 @@ export default function LandingPage() {
         <div className="h-screen w-full bg-slate-950 text-white flex flex-col font-sans overflow-hidden">
             
             {/* Background Grid */}
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-[size:32px_32px]"></div>
+            <div className="absolute inset-0 bg-[linear-gradient(to_right,#ffffff03_1px,transparent_1px),linear-gradient(to_bottom,#ffffff03_1px,transparent_1px)] bg-size-[32px_32px]"></div>
 
             {/* HERO: Now includes the footer as the final element in the stack */}
-            <main className="relative z-10 flex-grow w-full max-w-7xl mx-auto flex flex-col items-center justify-center text-center px-8">
+            <main className="relative z-10 grow w-full max-w-7xl mx-auto flex flex-col items-center justify-center text-center px-8">
                 
                 <h1 className="text-5xl font-black tracking-tighter max-w-2xl leading-[1.1] mb-6">
                     Automate your business reconciliation.
@@ -21,16 +21,16 @@ export default function LandingPage() {
                 
                 <div className="flex gap-4 mb-16">
                     <Link 
-                        href="/auth/register" 
+                        href="/" 
                         className="px-8 py-3 bg-white text-slate-950 font-bold rounded-xl hover:bg-slate-200 transition-all active:scale-[0.98]"
                     >
-                        Get Started
+                        Demo
                     </Link>
                     <Link 
                         href="/auth/login" 
                         className="px-8 py-3 bg-white/5 border border-white/10 text-white font-bold rounded-xl hover:bg-white/10 transition-all active:scale-[0.98]"
                     >
-                        My Workspaces
+                        Workspace
                     </Link>
                 </div>
 

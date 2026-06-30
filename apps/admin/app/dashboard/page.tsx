@@ -1,6 +1,7 @@
 'use client';
 
 import React, { useEffect, useState } from 'react';
+import { useAuthGuard } from '@/lib/hooks/useAuthGuard';
 
 interface DashboardStats {
     totalOrders: number;
@@ -14,6 +15,7 @@ interface DashboardStats {
 export default function DashboardPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
+    const { isAuthenticated, userEmail } = useAuthGuard();
 
     useEffect(() => {
         setStats({
@@ -27,6 +29,9 @@ export default function DashboardPage() {
         setLoading(false);
     }, []);
 
+    // AUTHENTICATION GUARD: Redirect if no token found
+    if (!isAuthenticated) return null;
+    
     if (loading || !stats) {
         return (
             <div className="flex justify-center items-center h-[60vh] text-slate-500 text-xs font-mono tracking-widest animate-pulse">

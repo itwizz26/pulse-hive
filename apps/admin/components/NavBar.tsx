@@ -11,7 +11,7 @@ export default function Navbar() {
     
     // 1. Identify context
     const isAuthPage = pathname?.startsWith('/auth');
-    const isDashboardRoute = ['/dashboard', '/orders', '/payments', '/reconciliation'].includes(pathname);
+    const isDashboardRoute = ['/dashboard', '/orders', '/payments', '/reconciliation', '/onboarding'].includes(pathname);
     
     // 2. Logic: Show public links if not on internal/auth pages
     const showPublicLinks = !isDashboardRoute && !isAuthPage;

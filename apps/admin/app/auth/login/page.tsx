@@ -4,7 +4,7 @@ import React, { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { PulseHiveLogo } from '@/components/PulseHiveLogo';
-import { authCall } from '@/lib/api-client';
+import { apiCall } from '@/lib/api-client';
 import { AuthResponse } from '@/types/auth';
 
 export default function LoginPage() {
@@ -25,39 +25,46 @@ export default function LoginPage() {
         setMessage(null);
 
         try {
-            const endpoint = isLogin ? '/auth/login' : '/auth/register';
-            const response = await authCall<AuthResponse>(endpoint, { email, password });
-
+            // Inside handleAuth
             if (isLogin) {
-                // Login Success Flow
+                // Pass 'true' for isPublic
+                const response = await apiCall<AuthResponse>('/auth/login', { 
+                    method: 'POST',
+                    body: JSON.stringify({ email, password }) 
+                }, true); 
+                
                 localStorage.setItem('token', response.token);
-                setMessage({ type: 'success', text: "Login successful! Redirecting..." });
-                setTimeout(() => router.push('/dashboard'), 1000);
+                router.push('/dashboard');
             } else {
-                // Register Success Flow
+                // 1. Register process
+                await apiCall('/auth/register', {
+                    method: 'POST',
+                    body: JSON.stringify({ email, password }) 
+                }, true); 
+                
+                // 2. Set "Success" message to provide feedback
                 setMessage({ 
                     type: 'success', 
-                    text: "Account successfully registered! You may now sign in." 
+                    text: "Account created! Now configuring your workspace..." 
                 });
+
+                // 3. Add a deliberate delay so they can read the message
+                await new Promise(resolve => setTimeout(resolve, 4000));
+
+                // 4. Log them in to get the token
+                const loginResponse = await apiCall<AuthResponse>('/auth/login', { 
+                    method: 'POST',
+                    body: JSON.stringify({ email, password }) 
+                }, true);
                 
-                // Clear the form fields so the user can enter credentials manually
-                setEmail('');
-                setPassword('');
+                localStorage.setItem('token', loginResponse.token);
+                localStorage.setItem('userEmail', email);
                 
-                setIsLogin(true); // Toggle to login view
+                // 5. Final redirect
+                router.push('/auth/onboarding');
             }
         } catch (err: any) {
-            console.error("Auth failed:", err);
-            
-            // If the error is 'Unauthorized', ensure we don't have a broken token
-            if (err?.message?.includes('Unauthorized')) {
-                localStorage.removeItem('token');
-            }
-            
-            setMessage({ 
-                type: 'error', 
-                text: err?.message || "Authentication failed. Please check your details." 
-            });
+            setMessage({ type: 'error', text: err.message });
         } finally {
             setIsLoading(false);
         }
