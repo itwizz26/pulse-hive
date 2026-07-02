@@ -186,13 +186,40 @@ services:
         - path: ./services/events/package.json
           action: rebuild
 
+  web:
+    build:
+      context: ./apps/web
+      dockerfile: Dockerfile
+    container_name: pulsehive-web
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    depends_on:
+      - api
+    environment:
+      - NODE_ENV=${NODE_ENV}
+      - WATCHPACK_POLLING=${WATCHPACK_POLLING}
+      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING}
+    networks:
+      - pulsehive-mesh
+    develop:
+      watch:
+        - path: ./apps/web
+          target: /app
+          action: sync
+          ignore:
+            - node_modules/
+            - .next/
+        - path: ./apps/web/package.json
+          action: rebuild
+
   admin:
     build:
       context: ./apps/admin
       dockerfile: Dockerfile
     container_name: pulsehive-admin
     ports:
-      - "3000:3000"
+      - "3001:3001"
     command: npm run dev
     depends_on:
       - api
