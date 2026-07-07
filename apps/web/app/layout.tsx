@@ -18,6 +18,12 @@ const saira = Saira_Condensed({
 export default function RootLayout({ children }: { children: React.ReactNode }) {
     return (
         <html lang="en" className={`${barlow.variable} ${saira.variable}`}>
+            <head>
+                <link rel="manifest" href="/manifest.json" />
+                <meta name="theme-color" content="#3d2c10" />
+                <link rel="apple-touch-icon" href="/icon-192.png" />
+                <link rel="icon" href="/logo.svg" type="image/svg+xml" />
+            </head>
             <body className="min-h-screen overflow-x-hidden bg-[#f4f4f3] text-[#121212]">
                 <div className="relative flex items-center justify-center overflow-hidden">
                     <div className="relative flex w-full justify-center">

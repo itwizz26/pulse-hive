@@ -1,5 +1,10 @@
 @import "tailwindcss";
 @import "tailwindcss/preflight";
+@layer base {
+  input, select, textarea {
+    font-size: 16px !important;
+  }
+}
 
 :root {
     color-scheme: light;
@@ -44,21 +49,7 @@ a {
     text-decoration: none;
 }
 
-.glass-card {
-    background: transparent;
-    backdrop-filter: blur(18px);
-    -webkit-backdrop-filter: blur(18px);
-    box-shadow: 0 24px 70px rgba(34, 30, 22, 0.08);
-    border-radius: 0;
-}
-
-.glass-panel {
-    background: transparent;
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    box-shadow: 0 16px 44px rgba(34, 30, 22, 0.06);
-    border-bottom-left-radius: 10px;
-    border-bottom-right-radius: 10px;
-    margin-bottom: 1rem;
-    padding: 1rem;
+.scrollbar-hide {
+    scrollbar-width: none; 
+    -ms-overflow-style: none;
 }

@@ -1,0 +1,15 @@
+<svg viewBox="160 160 280 200" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+        <linearGradient id="goldToBlack" x1="0%" y1="0%" x2="100%" y2="0%">
+            <stop offset="0%" stop-color="#f3c54b"/>
+            <stop offset="50%" stop-color="#b07c18"/>
+            <stop offset="100%" stop-color="#040404"/>
+        </linearGradient>
+    </defs>
+    
+    <!-- Grouped paths with vertical flip transformation -->
+    <g transform="scale(1, -1) translate(0, -512)">
+        <path d="M280 160H160V352H280V256H220V300H240V280H200V200H280V220L320 220V160H280Z" fill="url(#goldToBlack)"/>
+        <path d="M310 160L280 352H310L350 200L390 352H420L380 160H310Z" fill="url(#goldToBlack)"/>
+    </g>
+</svg>

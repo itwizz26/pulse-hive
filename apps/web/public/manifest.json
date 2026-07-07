@@ -1,0 +1,16 @@
+{
+  "name": "Glowa Vee",
+  "short_name": "Glowa Vee",
+  "description": "Premium Collagen Skin Repair Supplements.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f4f4f3",
+  "theme_color": "#3d2c10",
+  "icons": [
+    {
+      "src": "/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}
