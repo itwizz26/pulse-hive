@@ -106,7 +106,7 @@ export default function OrdersPage() {
         <div className="space-y-10 relative">
             
             {/* Friendly Header Block */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/6 pb-6">
                 <div>
                     <div className="text-[11px] font-bold uppercase text-indigo-400 tracking-widest mb-1.5">
                         Track & Manage Deliveries
@@ -146,7 +146,7 @@ export default function OrdersPage() {
 
             {/* Main Orders List Table */}
             <div className="ph-glass-panel p-6">
-                <div className="overflow-x-auto rounded-xl border border-white/[0.04]">
+                <div className="overflow-x-auto rounded-xl border border-white/4">
                     <table className="ph-ledger-table">
                         <thead>
                             <tr>
@@ -169,7 +169,7 @@ export default function OrdersPage() {
                                         <div>{order.customerName}</div>
                                         <div className="text-[10px] text-slate-500 font-normal font-mono mt-0.5">{order.contactNumber}</div>
                                     </td>
-                                    <td className="ph-ledger-td text-xs text-slate-400 max-w-[200px] truncate">
+                                    <td className="ph-ledger-td text-xs text-slate-400 max-w-50 truncate">
                                         {order.itemsSummary}
                                     </td>
                                     <td className="ph-ledger-td font-mono font-bold text-slate-200">
@@ -199,7 +199,7 @@ export default function OrdersPage() {
                     {/* Background overlay click-to-close handler */}
                     <div className="flex-1" onClick={() => setIsDrawerOpen(false)} />
 
-                    <div className="w-full max-w-md bg-slate-900 border-l border-white/[0.08] p-8 space-y-6 shadow-2xl h-full flex flex-col justify-between animate-in slide-in-from-right duration-200">
+                    <div className="w-full max-w-md bg-slate-900 border-l border-white/8 p-8 space-y-6 shadow-2xl h-full flex flex-col justify-between animate-in slide-in-from-right duration-200">
                         <div className="space-y-6 overflow-y-auto pr-1">
                             <div>
                                 <h3 className="text-xl font-black text-white">Add New Order Manually</h3>
@@ -212,7 +212,7 @@ export default function OrdersPage() {
                                     <input 
                                         type="text" required value={customerName} onChange={(e) => setCustomerName(e.target.value)}
                                         placeholder="e.g. Tendai Khumalo"
-                                        className="w-full bg-slate-950 border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                        className="w-full bg-slate-950 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
                                     />
                                 </div>
 
@@ -221,7 +221,7 @@ export default function OrdersPage() {
                                     <input 
                                         type="text" value={contactNumber} onChange={(e) => setContactNumber(e.target.value)}
                                         placeholder="e.g. +27834567890"
-                                        className="w-full bg-slate-950 border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
+                                        className="w-full bg-slate-950 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors"
                                     />
                                 </div>
 
@@ -230,7 +230,7 @@ export default function OrdersPage() {
                                     <input 
                                         type="text" value={customRef} onChange={(e) => setCustomRef(e.target.value)}
                                         placeholder="Leave blank to create a random order code"
-                                        className="w-full bg-slate-950 border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-slate-600 font-mono text-xs uppercase"
+                                        className="w-full bg-slate-950 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors placeholder:text-slate-600 font-mono uppercase"
                                     />
                                 </div>
 
@@ -239,7 +239,7 @@ export default function OrdersPage() {
                                     <textarea 
                                         rows={3} value={itemsSummary} onChange={(e) => setItemsSummary(e.target.value)}
                                         placeholder="e.g. Collagen Cream x1, Glow Serum x1"
-                                        className="w-full bg-slate-950 border border-white/[0.08] rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+                                        className="w-full bg-slate-950 border border-white/8 rounded-xl px-4 py-2.5 text-sm text-white focus:outline-none focus:border-indigo-500 transition-colors resize-none"
                                     />
                                 </div>
 
@@ -250,7 +250,7 @@ export default function OrdersPage() {
                                         <input 
                                             type="number" step="0.01" required value={totalAmount} onChange={(e) => setTotalAmount(e.target.value)}
                                             placeholder="0.00"
-                                            className="w-full bg-slate-950 border border-white/[0.08] rounded-xl pl-9 pr-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors"
+                                            className="w-full bg-slate-950 border border-white/8 rounded-xl pl-9 pr-4 py-2.5 text-sm text-white font-mono focus:outline-none focus:border-indigo-500 transition-colors"
                                         />
                                     </div>
                                 </div>
@@ -258,7 +258,7 @@ export default function OrdersPage() {
                         </div>
 
                         {/* Control Actions Pin */}
-                        <div className="flex items-center gap-3 border-t border-white/[0.06] pt-4 bg-slate-900">
+                        <div className="flex items-center gap-3 border-t border-white/6 pt-4 bg-slate-900">
                             <button 
                                 type="button" onClick={() => setIsDrawerOpen(false)}
                                 className="flex-1 bg-white/5 hover:bg-white/10 text-slate-300 py-3 rounded-xl text-xs font-bold transition-all"

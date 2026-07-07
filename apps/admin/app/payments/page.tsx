@@ -35,7 +35,7 @@ export default function MoneyComingInPage() {
         <div className="space-y-10">
             
             {/* Header Block */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/6 pb-6">
                 <div>
                     <div className="text-[11px] font-bold uppercase text-indigo-400 tracking-widest mb-1.5">
                         Bank Activity Stream
@@ -49,12 +49,12 @@ export default function MoneyComingInPage() {
 
             {/* Table Panel */}
             {deposits.length === 0 ? (
-                <div className="ph-glass-panel p-12 text-center border-dashed border-white/[0.04]">
+                <div className="ph-glass-panel p-12 text-center border-dashed border-white/4">
                     <p className="text-sm text-slate-400 font-mono">No bank payments spotted today yet.</p>
                 </div>
             ) : (
                 <div className="ph-glass-panel p-6">
-                    <div className="overflow-x-auto rounded-xl border border-white/[0.04]">
+                    <div className="overflow-x-auto rounded-xl border border-white/4">
                         <table className="ph-ledger-table">
                             <thead>
                                 <tr>

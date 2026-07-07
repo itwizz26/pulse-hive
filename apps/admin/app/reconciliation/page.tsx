@@ -55,7 +55,7 @@ export default function PaymentMatcherPage() {
         <div className="space-y-10">
             
             {/* Header Block */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/[0.06] pb-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/6 pb-6">
                 <div>
                     <div className="text-[11px] font-bold uppercase text-indigo-400 tracking-widest mb-1.5">
                         Fix Unmatched Payments
@@ -107,7 +107,7 @@ export default function PaymentMatcherPage() {
                                     className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
                                         selectedDeposit?.id === deposit.id 
                                             ? 'bg-indigo-600/20 border-indigo-500' 
-                                            : 'bg-slate-950/40 border-white/[0.04] hover:bg-white/[0.02]'
+                                            : 'bg-slate-950/40 border-white/4 hover:bg-white/2'
                                     }`}
                                 >
                                     <div className="flex justify-between items-start">
@@ -146,7 +146,7 @@ export default function PaymentMatcherPage() {
                                     className={`p-4 rounded-xl border text-left cursor-pointer transition-all ${
                                         selectedOrder?.id === order.id 
                                             ? 'bg-indigo-600/20 border-indigo-500' 
-                                            : 'bg-slate-950/40 border-white/[0.04] hover:bg-white/[0.02]'
+                                            : 'bg-slate-950/40 border-white/4 hover:bg-white/2'
                                     }`}
                                 >
                                     <div className="flex justify-between items-start">
