@@ -25,7 +25,7 @@ export default function CatalogPage() {
     }, [searchQuery]);
 
     return (
-        <div className="w-full pb-10">
+        <div className="w-full">
             <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />

@@ -29,7 +29,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     <div className="relative flex w-full justify-center">
                         <div className="glass-card relative flex w-full max-w-160 min-h-[calc(100vh-2rem)] overflow-hidden shadow-[0_24px_70px_rgba(42,35,24,0.08)]">
                             <CartProvider>
-                                <main className="w-full">{children}</main>
+                                <main className="w-full px-5 py-6">{children}</main>
                                 <MobileNav />
                             </CartProvider>
                         </div>
