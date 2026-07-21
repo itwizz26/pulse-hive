@@ -1,16 +1,16 @@
+// 1. Updated /cart page to save full selection details to localStorage
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState } from 'react';
 import { ArrowRight, Minus, Plus, Trash2, ShoppingCart, Truck, ShieldCheck, Lock } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 
 const COURIER_OPTIONS = [
-    { id: 'paxi-7-9', name: 'PAXI R60', time: '7-9 business days', price: 60, desc: 'Budget-friendly nationwide PEP store collection' },
-    { id: 'paxi-3-5', name: 'PAXI R110', time: '3-5 business days', price: 110, desc: 'Express nationwide PEP store collection' },
-    { id: 'tcg-locker', name: 'The Courier Guy Locker', time: '2-3 business days', price: 80, desc: 'Secure 24/7 self-service locker pickup' },
-    { id: 'tcg-door', name: 'The Courier Guy Door Delivery', time: '2-3 business days', price: 180, desc: 'Direct delivery straight to your doorstep' },
+    { id: 'tcg-locker', name: 'Locker to Locker', time: '2-5 business days', price: 80, desc: 'Secure 24/7 self-service PUDO locker pickup' },
+    { id: 'tcg-door', name: 'Door to Door', time: '1-3 business days', price: 180, desc: 'Direct delivery straight to your doorstep' },
 ];
 
 export default function CartPage() {
@@ -19,6 +19,18 @@ export default function CartPage() {
     
     const subtotal = cart.reduce((sum: number, item: any) => sum + item.price * item.quantity, 0);
     const totalToPay = selectedShipping ? subtotal + selectedShipping.price : subtotal;
+
+    const handleSelectShipping = (option: any) => {
+        setSelectedShipping(option);
+        // Persist the chosen option, items summary, and totals so checkout reads it accurately
+        localStorage.setItem('glowavee_selected_shipping', JSON.stringify(option));
+        localStorage.setItem('glowavee_cart_summary', JSON.stringify({
+            items: cart,
+            subtotal,
+            shippingFee: option.price,
+            totalToPay: subtotal + option.price
+        }));
+    };
 
     return (
         <div className="w-full min-h-screen bg-(--color-background) pb-12">
@@ -43,7 +55,6 @@ export default function CartPage() {
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6">
-                {/* Page Title & Breadcrumb indicator */}
                 <div className="flex flex-col gap-1 items-center text-center">
                     <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark) flex items-center gap-1.5">
                         <Lock size={12} /> Secure Checkout
@@ -64,7 +75,6 @@ export default function CartPage() {
                     </div>
                 ) : (
                     <>
-                        {/* Cart Items List */}
                         <div className="flex w-full flex-col gap-3">
                             {cart.map((item: any) => (
                                 <div key={item.id} className="flex w-full items-center justify-between border border-(--color-border) bg-white p-4 sm:p-5 shadow-xs transition hover:border-(--color-gold)/50">
@@ -86,13 +96,23 @@ export default function CartPage() {
                             ))}
                         </div>
 
-                        {/* Delivery Method Selection Card */}
                         <div className="w-full border border-(--color-border-strong) bg-white p-6 shadow-xs">
-                            <div className="mb-5">
-                                <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--color-gold-dark) flex items-center gap-2 mb-1.5">
-                                    <Truck size={16} /> Select Delivery Method *
-                                </label>
-                                <p className="text-xs text-(--color-text-muted)">Choose your preferred delivery option to calculate final pricing.</p>
+                            <div className="mb-5 flex items-center justify-between">
+                                <div>
+                                    <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--color-gold-dark) flex items-center gap-2 mb-1.5">
+                                        <Truck size={16} /> Select Delivery Method *
+                                    </label>
+                                    <p className="text-xs text-(--color-text-muted)">Choose your preferred delivery option to calculate final pricing.</p>
+                                    <p>The Courier Guy</p>
+                                </div>
+                                <div className="relative w-16 h-8 shrink-0 overflow-hidden rounded-sm border border-(--color-border) bg-white flex items-center justify-center">
+                                    <Image 
+                                        src="/courier.jpg" 
+                                        alt="The Courier Guy" 
+                                        fill 
+                                        className="object-contain p-0.5"
+                                    />
+                                </div>
                             </div>
 
                             <div className="space-y-2.5">
@@ -101,15 +121,14 @@ export default function CartPage() {
                                     return (
                                         <button
                                             key={option.id}
-                                            onClick={() => setSelectedShipping(option)}
+                                            onClick={() => handleSelectShipping(option)}
                                             className={`w-full flex items-center justify-between p-4 border transition-all text-left ${
                                                 isSelected 
-                                                    ?  'border-(--color-border) bg-amber-950 text-white'
+                                                    ? 'border-(--color-border) bg-amber-950 text-white'
                                                     : 'border-[#3d2c10] bg-[#fdfaf5] hover:border-(--color-gold)/40'
                                             }`}
                                         >
                                             <div className="flex items-center gap-3">
-                                                {/* Explicitly colored high-contrast border and background for visibility */}
                                                 <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
                                                     isSelected ? 'border-[#3d2c10] bg-[#3d2c10]' : 'border-[#3d2c10]/40 bg-amber-950'
                                                 }`}>
@@ -126,7 +145,6 @@ export default function CartPage() {
                                 })}
                             </div>
 
-                            {/* Summary Totals */}
                             <div className="space-y-2.5 pt-6 mt-6 border-t border-(--color-border)">
                                 <div className="flex items-center justify-between text-xs">
                                     <span className="text-(--color-text-muted)">Subtotal</span>
@@ -142,7 +160,6 @@ export default function CartPage() {
                                 </div>
                             </div>
 
-                            {/* Action Button */}
                             {!selectedShipping ? (
                                 <div className="w-full h-12 mt-6 flex items-center justify-center gap-2 bg-[#f3ede3] border border-(--color-border) text-xs font-bold uppercase tracking-wider text-[#a89d8e] cursor-not-allowed">
                                     Select delivery to continue
@@ -156,7 +173,6 @@ export default function CartPage() {
                                 </Link>
                             )}
 
-                            {/* Trust Badge */}
                             <div className="flex items-center justify-center gap-1.5 mt-4 text-[10px] text-(--color-text-muted)">
                                 <ShieldCheck size={14} className="text-(--color-gold-dark)" />
                                 <span>Encrypted & secure checkout processing</span>
