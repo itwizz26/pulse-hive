@@ -16,7 +16,7 @@ RUN npm cache clean --force && \
 # Copy source configuration files
 COPY . .
 
-EXPOSE 3000
+EXPOSE 3001
 
 # Execute next framework binary command inside dev runtime mode
 CMD ["npm", "run", "dev"]
