@@ -2,15 +2,15 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowRight, Minus, Plus, Trash2, ShoppingCart, Truck } from 'lucide-react';
+import { ArrowRight, Minus, Plus, Trash2, ShoppingCart, Truck, ShieldCheck, Lock } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 
 const COURIER_OPTIONS = [
-    { id: 'paxi-7-9', name: 'PAXI R60', time: '7-9 days', price: 60 },
-    { id: 'paxi-3-5', name: 'PAXI R110', time: '3-5 days', price: 110 },
-    { id: 'tcg-locker', name: 'The Courier Guy Locker R80', time: '2-3 days', price: 80 },
-    { id: 'tcg-door', name: 'The Courier Guy Door R180', time: '2-3 days', price: 180 },
+    { id: 'paxi-7-9', name: 'PAXI R60', time: '7-9 business days', price: 60, desc: 'Budget-friendly nationwide PEP store collection' },
+    { id: 'paxi-3-5', name: 'PAXI R110', time: '3-5 business days', price: 110, desc: 'Express nationwide PEP store collection' },
+    { id: 'tcg-locker', name: 'The Courier Guy Locker', time: '2-3 business days', price: 80, desc: 'Secure 24/7 self-service locker pickup' },
+    { id: 'tcg-door', name: 'The Courier Guy Door Delivery', time: '2-3 business days', price: 180, desc: 'Direct delivery straight to your doorstep' },
 ];
 
 export default function CartPage() {
@@ -21,53 +21,64 @@ export default function CartPage() {
     const totalToPay = selectedShipping ? subtotal + selectedShipping.price : subtotal;
 
     return (
-        <div className="w-full pb-10">
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-6">
+        <div className="w-full min-h-screen bg-(--color-background) pb-12">
+            {/* Header */}
+            <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
                 
                 <Link 
                     href="/cart" 
-                    className="absolute top-4 right-4 flex items-center p-2 text-[#4a3b20] transition-transform hover:scale-105" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
                     aria-label={`${cart.length} items in cart`}
                 >
                     <div className="relative">
-                        <ShoppingCart size={24} />
-                        <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-[#3d2c10] text-white text-[10px] font-bold">
+                        <ShoppingCart size={32} />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
                             {cart.length}
                         </span>
                     </div>
                 </Link>
             </header>
 
-            <main className="flex flex-col gap-2">
-                <div className="w-full h-2" />
-                
+            <main className="flex flex-col gap-6 px-6 pt-6">
+                {/* Page Title & Breadcrumb indicator */}
+                <div className="flex flex-col gap-1 items-center text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark) flex items-center gap-1.5">
+                        <Lock size={12} /> Secure Checkout
+                    </span>
+                    <h1 className="text-2xl font-serif text-(--color-text)">Your Shopping Bag</h1>
+                </div>
+
                 {cart.length === 0 ? (
-                    <div className="w-full border border-[#e5e0d3] bg-white p-12 text-center shadow-sm">
-                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#8b6e29]">Your Shopping Bag</p>
-                        <p className="text-sm text-[#4a3b20]">Your bag is empty.</p>
-                        <Link href="/" className="w-full h-9 mt-5 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-sm font-semibold text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105">
-                            Shop now <ArrowRight size={14} />
+                    <div className="w-full border border-(--color-border-strong) bg-white p-10 text-center shadow-xs flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-4 border border-(--color-border)">
+                            <ShoppingCart size={28} />
+                        </div>
+                        <h2 className="text-lg font-serif text-(--color-text) mb-1">Your bag is currently empty</h2>
+                        <p className="text-xs text-(--color-text-muted) max-w-xs mb-6">Explore our luxury collagen and skincare collection to find your ideal glow.</p>
+                        <Link href="/" className="w-full h-12 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105">
+                            Shop collection <ArrowRight size={14} />
                         </Link>
                     </div>
                 ) : (
                     <>
-                        <div className="flex w-full flex-col">
+                        {/* Cart Items List */}
+                        <div className="flex w-full flex-col gap-3">
                             {cart.map((item: any) => (
-                                <div key={item.id} className="flex w-full items-center justify-between border border-[#e5e0d3] bg-white p-6 shadow-sm">
-                                    <div className="flex flex-col gap-1.5">
-                                        <p className="text-sm font-semibold text-[#2d2822]">{item.name}</p>
-                                        <p className="text-xs text-[#8b6e29]">R{(item.price * item.quantity).toFixed(2)}</p>
+                                <div key={item.id} className="flex w-full items-center justify-between border border-(--color-border) bg-white p-4 sm:p-5 shadow-xs transition hover:border-(--color-gold)/50">
+                                    <div className="flex flex-col gap-1 pr-4">
+                                        <h2 className="text-xs sm:text-sm font-bold text-(--color-text) line-clamp-1">{item.name}</h2>
+                                        <p className="text-[11px] text-(--color-gold-dark) font-semibold">R{Number(item.price).toFixed(2)} each</p>
                                     </div>
-                                    <div className="flex items-center gap-6">
-                                        <div className="flex items-center gap-3 rounded-full border border-[#f3ede3] bg-[#fdfaf5] px-3 py-1.5">
-                                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-[#5c5448]"><Minus size={12} /></button>
-                                            <span className="w-6 text-center text-xs font-medium">{item.quantity}</span>
-                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-[#5c5448]"><Plus size={12} /></button>
+                                    <div className="flex items-center gap-4 sm:gap-6 shrink-0">
+                                        <div className="flex items-center gap-2.5 border border-(--color-border) bg-(--color-background) px-3 py-1.5 shadow-xs">
+                                            <button onClick={() => updateQuantity(item.id, item.quantity - 1)} className="text-(--color-text-muted) hover:text-(--color-text) transition"><Minus size={12} /></button>
+                                            <span className="w-5 text-center text-xs font-bold text-(--color-text)">{item.quantity}</span>
+                                            <button onClick={() => updateQuantity(item.id, item.quantity + 1)} className="text-(--color-text-muted) hover:text-(--color-text) transition"><Plus size={12} /></button>
                                         </div>
-                                        <button onClick={() => removeFromCart(item.id)} className="text-[#d1c5a8] transition hover:text-[#8b6e29]">
+                                        <button onClick={() => removeFromCart(item.id)} className="text-(--color-text-muted)/60 transition hover:text-red-500 p-1" aria-label="Remove item">
                                             <Trash2 size={16} />
                                         </button>
                                     </div>
@@ -75,66 +86,84 @@ export default function CartPage() {
                             ))}
                         </div>
 
-                        <div className="mt-10 w-full border border-[#e5e0d3] bg-white p-8 shadow-sm">
-                            <div className="mb-8">
-                                <label className="text-xs font-bold uppercase tracking-widest text-[#8b6e29] flex items-center gap-2 mb-4">
+                        {/* Delivery Method Selection Card */}
+                        <div className="w-full border border-(--color-border-strong) bg-white p-6 shadow-xs">
+                            <div className="mb-5">
+                                <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--color-gold-dark) flex items-center gap-2 mb-1.5">
                                     <Truck size={16} /> Select Delivery Method *
                                 </label>
-                                <div className="space-y-2">
-                                    {COURIER_OPTIONS.map((option) => (
+                                <p className="text-xs text-(--color-text-muted)">Choose your preferred delivery option to calculate final pricing.</p>
+                            </div>
+
+                            <div className="space-y-2.5">
+                                {COURIER_OPTIONS.map((option) => {
+                                    const isSelected = selectedShipping?.id === option.id;
+                                    return (
                                         <button
                                             key={option.id}
                                             onClick={() => setSelectedShipping(option)}
-                                            className={`w-full flex items-center p-4 border transition-all ${
-                                                selectedShipping?.id === option.id 
-                                                ? 'border-[#3d2c10] bg-[#fdfaf5]' 
-                                                : 'border-[#e5e0d3] bg-white'
+                                            className={`w-full flex items-center justify-between p-4 border transition-all text-left ${
+                                                isSelected 
+                                                    ?  'border-(--color-border) bg-amber-950 text-white'
+                                                    : 'border-[#3d2c10] bg-[#fdfaf5] hover:border-(--color-gold)/40'
                                             }`}
                                         >
-                                            <div className={`w-4 h-4 rounded-full border flex items-center justify-center mr-4 ${
-                                                selectedShipping?.id === option.id ? 'border-[#3d2c10]' : 'border-[#d1c5a8]'
-                                            }`}>
-                                                {selectedShipping?.id === option.id && <div className="w-2 h-2 rounded-full bg-[#3d2c10]" />}
+                                            <div className="flex items-center gap-3">
+                                                {/* Explicitly colored high-contrast border and background for visibility */}
+                                                <div className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                                                    isSelected ? 'border-[#3d2c10] bg-[#3d2c10]' : 'border-[#3d2c10]/40 bg-amber-950'
+                                                }`}>
+                                                    {isSelected && <div className="w-2 h-2 rounded-full bg-white" />}
+                                                </div>
+                                                <div>
+                                                    <span className="text-xs sm:text-sm font-bold text-(--color-text) block">{option.name}</span>
+                                                    <span className="text-[10px] text-(--color-text-muted) block">{option.desc} ({option.time})</span>
+                                                </div>
                                             </div>
-                                            <div className="text-sm font-semibold text-[#2d2822] text-left">
-                                                {option.name} <span className="text-[10px] text-[#7a7266] uppercase block">({option.time})</span>
-                                            </div>
+                                            <span className="text-xs sm:text-sm font-bold text-(--color-gold-dark) shrink-0">R{option.price}</span>
                                         </button>
-                                    ))}
-                                </div>
+                                    );
+                                })}
                             </div>
 
-                            <div className="space-y-3 pt-6 border-t border-[#f3ede3]">
-                                <div className="flex items-center justify-between text-sm">
-                                    <span className="font-medium text-[#7a7266]">Subtotal</span>
-                                    <span>R{subtotal.toFixed(2)}</span>
+                            {/* Summary Totals */}
+                            <div className="space-y-2.5 pt-6 mt-6 border-t border-(--color-border)">
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-(--color-text-muted)">Subtotal</span>
+                                    <span className="font-semibold text-(--color-text)">R{subtotal.toFixed(2)}</span>
                                 </div>
-                                {selectedShipping && (
-                                    <div className="flex items-center justify-between text-sm">
-                                        <span className="font-medium text-[#7a7266]">Shipping</span>
-                                        <span>R{selectedShipping.price.toFixed(2)}</span>
-                                    </div>
-                                )}
-                                <div className="flex items-center justify-between text-sm font-bold text-[#2d2822]">
+                                <div className="flex items-center justify-between text-xs">
+                                    <span className="text-(--color-text-muted)">Delivery</span>
+                                    <span className="font-semibold text-(--color-text)">{selectedShipping ? `R${selectedShipping.price.toFixed(2)}` : 'Select method'}</span>
+                                </div>
+                                <div className="flex items-center justify-between text-sm font-bold text-(--color-text) pt-2 border-t border-dashed border-(--color-border)">
                                     <span>Total to pay</span>
-                                    <span>R{totalToPay.toFixed(2)}</span>
+                                    <span className="text-base text-(--color-gold-dark)">R{totalToPay.toFixed(2)}</span>
                                 </div>
                             </div>
 
+                            {/* Action Button */}
                             {!selectedShipping ? (
-                                <div className="w-full h-12 mt-8 flex items-center justify-center gap-2 bg-[#f3ede3] text-sm font-bold uppercase text-[#a89d8e] cursor-not-allowed">
+                                <div className="w-full h-12 mt-6 flex items-center justify-center gap-2 bg-[#f3ede3] border border-(--color-border) text-xs font-bold uppercase tracking-wider text-[#a89d8e] cursor-not-allowed">
                                     Select delivery to continue
                                 </div>
                             ) : (
-                                <Link href="/checkout" className="w-full h-12 mt-8 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-sm font-semibold text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105">
+                                <Link 
+                                    href="/checkout" 
+                                    className="w-full h-12 mt-6 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-semibold text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105"
+                                >
                                     Continue to checkout <ArrowRight size={16} />
                                 </Link>
                             )}
+
+                            {/* Trust Badge */}
+                            <div className="flex items-center justify-center gap-1.5 mt-4 text-[10px] text-(--color-text-muted)">
+                                <ShieldCheck size={14} className="text-(--color-gold-dark)" />
+                                <span>Encrypted & secure checkout processing</span>
+                            </div>
                         </div>
                     </>
                 )}
-            
-                <div className="h-18 sm:h-16" />
             </main>
         </div>
     );

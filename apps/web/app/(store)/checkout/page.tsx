@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { ArrowRight, CheckCircle2, UserPlus, ShoppingCart } from 'lucide-react';
+import { ArrowRight, CheckCircle2, UserPlus, ShoppingCart, Lock, ShieldCheck } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 
@@ -23,74 +23,121 @@ export default function CheckoutPage() {
     };
 
     return (
-        <div className="w-full pb-10">
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-6">
+        <div className="w-full min-h-screen bg-(--color-background) pb-12">
+            {/* Header */}
+            <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
+                
+                <Link 
+                    href="/cart" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    aria-label={`${cart.length} items in cart`}
+                >
+                    <div className="relative">
+                        <ShoppingCart size={32} />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
+                            {cart.length}
+                        </span>
+                    </div>
+                </Link>
             </header>
 
-            <main className="flex flex-col gap-2">
-                <div className="w-full h-2" />
+            <main className="flex flex-col gap-6 px-6 pt-6">
+                {/* Page Title & Breadcrumb indicator */}
+                <div className="flex flex-col gap-1 items-center text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark) flex items-center gap-1.5">
+                        <Lock size={12} /> Secure Checkout
+                    </span>
+                    <h1 className="text-2xl font-serif text-(--color-text)">Delivery Details</h1>
+                </div>
 
                 {cart.length === 0 && !completed ? (
-                    <div className="border border-[#e5e0d3] bg-white p-10 text-center shadow-sm">
-                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#8b6e29]">Your bag is empty</p>
-                        <Link href="/" className="mt-6 inline-flex items-center gap-2 rounded-full border border-[#d4c8ae] px-6 py-3 text-xs font-bold uppercase tracking-[0.2em] text-[#5c5448] transition hover:bg-[#f8f5f0]">
-                            Explore products <ArrowRight size={14} />
+                    <div className="w-full border border-(--color-border-strong) bg-white p-10 text-center shadow-xs flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-4 border border-(--color-border)">
+                            <ShoppingCart size={28} />
+                        </div>
+                        <h2 className="text-lg font-serif text-(--color-text) mb-1">Your bag is currently empty</h2>
+                        <p className="text-xs text-(--color-text-muted) max-w-xs mb-6">Explore our luxury collagen and skincare collection to find your ideal glow.</p>
+                        <Link href="/" className="w-full h-12 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105">
+                            Shop collection <ArrowRight size={14} />
                         </Link>
                     </div>
                 ) : completed ? (
-                    <div className="border border-[#e5e0d3] bg-white p-10 text-center shadow-sm">
-                        <CheckCircle2 className="w-full mx-auto text-[#8b6e29]" size={48} />
-                        <h1 className="mt-4 text-2xl font-medium text-[#2d2822]">Order confirmed</h1>
-                        <p className="mt-2 text-sm text-[#7a7266]">We've sent your order summary to WhatsApp.</p>
+                    <div className="w-full border border-(--color-border-strong) bg-white p-10 text-center shadow-xs flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-4 rounded-full border border-(--color-border)">
+                            <CheckCircle2 size={32} />
+                        </div>
+                        <h2 className="text-lg font-serif text-(--color-text) mb-1">Order confirmed</h2>
+                        <p className="text-xs text-(--color-text-muted) max-w-xs mb-6">We've sent your order summary to WhatsApp.</p>
                         
-                        <div className="mt-8 border-t border-[#f3ede3] pt-8">
-                            <h2 className="mt-2 font-medium text-[#2d2822]">Save your details</h2>
-                            <p className="text-xs text-[#7a7266] mb-4">Create a password to track orders faster next time.</p>
-                            <Link href="/register" className="w-full h-9 mt-5 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-sm font-semibold text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105">
+                        <div className="w-full pt-6 border-t border-(--color-border)">
+                            <h3 className="text-xs font-bold uppercase tracking-wider text-(--color-text) mb-1">Save your details</h3>
+                            <p className="text-[11px] text-(--color-text-muted) mb-4">Create a password to track orders faster next time.</p>
+                            <Link href="/register" className="w-full h-12 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105">
                                 Create Account <UserPlus size={14} />
                             </Link>
                         </div>
                     </div>
                 ) : (
-                    <>
-                        <div className="border border-[#e5e0d3] bg-white p-10 text-center shadow-sm">
-                            <p className="text-[10px] font-bold uppercase tracking-[0.3em] text-[#bda777]">Secure Checkout</p>
-                            <h1 className="mt-2 text-2xl font-medium text-[#2d2822]">Delivery Details</h1>
-                            <p className="mt-2 text-sm text-[#7a7266]">Please provide your details for delivery.</p>
+                    <div className="w-full border border-(--color-border-strong) bg-white p-6 shadow-xs">
+                        <div className="mb-5">
+                            <p className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--color-gold-dark) mb-1.5">
+                                Shipping Information *
+                            </p>
+                            <p className="text-xs text-(--color-text-muted)">Please provide your details for delivery.</p>
+                        </div>
 
-                            <form onSubmit={handleSubmit} className="space-y-4">
+                        <form onSubmit={handleSubmit} className="space-y-4">
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-(--color-text)">Full Name *</label>
                                 <input
                                     value={customerName}
                                     onChange={(e) => setCustomerName(e.target.value)}
-                                    className="w-full rounded-xl border border-[#e5e0d3] bg-[#fdfaf5] px-4 py-3 text-sm outline-none focus:border-[#8b6e29]"
-                                    placeholder="Full Name"
+                                    className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
+                                    placeholder="Enter your full name"
                                     required
                                 />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-(--color-text)">WhatsApp Number *</label>
                                 <input
                                     type="tel"
                                     value={phoneNumber}
                                     onChange={(e) => setPhoneNumber(e.target.value)}
-                                    className="w-full rounded-xl border border-[#e5e0d3] bg-[#fdfaf5] px-4 py-3 text-sm outline-none focus:border-[#8b6e29]"
-                                    placeholder="WhatsApp Number"
+                                    className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
+                                    placeholder="e.g. 082 123 4567"
                                     required
                                 />
+                            </div>
+
+                            <div className="space-y-1">
+                                <label className="text-[10px] font-bold uppercase tracking-wider text-(--color-text)">Delivery Address *</label>
                                 <textarea
                                     value={deliveryAddress}
                                     onChange={(e) => setDeliveryAddress(e.target.value)}
-                                    className="h-24 w-full rounded-xl border border-[#e5e0d3] bg-[#fdfaf5] px-4 py-3 text-sm outline-none focus:border-[#8b6e29]"
-                                    placeholder="Delivery Address"
+                                    className="h-24 w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10] resize-none"
+                                    placeholder="Street address, suburb, city, postal code"
                                     required
                                 />
-                                
-                                <button type="submit" className="w-full rounded-xl bg-[#8b6e29] py-4 text-[12px] font-bold uppercase tracking-[0.25em] text-white transition-all hover:bg-[#a68635]">
-                                    Place order • R{subtotal}
-                                </button>
-                            </form>
+                            </div>
+                            
+                            <button 
+                                type="submit" 
+                                className="w-full h-12 mt-2 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105"
+                            >
+                                Place order • R{subtotal.toFixed(2)} <ArrowRight size={16} />
+                            </button>
+                        </form>
+
+                        {/* Trust Badge */}
+                        <div className="flex items-center justify-center gap-1.5 mt-6 pt-6 border-t border-(--color-border) text-[10px] text-(--color-text-muted)">
+                            <ShieldCheck size={14} className="text-(--color-gold-dark)" />
+                            <span>Encrypted & secure checkout processing</span>
                         </div>
-                    </>
+                    </div>
                 )}
             </main>
         </div>

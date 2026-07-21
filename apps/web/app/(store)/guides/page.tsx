@@ -1,8 +1,6 @@
 'use client';
 
-import { useState } from 'react';
-import { BookOpen, ArrowRight } from 'lucide-react';
-import { ShoppingCart } from 'lucide-react';
+import { BookOpen, ArrowRight, ShoppingCart } from 'lucide-react';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 import { useCart } from '@/context/cart-context';
 import Link from 'next/link';
@@ -24,68 +22,75 @@ const GUIDES = [
 
 export default function GuidesPage() {
     const { cart } = useCart();
-    const [searchQuery, setSearchQuery] = useState('');
 
     return (
-        <div className="w-full pb-10">
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-6">
+        <div className="w-full min-h-screen bg-(--color-background) pb-12">
+            {/* Header */}
+            <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
                 
                 <Link 
                     href="/cart" 
-                    className="absolute top-4 right-4 flex items-center p-2 text-[#4a3b20] transition-transform hover:scale-105" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
                     aria-label={`${cart.length} items in cart`}
                 >
                     <div className="relative">
-                        <ShoppingCart size={24} />
-                        <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-[#3d2c10] text-white text-[10px] font-bold">
+                        <ShoppingCart size={32} />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
                             {cart.length}
                         </span>
                     </div>
                 </Link>
             </header>
 
-            {/* Catalog Main Body - Gap-2 keeps it tight */}
-            <main className="flex flex-col gap-2">
-                <div className="w-full h-2" />
-                    <div className="mb-8 text-center">
-                        <div className="flex justify-center mb-4">
-                            <div className="p-3 bg-[#f3e2a8] rounded-full text-[#3d2c10]">
-                                <BookOpen size={24} />
-                            </div>
+            <main className="flex flex-col gap-6 px-6 pt-6">
+                {/* Page Title & Breadcrumb indicator */}
+                <div className="flex flex-col gap-1 items-center text-center">
+                    <div className="w-12 h-12 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-2 rounded-full border border-(--color-border)">
+                        <BookOpen size={20} />
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark)">
+                        Skincare Routines
+                    </span>
+                    <h1 className="text-2xl font-serif text-(--color-text)">Product Guides</h1>
+                    <p className="text-xs text-(--color-text-muted)">Master your routine with our simple application steps.</p>
+                </div>
+
+                {/* Guides List */}
+                <div className="flex flex-col gap-3">
+                    {GUIDES.map((guide, index) => (
+                        <div key={index} className="border border-(--color-border-strong) bg-white p-5 shadow-xs space-y-4">
+                            <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) pb-3 border-b border-(--color-border)">
+                                {guide.title}
+                            </h2>
+                            <ol className="space-y-2.5">
+                                {guide.steps.map((step, stepIndex) => (
+                                    <li key={stepIndex} className="flex gap-3 text-xs sm:text-sm text-(--color-text-muted)">
+                                        <span className="font-bold text-(--color-gold-dark)">{stepIndex + 1}.</span>
+                                        <span className="text-(--color-text) font-medium">{step}</span>
+                                    </li>
+                                ))}
+                            </ol>
                         </div>
-                        <h1 className="text-2xl font-medium text-[#2d2822]">Product Guides</h1>
-                        <p className="text-sm text-[#7a7266] mt-2">Master your routine with our simple application steps.</p>
-                    </div>
+                    ))}
+                </div>
 
-                    <div className="space-y-4">
-                        {GUIDES.map((guide, index) => (
-                            <div key={index} className="border border-[#e5e0d3] bg-white p-6 shadow-sm">
-                                <h2 className="text-sm font-bold uppercase tracking-widest text-[#3d2c10] mb-4 border-b border-[#f3ede3] pb-2">
-                                    {guide.title}
-                                </h2>
-                                <ol className="space-y-3">
-                                    {guide.steps.map((step, stepIndex) => (
-                                        <li key={stepIndex} className="flex gap-3 text-sm text-[#5c5448]">
-                                            <span className="font-bold text-[#8b6e29]">{stepIndex + 1}.</span>
-                                            {step}
-                                        </li>
-                                    ))}
-                                </ol>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="mt-10 p-6 bg-[#fdfaf5] border border-[#f3ede3] text-center">
-                        <h3 className="text-sm font-medium text-[#2d2822]">Need more help?</h3>
-                        <p className="text-xs text-[#7a7266] mt-2 mb-4">Message us on WhatsApp for personalized advice.</p>
-                        <a href="https://wa.me/27681037459" className="inline-flex items-center gap-2 text-sm font-bold text-[#8b6e29] uppercase tracking-widest hover:underline">
-                            Chat to us <ArrowRight size={14} />
-                        </a>
-                    </div>
-                </main>
+                {/* Support Box */}
+                <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs text-center">
+                    <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) mb-1">Need more help?</h3>
+                    <p className="text-xs text-(--color-text-muted) mb-4">Message us on WhatsApp for personalised advice.</p>
+                    <a 
+                        href="https://wa.me/27681037459" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="w-full h-12 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105"
+                    >
+                        Chat to us <ArrowRight size={14} />
+                    </a>
+                </div>
+            </main>
         </div>
     );
 }

@@ -4,15 +4,15 @@ import { CartProvider } from '@/context/cart-context';
 import { Barlow_Condensed, Saira_Condensed } from 'next/font/google';
 
 const barlow = Barlow_Condensed({
-  weight: '900',
-  subsets: ['latin'],
-  variable: '--font-barlow',
+    weight: '900',
+    subsets: ['latin'],
+    variable: '--font-barlow',
 });
 
 const saira = Saira_Condensed({
-  weight: '900',
-  subsets: ['latin'],
-  variable: '--font-saira',
+    weight: '900',
+    subsets: ['latin'],
+    variable: '--font-saira',
 });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
@@ -20,19 +20,19 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <html lang="en" className={`${barlow.variable} ${saira.variable}`}>
             <head>
                 <link rel="manifest" href="/manifest.json" />
-                <meta name="theme-color" content="#3d2c10" />
+                <meta name="theme-color" content="#2a1f0a" />
                 <link rel="apple-touch-icon" href="/icon-192.png" />
                 <link rel="icon" href="/logo.svg" type="image/svg+xml" />
             </head>
-            <body className="min-h-screen overflow-x-hidden bg-[#f4f4f3] text-[#121212]">
-                <div className="relative flex items-center justify-center overflow-hidden">
-                    <div className="relative flex w-full justify-center">
-                        <div className="glass-card relative flex w-full max-w-160 min-h-[calc(100vh-2rem)] overflow-hidden shadow-[0_24px_70px_rgba(42,35,24,0.08)]">
-                            <CartProvider>
-                                <main className="w-full px-5 py-6">{children}</main>
-                                <MobileNav />
-                            </CartProvider>
-                        </div>
+            <body className="min-h-screen overflow-x-hidden bg-(--color-background) text-(--color-text)">
+                {/* Outer centering wrapper */}
+                <div className="relative flex justify-center w-full min-h-screen py-0 sm:py-4">
+                    {/* App Container: Uses box-border and px-4/px-6 safeguards to ensure child content stays within safe bounds */}
+                    <div className="relative flex flex-col w-full max-w-md sm:max-w-5xl min-h-screen sm:min-h-[calc(100vh-2rem)] sm:rounded-3xl bg-(--color-surface-elevated) backdrop-blur-xl border-x sm:border border-(--color-border) shadow-[0_24px_70px_rgba(42,35,24,0.06)] box-border">
+                        <CartProvider>
+                            <main className="flex-1 w-full box-border pb-28">{children}</main>
+                            <MobileNav />
+                        </CartProvider>
                     </div>
                 </div>
             </body>

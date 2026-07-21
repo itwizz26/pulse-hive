@@ -6,10 +6,10 @@ export function ProductCard({ product }: { product: any }) {
     const { addToCart } = useCart();
 
     return (
-        <div className="group relative flex flex-col overflow-hidden p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
+        <div className="group relative flex flex-col overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
             
             {/* Product Image Area with Logo */}
-            <div className="mb-6 flex h-52 w-full items-center justify-center bg-linear-to-b from-[#040404] to-[#3d2c10] transition-colors group-hover:from-[#3d2c10] group-hover:to-[#f3c54b]">
+            <div className="flex h-50 w-full items-center justify-center bg-linear-to-b from-[#040404] to-[#3d2c10] transition-colors group-hover:from-[#3d2c10] group-hover:to-[#f3c54b]">
                 <img 
                     src="/logo.svg" 
                     alt="Glowa Vee - Collagen Skin Repair Supplements" 
@@ -19,24 +19,28 @@ export function ProductCard({ product }: { product: any }) {
 
             {/* Content */}
             <div className="flex-1 text-center pt-5">
-                <h2 className="text-3xl text-[#040404]">{product.name}</h2>
+                <h2 className="text-4xl text-[#040404]">{product.name}</h2>
                 <p className="mt-2 leading-relaxed text-[#3d2c10]">
                     {product.description}
                 </p>
             </div>
 
             {/* Footer with Gold Prominent Button */}
-            <div className="mt-8 w-full flex items-center justify-center gap-3 px-2">
+            <div className="m-8 w-full flex items-center justify-center gap-3 px-2">
                 <span className="text-3xl font-bold text-[#3d2c10]">R{product.price}</span>
                 
                 <button
                     onClick={() => addToCart(product)}
-                    className="flex items-center gap-1.5 rounded-full border border-[#d4c8ae] bg-[#fffdf8] px-3 py-1.5 text-[11px] font-bold uppercase tracking-[0.1em] text-[#3d2c10] transition-all hover:bg-[#f3e2a8] hover:border-[#f3e2a8] active:scale-95"
+                    className="flex items-center gap-1.5 rounded-full border border-[#d4c8ae] bg-[#fffdf8] px-3 py-1.5 text-[11px] font-bold uppercase tracking-widest text-[#3d2c10] transition-all hover:bg-[#f3e2a8] hover:border-[#f3e2a8] active:scale-95"
                     aria-label="Add to bag"
                 >
                     <ShoppingBag size={14} strokeWidth={2} />
                     Buy
                 </button>
+            </div>
+            <div className="mt-2 px-1 flex justify-center items-center gap-2 text-xs text-(--color-text-muted)">
+                <span className="font-medium">Size/Volume:</span>
+                <span className="font-bold text-(--color-gold-dark) bg-(--color-surface) px-2 py-0.5 border border-(--color-border) rounded">{product.size}</span>
             </div>
         </div>
     );

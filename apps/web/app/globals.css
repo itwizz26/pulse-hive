@@ -1,55 +1,85 @@
 @import "tailwindcss";
 @import "tailwindcss/preflight";
+
 @layer base {
-  input, select, textarea {
-    font-size: 16px !important;
-  }
+  /* Prevent zoom-in on iOS inputs while maintaining readability */
+    input, select, textarea {
+        font-size: 16px !important;
+        @apply focus:outline-none focus:ring-1 focus:ring-amber-900/20 transition-all duration-300;
+    }
 }
 
 :root {
     color-scheme: light;
-    --color-background: #f4f4f3;
-    --color-background-soft: #faf7f3;
-    --color-surface: rgba(255, 255, 255, 0.96);
-    --color-surface-elevated: rgba(255, 251, 246, 0.98);
-    --color-border: rgba(34, 30, 22, 0.08);
-    --color-border-strong: rgba(34, 30, 22, 0.14);
-    --color-text: #15110b;
-    --color-text-muted: #5c5448;
-    --color-text-soft: #7b7263;
-    --color-gold-dark: #3d2c10;
-    --color-gold: #b07c18;
-    --color-gold-light: #f3c54b;
-}
-
-* {
-    box-sizing: border-box;
+    /* Shifted to a more sophisticated 'warm linen' palette */
+    --color-background: #fcfbf9;
+    --color-background-soft: #f4f2ef;
+    
+    /* Increased transparency for a glass effect */
+    --color-surface: rgba(255, 255, 255, 0.7);
+    --color-surface-elevated: rgba(255, 255, 255, 0.85);
+    
+    /* Softer borders to reduce visual noise */
+    --color-border: rgba(34, 30, 22, 0.05);
+    --color-border-strong: rgba(34, 30, 22, 0.1);
+    
+    /* Richer, deep text colors instead of flat black */
+    --color-text: #1a1712;
+    --color-text-muted: #665f54;
+    --color-text-soft: #8c8578;
+    
+    /* Refined gold tones for an understated elegance */
+    --color-gold-dark: #2a1f0a;
+    --color-gold: #a67c52;
+    --color-gold-light: #d4af37;
 }
 
 html, body {
     margin: 0;
     padding: 0;
-    min-height: inherit;
+    min-height: 100%;
     background-color: var(--color-background);
     color: var(--color-text);
     font-family: var(--font-barlow), sans-serif;
+    -webkit-font-smoothing: antialiased; /* Sharper text rendering */
+    text-rendering: optimizeLegibility;
 }
 
 body {
-    background: linear-gradient(135deg, var(--color-background) 0%, var(--color-background-soft) 100%);
+    /* A very subtle gradient for depth without being distracting */
+    background: radial-gradient(circle at 50% -20%, var(--color-background-soft), var(--color-background));
+    background-attachment: fixed;
 }
 
 h1, h2, h3, h4, h5, h6 {
-    /* Playfair Display for headings */
     font-family: var(--font-saira), serif;
+    letter-spacing: -0.02em; /* Tighter tracking looks more high-end */
+    line-height: 1.2;
 }
 
+/* Premium interactions */
 a {
     color: inherit;
     text-decoration: none;
+    transition: color 0.3s ease, opacity 0.3s ease;
+}
+
+a:hover {
+    color: var(--color-gold);
+}
+
+/* Glassmorphism utility for containers */
+.card-premium {
+    background: var(--color-surface);
+    backdrop-filter: blur(12px);
+    border: 1px solid var(--color-border);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
 }
 
 .scrollbar-hide {
     scrollbar-width: none; 
     -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+    display: none;
 }

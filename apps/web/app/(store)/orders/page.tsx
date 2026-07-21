@@ -1,64 +1,80 @@
 'use client';
 
 import Link from 'next/link';
-import { ArrowRight, ShoppingCart } from 'lucide-react';
+import { ArrowRight, ShoppingCart, PackageOpen, Clock } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 
 export default function OrdersPage() {
-    const { orders } = useCart();
+    const { orders, cart } = useCart();
 
     return (
-        <div className="w-full pb-10">
-            <header className="sticky top-0 z-50 bg-white/80 backdrop-blur-md p-6">
+        <div className="w-full min-h-screen bg-(--color-background) pb-12">
+            {/* Header */}
+            <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
                 
                 <Link 
-                    href="/orders" 
-                    className="absolute top-4 right-4 flex items-center p-2 text-[#4a3b20] transition-transform hover:scale-105" 
-                    aria-label={`${orders.length} items in cart`}
+                    href="/cart" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    aria-label={`${cart.length} items in cart`}
                 >
                     <div className="relative">
-                        <ShoppingCart size={24} />
-                        <span className="absolute -top-1 -right-1 w-4 h-4 flex items-center justify-center rounded-full bg-[#3d2c10] text-white text-[10px] font-bold">
-                            {orders.length}
+                        <ShoppingCart size={32} />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
+                            {cart.length}
                         </span>
                     </div>
                 </Link>
             </header>
 
-            <main className="flex flex-col gap-2">
-                <div className="w-full h-2" />
+            <main className="flex flex-col gap-6 px-6 pt-6">
+                {/* Page Title & Breadcrumb indicator */}
+                <div className="flex flex-col gap-1 items-center text-center">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark) flex items-center gap-1.5">
+                        <Clock size={12} /> Purchase History
+                    </span>
+                    <h1 className="text-2xl font-serif text-(--color-text)">Your Orders</h1>
+                </div>
 
                 {orders.length === 0 ? (
-                    <div className="border border-[#e5e0d3] bg-white p-6 shadow-[0_12px_30px_rgba(0,0,0,0.06)] text-center">
-                        <p className="text-sm font-semibold uppercase tracking-[0.2em] text-[#8b6e29]">No orders yet.</p>
-                        <p className="text-sm text-[#4a3b20]">Complete a checkout and your orders will appear here instantly.</p>
-                        <Link href="/" className="w-full h-9 mt-5 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-sm font-semibold text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105">
-                            Shop now <ArrowRight size={14} />
+                    <div className="w-full border border-(--color-border-strong) bg-white p-10 text-center shadow-xs flex flex-col items-center justify-center">
+                        <div className="w-16 h-16 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-4 border border-(--color-border)">
+                            <PackageOpen size={28} />
+                        </div>
+                        <h2 className="text-lg font-serif text-(--color-text) mb-1">No orders yet</h2>
+                        <p className="text-xs text-(--color-text-muted) max-w-xs mb-6">Complete a checkout and your order tracking history will appear here instantly.</p>
+                        <Link href="/" className="w-full h-12 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105">
+                            Shop collection <ArrowRight size={14} />
                         </Link>
                     </div>
                 ) : (
-                    <div className="mt-4 space-y-3">
+                    <div className="flex flex-col gap-3">
                         {orders.map((order: any) => (
-                            <div key={order.id} className="border border-[#e5e0d3] bg-white p-4 shadow-[0_12px_30px_rgba(0,0,0,0.06)]">
-                                <div className="flex items-center justify-between gap-3">
+                            <div key={order.id} className="border border-(--color-border-strong) bg-white p-5 shadow-xs space-y-4">
+                                <div className="flex items-center justify-between gap-3 pb-3 border-b border-(--color-border)">
                                     <div>
-                                        <p className="text-sm font-semibold text-[#040404]">{order.id}</p>
-                                        <p className="mt-1 text-xs text-[#4a3b20]">{order.customerName}</p>
+                                        <span className="text-xs font-bold text-(--color-text) block">{order.id}</span>
+                                        <span className="text-[10px] text-(--color-text-muted) block">{order.customerName}</span>
                                     </div>
-                                    <div className="rounded-full border border-[#e5e0d3] bg-[#f8f5f0] px-3 py-1 text-xs font-semibold text-[#040404]">
-                                        R{order.total}
+                                    <div className="text-right">
+                                        <span className="text-xs sm:text-sm font-bold text-(--color-gold-dark) block">
+                                            R{Number(order.total).toFixed(2)}
+                                        </span>
+                                        <span className="text-[10px] text-(--color-text-muted) block">
+                                            {new Date(order.createdAt).toLocaleDateString()}
+                                        </span>
                                     </div>
                                 </div>
-                                <p className="mt-3 text-xs uppercase tracking-[0.24em] text-[#7a7266]">{new Date(order.createdAt).toLocaleDateString()}</p>
-                                <div className="mt-3 border border-[#e5e0d3] bg-white p-3 text-sm text-[#040404]">
+
+                                <div className="border border-(--color-border) bg-(--color-background) p-3 space-y-2">
+                                    <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Ordered Items</span>
                                     {order.items.map((item: any) => (
-                                        <div key={item.id} className="flex items-center justify-between py-1">
-                                            <span>{item.name}</span>
-                                            <span>x{item.quantity}</span>
+                                        <div key={item.id} className="flex items-center justify-between text-xs py-1 border-b border-(--color-border) last:border-b-0">
+                                            <span className="text-(--color-text) font-medium">{item.name}</span>
+                                            <span className="text-(--color-text-muted) font-semibold">x{item.quantity}</span>
                                         </div>
                                     ))}
                                 </div>

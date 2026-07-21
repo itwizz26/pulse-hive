@@ -16,21 +16,22 @@ export function MobileNav() {
     const pathname = usePathname();
 
     return (
-        <nav className="fixed bottom-0 left-0 right-0 z-50 flex w-full justify-center border-t border-[#d4c8ae] bg-[#fffdf8] shadow-[0_-12px_40px_rgba(34,30,22,0.12)]">
-            <div className="grid w-full max-w-lg grid-cols-5 items-center bg-[#fff9ee]">
+        /* Changed from fixed to absolute, anchored to the bottom of your app card container */
+        <nav className="sticky bottom-0 left-0 right-0 z-50 flex w-full justify-center border-t border-(--color-border) bg-(--color-surface)/95 backdrop-blur-md shadow-[0_-8px_30px_rgba(34,30,22,0.06)] mt-auto">
+            <div className="grid w-full grid-cols-5 items-center">
                 {links.map(({ href, label, icon: Icon }) => {
                     const isActive = pathname === href;
                     return (
                         <Link
                             key={href}
                             href={href}
-                            className={`flex flex-col gap-1 items-center justify-center py-2 text-[9px] font-bold uppercase tracking-[0.15em] transition ${
+                            className={`flex flex-col gap-1 items-center justify-center py-3 text-[9px] font-bold uppercase tracking-[0.15em] transition-all ${
                                 isActive 
-                                    ? 'bg-[#f3e2a8] text-[#3d2c10]' 
-                                    : 'text-[#5c5348] hover:bg-[#fcf8ef] hover:text-[#1d1a14]'
+                                    ? 'bg-(--color-gold)/15 text-(--color-gold-dark)' 
+                                    : 'text-(--color-text-muted) hover:bg-(--color-background-soft) hover:text-(--color-text)'
                             }`}
                         >
-                            <Icon size={18} />
+                            <Icon size={18} strokeWidth={isActive ? 2.2 : 1.5} />
                             <span>{label}</span>
                         </Link>
                     );
