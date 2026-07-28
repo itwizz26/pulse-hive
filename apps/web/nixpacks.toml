@@ -1,0 +1,11 @@
+[phases.install]
+# Force the global engine to install dependencies relative to your frontend folder
+cmds = ["cd apps/web && pnpm install --frozen-lockfile"]
+
+[phases.build]
+# Navigate inside the folder to compile the production bundles
+cmds = ["cd apps/web && pnpm build"]
+
+[start]
+# Launch Next.js in production mode inside the correct directory
+cmd = "cd apps/web && pnpm start"
