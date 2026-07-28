@@ -1,5 +1,5 @@
-# Step 1: Base Image
-FROM node:20-alpine AS base
+# Step 1: Base Image (Upgraded to Node 22 to support PNPM v11)
+FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
 RUN corepack enable
