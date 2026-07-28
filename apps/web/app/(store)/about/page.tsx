@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { Sparkles, ArrowRight, ShieldCheck, HeartHandshake } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, HeartHandshake, ShoppingCart } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 
@@ -14,6 +14,19 @@ export default function AboutPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
+                
+                <Link 
+                    href="/cart" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    aria-label={`${cart.length} items in cart`}
+                >
+                    <div className="relative">
+                        <ShoppingCart size={32} />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
+                            {cart.length}
+                        </span>
+                    </div>
+                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6 max-w-5xl mx-auto w-full box-border">

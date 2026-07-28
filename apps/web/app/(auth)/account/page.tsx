@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
-import { User, Package, MapPin, LogOut, ArrowRight, ShoppingCart, ShieldCheck, Loader2, Award, Sparkles, Heart } from 'lucide-react';
+import { User, Package, MapPin, LogOut, ArrowRight, ShoppingCart, ShieldCheck, Loader2, Award } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 import { apiClient } from '@/lib/api-client';
@@ -59,7 +59,7 @@ export default function AccountPage() {
     }
 
     return (
-        <div className="w-full min-h-screen bg-(--color-background) pb-16 box-border">
+        <div className="w-full min-h-screen bg-(--color-background) pb-12 box-border">
             {/* Header */}
             <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6 box-border">
                 <div className="flex justify-center items-center">
@@ -68,7 +68,7 @@ export default function AccountPage() {
                 
                 <Link 
                     href="/cart" 
-                    className="absolute top-6 right-6 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
                     aria-label={`${cart.length} items in cart`}
                 >
                     <div className="relative">
@@ -83,7 +83,7 @@ export default function AccountPage() {
             <main className="flex flex-col gap-6 px-6 pt-6 max-w-5xl mx-auto w-full box-border">
                 {/* Page Title & Breadcrumb indicator */}
                 <div className="flex flex-col gap-1 items-center text-center">
-                    <div className="w-12 h-12 bg-linear-to-br from-[#3d2c10] to-[#f3c54b] flex items-center justify-center text-white mb-2 rounded-full shadow-md shadow-[#3d2c10]/15 border border-(--color-border)">
+                    <div className="w-12 h-12 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-2 rounded-full border border-(--color-border)">
                         <User size={20} />
                     </div>
                     <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark)">
@@ -92,44 +92,37 @@ export default function AccountPage() {
                     <h1 className="text-2xl font-serif text-(--color-text)">
                         {user?.displayName ? `Welcome back, ${user.displayName}` : 'My Account Sanctuary'}
                     </h1>
+                    <h2 className="text-xs font-medium text-(--color-gold-dark)">Username: {user?.email}</h2>
                     <p className="text-xs text-(--color-text-muted)">Manage your bespoke beauty profile, saved delivery locations, and order history.</p>
                 </div>
 
-                {/* Account Details & Status Banner */}
-                <div className="w-full border border-(--color-border-strong) bg-white shadow-xs overflow-hidden box-border">
-                    <div className="bg-linear-to-r from-[#3d2c10] to-[#594018] p-6 text-white flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                        <div className="space-y-1">
-                            <div className="flex items-center gap-2 text-[#f3c54b]">
-                                <Sparkles size={14} />
-                                <span className="text-[10px] uppercase font-bold tracking-widest">VIP Membership Status</span>
+                {/* Grid layout matching Contact Page style */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    {/* Left Column: Account Summary / Status */}
+                    <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs space-y-4 md:col-span-1">
+                        <h2 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Account Standing</h2>
+                        
+                        <div className="space-y-3">
+                            <div className="p-3 space-y-0.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Total Orders</span>
+                                <span className="text-sm font-serif text-(--color-text) block">{orders.length} Curation(s)</span>
                             </div>
-                            <h2 className="text-lg font-serif">{user?.email}</h2>
-                        </div>
-                        <div className="px-3.5 py-1.5 bg-white/10 backdrop-blur-xs border border-white/20 text-white text-[10px] font-bold uppercase tracking-widest rounded-full">
-                            {user?.role || 'Valued Member'}
+                            <div className="p-3 space-y-0.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Reward Standing</span>
+                                <span className="text-sm font-serif text-(--color-text) block">Glow Tier 1</span>
+                            </div>
+                            <div className="p-3 space-y-0.5">
+                                <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Concierge Access</span>
+                                <span className="text-sm font-serif text-(--color-gold-dark) block">Priority 24/7</span>
+                            </div>
                         </div>
                     </div>
 
-                    <div className="p-6 space-y-4">
-                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pb-4 border-b border-(--color-border)">
-                            <div className="p-4 border border-(--color-border) bg-(--color-background) rounded-xs space-y-1">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Total Orders</span>
-                                <span className="text-base font-serif text-(--color-text) block">{orders.length} Curation(s)</span>
-                            </div>
-                            <div className="p-4 border border-(--color-border) bg-(--color-background) rounded-xs space-y-1">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Reward Standing</span>
-                                <span className="text-base font-serif text-(--color-text) block">Glow Tier 1</span>
-                            </div>
-                            <div className="p-4 border border-(--color-border) bg-(--color-background) rounded-xs space-y-1">
-                                <span className="text-[10px] font-bold uppercase tracking-wider text-(--color-text-muted) block">Concierge Access</span>
-                                <span className="text-base font-serif text-(--color-gold-dark) block">Priority 24/7</span>
-                            </div>
-                        </div>
-
-                        {/* Quick Links / Sections */}
-                        <div className="space-y-3 pt-2">
-                            <h3 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Navigation & Settings</h3>
-                            
+                    {/* Right Column: Navigation & Settings */}
+                    <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs md:col-span-2 space-y-4">
+                        <h2 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Navigation & Settings</h2>
+                        
+                        <div className="space-y-3">
                             <Link 
                                 href="/orders" 
                                 className="flex items-center justify-between p-4 border border-(--color-border) bg-white transition-all hover:border-[#3d2c10] hover:shadow-xs group"
@@ -176,14 +169,14 @@ export default function AccountPage() {
                             </Link>
                         </div>
 
-                        {/* Logout Action */}
+                        {/* Logout Action styled like Contact Page submit button */}
                         <div className="pt-4 border-t border-(--color-border)">
                             <button 
                                 type="button" 
                                 onClick={handleLogout} 
-                                className="w-full h-12 inline-flex items-center justify-center gap-2 border border-rose-200 bg-rose-50/50 text-xs font-bold uppercase tracking-wider text-rose-700 transition hover:bg-rose-100/60"
+                                className="w-full h-12 mt-2 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105"
                             >
-                                <LogOut size={14} /> Log out of account session
+                                Log out of account session <LogOut size={14} />
                             </button>
                         </div>
                     </div>

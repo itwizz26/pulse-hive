@@ -75,7 +75,7 @@ export default function OrdersPage() {
                     <h1 className="text-2xl font-serif text-(--color-text)">Purchase History & Status</h1>
                     
                     {/* Attractive Order Counter Display */}
-                    <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-linear-to-r from-[#3d2c10] to-[#594018] text-white rounded-full shadow-md shadow-[#3d2c10]/15 border border-(--color-border)">
+                    <div className="inline-flex items-center gap-2.5 px-4 py-2 bg-linear-to-r from-[#3d2c10] to-[#594018] text-white shadow-md shadow-[#3d2c10]/15 border border-(--color-border)">
                         <div className="w-6 h-6 bg-white/10 flex items-center justify-center text-[#f3c54b]">
                             <Package size={13} />
                         </div>

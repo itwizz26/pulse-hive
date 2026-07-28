@@ -162,7 +162,7 @@ export default function CartPage() {
 
                             {!selectedShipping ? (
                                 <div className="w-full h-12 mt-6 flex items-center justify-center gap-2 bg-[#f3ede3] border border-(--color-border) text-xs font-bold uppercase tracking-wider text-[#a89d8e] cursor-not-allowed">
-                                    Select delivery to continue
+                                    Select delivery to checkout
                                 </div>
                             ) : (
                                 <Link 

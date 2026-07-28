@@ -1,10 +1,13 @@
 'use client';
 
+import Link from 'next/link';
 import { useState } from 'react';
-import { PhoneCall, Mail, MapPin, Send, CheckCircle2, Loader2 } from 'lucide-react';
+import { PhoneCall, Mail, MapPin, Send, CheckCircle2, Loader2, ShoppingCart } from 'lucide-react';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
+import { useCart } from '@/context/cart-context';
 
 export default function ContactPage() {
+    const { cart } = useCart();
     const [name, setName] = useState('');
     const [email, setEmail] = useState('');
     const [message, setMessage] = useState('');
@@ -30,6 +33,19 @@ export default function ContactPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
+                
+                <Link 
+                    href="/cart" 
+                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    aria-label={`${cart.length} items in cart`}
+                >
+                    <div className="relative">
+                        <ShoppingCart size={32} />
+                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
+                            {cart.length}
+                        </span>
+                    </div>
+                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6 max-w-5xl mx-auto w-full box-border">

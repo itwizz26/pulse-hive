@@ -1,9 +1,9 @@
 'use client';
 
+import Link from 'next/link';
 import { BookOpen, ArrowRight, ShoppingCart } from 'lucide-react';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 import { useCart } from '@/context/cart-context';
-import Link from 'next/link';
 
 const GUIDES = [
     {

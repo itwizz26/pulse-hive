@@ -113,22 +113,22 @@ export default function CheckoutPage() {
                             <p className="text-xs text-(--color-text-muted) max-w-sm mx-auto">Your skincare curation has been secured via {shippingOption?.name}. Track its progress live from your account.</p>
                         </div>
                         
-                        <div className="w-full max-w-md pt-6 border-t border-(--color-border) space-y-3">
+                        <div className="w-full pt-6 border-t border-(--color-border) space-y-3">
                             <div className="space-y-1">
                                 <h3 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Access Your Client Portal</h3>
                                 <p className="text-[11px] text-(--color-text-muted)">Sign in to track real-time shipping status or create your account below.</p>
                             </div>
                             
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
+                            <div className="flex flex-row pt-2 w-full">
                                 <Link 
                                     href="/signin" 
-                                    className="w-full h-11 inline-flex items-center justify-center gap-2 border border-(--color-border-strong) bg-white text-xs font-bold uppercase tracking-wider text-(--color-text) shadow-xs transition hover:bg-(--color-surface)"
+                                    className="flex-1 h-11 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105"
                                 >
-                                    <LogIn size={14} className="text-(--color-gold-dark)" /> Sign In
+                                    <LogIn size={14} /> Sign In
                                 </Link>
                                 <Link 
                                     href="/signup" 
-                                    className="w-full h-11 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105"
+                                    className="flex-1 h-11 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105"
                                 >
                                     Create Account <UserPlus size={14} />
                                 </Link>
