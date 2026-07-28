@@ -8,8 +8,7 @@ WORKDIR /app
 # Step 2: Dependencies Stage
 FROM base AS dependencies
 COPY package.json pnpm-lock.yaml* ./
-# FORCE PNPM to allow package build scripts (Fixes ERR_PNPM_IGNORED_BUILDS)
-RUN pnpm config set ignore-scripts false && pnpm install --frozen-lockfile
+RUN pnpm install --frozen-lockfile
 
 # Step 3: Build Stage
 FROM base AS builder
