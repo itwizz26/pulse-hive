@@ -7,7 +7,8 @@ WORKDIR /app
 
 # Step 2: Dependencies Stage
 FROM base AS dependencies
-COPY package.json pnpm-lock.yaml* ./
+# Explicitly include the new workspace configuration file
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml* ./
 RUN pnpm install --frozen-lockfile
 
 # Step 3: Build Stage
