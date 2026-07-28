@@ -1,22 +1,30 @@
-FROM node:20-alpine
+# Step 1: Base Image
+FROM node:20-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 WORKDIR /app
 
-# Copy dependency manifests first
-COPY package*.json ./
+# Step 2: Dependencies Stage
+FROM base AS dependencies
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile
 
-# Clear cache and install all packages with high network resilience
-RUN npm cache clean --force && \
-    npm install \
-    --fetch-retries=5 \
-    --fetch-retry-factor=2 \
-    --fetch-retry-mintimeout=5000 \
-    --fetch-retry-maxtimeout=60000 \
-    --loglevel=notice
-
-# Copy source configuration files
+# Step 3: Build Stage
+FROM base AS builder
+COPY --from=dependencies /app/node_modules ./node_modules
 COPY . .
+ENV NODE_ENV=production
+RUN pnpm build
+
+# Step 4: Runner Stage
+FROM base AS runner
+ENV NODE_ENV=production
+ENV PORT=3000
+COPY --from=builder /app/public ./public
+COPY --from=builder /app/.next ./.next
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./package.json
 
 EXPOSE 3000
-
-# Execute next framework binary command inside dev runtime mode
-CMD ["npm", "run", "dev"]
+CMD ["pnpm", "start"]
