@@ -1,4 +1,4 @@
-# Step 1: Base Image (Upgraded to Node 22 to support PNPM v11)
+# Step 1: Base Image
 FROM node:22-alpine AS base
 ENV PNPM_HOME="/pnpm"
 ENV PATH="$PNPM_HOME:$PATH"
@@ -8,7 +8,8 @@ WORKDIR /app
 # Step 2: Dependencies Stage
 FROM base AS dependencies
 COPY package.json pnpm-lock.yaml* ./
-RUN pnpm install --frozen-lockfile
+# FORCE PNPM to allow package build scripts (Fixes ERR_PNPM_IGNORED_BUILDS)
+RUN pnpm config set ignore-scripts false && pnpm install --frozen-lockfile
 
 # Step 3: Build Stage
 FROM base AS builder
