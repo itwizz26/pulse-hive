@@ -66,7 +66,7 @@ export default function OrdersPage() {
                 <GlowaVeeLogo />
             </header>
 
-            <main className="flex flex-col gap-6 px-6 pt-6 max-w-5xl mx-auto w-full box-border">
+            <main className="flex flex-col gap-6 px-6 pt-6 max-w-full mx-auto w-full box-border">
                 {/* Page Title & Attractive Order Counter Badge */}
                 <div className="flex flex-col gap-3 items-center text-center">
                     <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark) flex items-center gap-1.5">

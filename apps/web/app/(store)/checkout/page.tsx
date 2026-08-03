@@ -27,6 +27,7 @@ export default function CheckoutPage() {
     const [postalCode, setPostalCode] = useState('');
 
     const [completed, setCompleted] = useState(false);
+    const [loading, setLoading] = useState(false);
 
     useEffect(() => {
         const storedShipping = localStorage.getItem('glowavee_selected_shipping');
@@ -55,7 +56,7 @@ export default function CheckoutPage() {
 
     const isLocker = shippingOption?.id === 'tcg-locker';
 
-    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+    const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         if (!customerName.trim() || !phoneNumber.trim()) return;
 
@@ -68,6 +69,8 @@ export default function CheckoutPage() {
             finalDeliveryString = `${street.trim()}, ${suburb.trim()}, ${city.trim()}, ${postalCode.trim()}`;
         }
 
+        const transactionReference = `GV-${Date.now()}`;
+
         checkoutOrder(customerName, finalDeliveryString, phoneNumber, {
             method: shippingOption?.name || 'Standard Delivery',
             fee: shippingFee,
@@ -75,7 +78,61 @@ export default function CheckoutPage() {
             items: cartData
         });
         
-        setCompleted(true);
+        setLoading(true);
+
+        try {
+            const response = await fetch('/api/checkout/ozow', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    amount: totalToPay,
+                    transactionReference,
+                }),
+            });
+
+            const data = await response.json();
+
+            if (data.error) {
+                alert(data.error);
+                setLoading(false);
+                setCompleted(true); // fallback to completed view or handle error
+                return;
+            }
+
+            // Dynamically create a form and submit it to redirect the user to Ozow
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = data.gatewayUrl;
+
+            const fields = {
+                SiteCode: data.siteCode,
+                CountryCode: data.countryCode,
+                CurrencyCode: data.currencyCode,
+                Amount: data.amount,
+                TransactionReference: data.transactionReference,
+                BankReference: data.bankReference,
+                SuccessUrl: data.successUrl,
+                CancelUrl: data.cancelUrl,
+                ErrorUrl: data.errorUrl,
+                IsTest: data.isTest,
+                HashCheck: data.hashCheck,
+            };
+
+            Object.entries(fields).forEach(([key, value]) => {
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = key;
+                input.value = String(value);
+                form.appendChild(input);
+            });
+
+            document.body.appendChild(form);
+            form.submit();
+        } catch (err) {
+            console.error(err);
+            setLoading(false);
+            setCompleted(true);
+        }
     };
 
     return (
@@ -84,7 +141,7 @@ export default function CheckoutPage() {
                 <GlowaVeeLogo />
             </header>
 
-            <main className="flex flex-col gap-6 px-6 pt-6 max-w-5xl mx-auto w-full box-border">
+            <main className="flex flex-col gap-6 px-6 pt-6 max-w-full mx-auto w-full box-border">
                 <div className="flex flex-col gap-1 items-center text-center">
                     <span className="text-[10px] font-bold uppercase tracking-[0.25em] text-(--color-gold-dark) flex items-center gap-1.5">
                         <Lock size={12} /> Secure Checkout
@@ -103,7 +160,7 @@ export default function CheckoutPage() {
                             Return to Cart <ArrowRight size={14} />
                         </Link>
                     </div>
-                ) : completed ? (
+                ) : completed && !loading ? (
                     <div className="w-full border border-(--color-border-strong) bg-white p-10 text-center shadow-xs flex flex-col items-center justify-center space-y-6">
                         <div className="w-16 h-16 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) rounded-full border border-(--color-border) shadow-inner">
                             <CheckCircle2 size={32} />
@@ -264,9 +321,10 @@ export default function CheckoutPage() {
                             
                             <button 
                                 type="submit" 
-                                className="w-full h-12 mt-2 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105"
+                                disabled={loading}
+                                className="w-full h-12 mt-2 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-lg shadow-[#3d2c10]/10 transition hover:brightness-105 disabled:opacity-70"
                             >
-                                Place order • R{totalToPay.toFixed(2)} <ArrowRight size={16} />
+                                {loading ? 'Connecting to Ozow...' : `Pay with Ozow • R${totalToPay.toFixed(2)}`} <ArrowRight size={16} />
                             </button>
 
                             <div className="pt-2 text-center">

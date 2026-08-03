@@ -62,19 +62,19 @@ export default function CatalogPage() {
     return (
         <div className="w-full min-h-screen bg-(--color-background)">
             {/* Header: Fixed Z-Index and layout */}
-            <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
+            <header className="top-5 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
                 
                 <Link 
                     href="/cart" 
-                    className="absolute top-6 right-2 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
                     aria-label={`${cart.length} items in cart`}
                 >
                     <div className="relative">
-                        <ShoppingCart size={32} />
-                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
+                        <ShoppingCart size={40} className="text-(--color-gold)" />
+                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
                             {cart.length}
                         </span>
                     </div>
@@ -86,7 +86,7 @@ export default function CatalogPage() {
                 
                 {/* Moving Hero Banner with Images */}
                 <div className="px-6">
-                    <div className="relative w-full max-w-5xl mx-auto overflow-hidden shadow-lg border border-(--color-border-strong) min-h-48 sm:min-h-60 flex items-end">
+                    <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-lg border border-(--color-border-strong) min-h-80 sm:min-h-96 flex items-end">
                         
                         {/* Background Image Slides with Smooth Transition */}
                         {bannerSlides.map((slide, index) => (
@@ -109,8 +109,8 @@ export default function CatalogPage() {
                             </div>
                         ))}
 
-                        {/* Slide Content - Positioned at Bottom Left */}
-                        <div className="relative z-20 p-5 sm:p-6 flex flex-col justify-end items-start max-w-lg w-full">
+                        {/* Slide Content - Positioned at Bottom Center spanning full width */}
+                        <div className="relative z-20 p-5 sm:p-6 flex flex-col justify-end items-center text-center w-full">
                             <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-(--color-gold)/30 text-(--color-gold-light) text-xs font-semibold w-max mb-2 tracking-wide backdrop-blur-md border border-(--color-gold)/40">
                                 <Sparkles size={12} />
                                 {bannerSlides[currentSlide].tag}
@@ -142,7 +142,7 @@ export default function CatalogPage() {
 
                 {/* Search Bar */}
                 <div className="px-5 sm:px-6">
-                    <div className="relative w-full max-w-5xl mx-auto">
+                    <div className="relative w-full max-w-full mx-auto">
                         <Search className="absolute right-2 text-(--color-text-soft)" size={20} />
                         <input 
                             type="text" 
@@ -154,16 +154,18 @@ export default function CatalogPage() {
                     </div>
                 </div>
 
-                {/* Catalog Scroll */}
-                <div className="flex w-full snap-x snap-mandatory overflow-x-auto pb-12 scrollbar-hide">
+                {/* Catalog Tiled Grid */}
+                <div className="px-5 sm:px-6 pb-12">
                     {filteredProducts.length > 0 ? (
-                        filteredProducts.map((product) => (
-                            <div key={product.id} className="min-w-[85vw] sm:min-w-100 snap-center p-4 first:pl-6 last:pr-6 flex flex-col">
-                                <ProductCard 
-                                    product={product}
-                                />
-                            </div>
-                        ))
+                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-full mx-auto">
+                            {filteredProducts.map((product) => (
+                                <div key={product.id} className="flex flex-col h-full *:h-full">
+                                    <ProductCard 
+                                        product={product}
+                                    />
+                                </div>
+                            ))}
+                        </div>
                     ) : (
                         <div className="w-full text-center py-20 text-(--color-text-muted) italic">
                             No products match your search.

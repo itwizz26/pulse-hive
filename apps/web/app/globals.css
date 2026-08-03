@@ -14,6 +14,7 @@
     /* Shifted to a more sophisticated 'warm linen' palette */
     --color-background: #fcfbf9;
     --color-background-soft: #f4f2ef;
+    --color-logo-background: #00001e;
     
     /* Increased transparency for a glass effect */
     --color-surface: rgba(255, 255, 255, 0.7);
@@ -29,8 +30,8 @@
     --color-text-soft: #8c8578;
     
     /* Refined gold tones for an understated elegance */
-    --color-gold-dark: #2a1f0a;
     --color-gold: #a67c52;
+    --color-gold-dark: #2a1f0a;
     --color-gold-light: #d4af37;
 }
 

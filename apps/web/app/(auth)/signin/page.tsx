@@ -53,26 +53,26 @@ export default function LoginPage() {
     return (
         <div className="w-full min-h-screen bg-(--color-background) pb-12 box-border">
             {/* Header */}
-            <header className="sticky top-0 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6 box-border">
+            <header className="top-5 z-40 bg-(--color-surface)/95 backdrop-blur-md border-b border-(--color-border) p-6">
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
                 
                 <Link 
                     href="/cart" 
-                    className="absolute top-6 right-6 text-(--color-gold-dark) transition-transform hover:scale-105" 
+                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
                     aria-label={`${cart.length} items in cart`}
                 >
                     <div className="relative">
-                        <ShoppingCart size={32} />
-                        <span className="absolute -top-1 -right-1 w-5 h-5 flex items-center justify-center rounded-full bg-(--color-gold-dark) text-white text-[10px] font-bold">
+                        <ShoppingCart size={40} className="text-(--color-gold)" />
+                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
                             {cart.length}
                         </span>
                     </div>
                 </Link>
             </header>
 
-            <main className="flex flex-col gap-6 px-6 pt-6 max-w-5xl mx-auto w-full box-border">
+            <main className="flex flex-col gap-6 px-6 pt-6 max-w-full mx-auto w-full box-border">
                 {/* Page Title & Breadcrumb indicator */}
                 <div className="flex flex-col gap-1 items-center text-center">
                     <div className="w-12 h-12 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-2 rounded-full border border-(--color-border)">
