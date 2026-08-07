@@ -8,11 +8,11 @@ export function ProductCard({ product }: { product: any }) {
     return (
         <div className="group relative flex flex-col overflow-hidden shadow-[0_4px_20px_rgba(0,0,0,0.03)] transition-all duration-300 hover:shadow-[0_12px_30px_rgba(0,0,0,0.08)]">
             
-            {/* Product Image Area with Logo */}
+            {/* Product Image Area with Dynamic Image */}
             <div className="flex h-50 w-full items-center justify-center bg-linear-to-b from-[#040404] to-[#00001e] transition-colors group-hover:from-[#00001e] group-hover:to-[#f3c54b]">
                 <img 
-                    src="/logo.png" 
-                    alt="Glowa Vee - Collagen Skin Repair Supplements" 
+                    src={product.image}
+                    alt={product.name} 
                     className="h-32 w-32 object-contain transition-transform duration-500 group-hover:scale-110"
                 />
             </div>

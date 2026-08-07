@@ -9,14 +9,70 @@ import { ProductCard } from '@/components/product-card';
 import { useCart } from '@/context/cart-context';
 
 const collagenProducts = [
-    { id: '1', name: 'Insumpa/Skin Tags Collagen Cream', price: 150, size: '50ml', description: 'Targeted collagen cream formulated for smooth, clear skin and skin tag care.' },
-    { id: '2', name: 'Insumpa/Skin Tags Collagen Capsules', price: 300, size: '30 caps.', description: 'Advanced internal collagen capsules to support overall skin clarity from within.' },
-    { id: '3', name: 'Collagen Serum', price: 60, size: '30ml', description: 'Concentrated collagen serum for deep hydration and a youthful glow.' },
-    { id: '4', name: 'Collagen Day Cream', price: 150, size: '50ml', description: 'Daily protective collagen moisturizer for sustained radiance and softness.' },
-    { id: '5', name: 'Malesma Oil', price: 180, size: '50ml', description: 'Specialized treatment oil designed to visibly address melasma and uneven tone.' },
-    { id: '6', name: 'Collagen Bar Soap', price: 60, size: '100g', description: 'Nourishing cleansing bar infused with collagen for daily freshness.' },
-    { id: '7', name: 'Collagen Skin Brightening Body Oil', price: 220, size: '100ml', description: 'Luxurious body oil formulated to brighten, firm, and enrich skin tone.' },
-    { id: '8', name: 'Collagen Hydrating Body Oil', price: 180, size: '100ml', description: 'Deeply moisturizing body oil that locks in hydration for silky-smooth skin.' },
+    { 
+        id: '1', 
+        image: '/products/nightcream.png', 
+        name: 'Insumpa/Skin Tags Collagen Cream', 
+        price: 150, 
+        size: '50ml', 
+        description: 'Targeted collagen cream formulated for smooth, clear skin and skin tag care.' 
+    },
+    { 
+        id: '2', 
+        image: '/products/capsules.png', 
+        name: 'Insumpa/Skin Tags Collagen Capsules', 
+        price: 300, 
+        size: '30 caps.', 
+        description: 'Advanced internal collagen capsules to support overall skin clarity from within.' 
+    },
+    { 
+        id: '3', 
+        image: '/products/serum.png', 
+        name: 'Collagen Serum', 
+        price: 60, 
+        size: '30ml', 
+        description: 'Concentrated collagen serum for deep hydration and a youthful glow.' 
+    },
+    { 
+        id: '4', 
+        image: '/products/daycream.png', 
+        name: 'Collagen Day Cream', 
+        price: 150, 
+        size: '50ml', 
+        description: 'Daily protective collagen moisturizer for sustained radiance and softness.' 
+    },
+    { 
+        id: '5', 
+        image: '/products/malesma.png', 
+        name: 'Melasma Oil', 
+        price: 180, 
+        size: '50ml', 
+        description: 'Specialized treatment oil designed to visibly address melasma and uneven tone.' 
+    },
+    { 
+        id: '6', 
+        image: '/products/soap.png', 
+        name: 'Collagen Bar Soap', 
+        price: 60, 
+        size: '100g', 
+        description: 'Nourishing cleansing bar infused with collagen for daily freshness.' 
+    },
+    { 
+        id: '7', 
+        image: '/products/bodyglowgel.png',
+        name: 'Collagen Skin Brightening Glow Body Gel', 
+        price: 220, 
+        size: '100ml', 
+        description: 'Luxurious body oil formulated to brighten, firm, and enrich skin tone.'
+    },
+    { 
+        id: '8', 
+        image: '/products/bodylotion.png', 
+        name: 'Collagen Hydrating Body Lotion', 
+        price: 180, 
+        size: '100ml', 
+        description: 'Deeply moisturizing body lotion that locks in hydration for silky-smooth skin.' 
+    }
 ];
 
 const bannerSlides = [
