@@ -3,7 +3,7 @@
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ShoppingCart, Search, Sparkles } from 'lucide-react';
+import { ShoppingCart, Search, Sparkles, Users, Store } from 'lucide-react';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 import { ProductCard } from '@/components/product-card';
 import { useCart } from '@/context/cart-context';
@@ -72,7 +72,59 @@ const collagenProducts = [
         price: 180, 
         size: '100ml', 
         description: 'Deeply moisturizing body lotion that locks in hydration for silky-smooth skin.' 
+    },
+    { 
+        id: '9', 
+        image: '/products/slimmingtea.png', 
+        name: 'Slimming Tea', 
+        price: 450, 
+        size: '1 pack', 
+        description: 'Refreshing herbal tea blend designed to support a healthy lifestyle and wellness goals.' 
+    },
+    { 
+        id: '10', 
+        image: '/products/bodygain.png', 
+        name: 'Body Gain Tablets', 
+        price: 250, 
+        size: '20 tablets', 
+        description: 'Formulated tablets to help support healthy body mass and physical development.' 
+    },
+    { 
+        id: '11', 
+        image: '/products/bodypowder.png', 
+        name: 'Body Gain Powder', 
+        price: 120, 
+        size: '100g', 
+        description: 'Nutritious powder supplement created to support healthy weight gain and body goals.' 
+    },
+    { 
+        id: '12', 
+        image: '/products/hipsbumgain.png', 
+        name: 'Hips and Bum Gain Tablets', 
+        price: 400, 
+        size: '20 tablets', 
+        description: 'Targeted supplement designed to help tone, enhance, and support curves.' 
+    },
+    { 
+        id: '13', 
+        image: '/products/innerthighs.png', 
+        name: 'Inner Dark Thighs Gel', 
+        price: 150, 
+        size: '100ml', 
+        description: 'Specialized soothing gel formulated to help even out skin tone in sensitive areas.' 
     }
+];
+
+const resellerProducts = [
+    { 
+        id: 'r1', 
+        image: '/products/reseller-kit.png', 
+        name: 'Reseller Starter Bundle', 
+        price: 1500, 
+        size: 'Bulk Pack', 
+        description: 'Curated mix of top-selling items designed to kickstart your GlowaVee reseller business.' 
+    }
+    // Add additional reseller-specific products here as needed
 ];
 
 const bannerSlides = [
@@ -100,6 +152,7 @@ export default function CatalogPage() {
     const { cart } = useCart();
     const [searchQuery, setSearchQuery] = useState('');
     const [currentSlide, setCurrentSlide] = useState(0);
+    const [activeTab, setActiveTab] = useState<'products' | 'resellers'>('products');
 
     // Auto-advance hero banner slider every 4.5 seconds
     useEffect(() => {
@@ -110,10 +163,11 @@ export default function CatalogPage() {
     }, []);
 
     const filteredProducts = useMemo(() => {
-        return collagenProducts.filter(p => 
+        const targetList = activeTab === 'products' ? collagenProducts : resellerProducts;
+        return targetList.filter(p => 
             p.name.toLowerCase().includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery]);
+    }, [searchQuery, activeTab]);
 
     return (
         <div className="w-full min-h-screen bg-(--color-background)">
@@ -196,14 +250,50 @@ export default function CatalogPage() {
                     </div>
                 </div>
 
+                {/* Navigation Tabs (Products vs. Resellers) */}
+                <div className="px-5 sm:px-6">
+                    <div className="flex rounded-lg bg-(--color-surface) p-1.5 border border-(--color-border-strong) max-w-md mx-auto shadow-xs">
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setActiveTab('products');
+                                setSearchQuery('');
+                            }}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                                activeTab === 'products'
+                                    ? 'bg-(--color-gold) text-white shadow-sm'
+                                    : 'text-(--color-text-soft) hover:text-(--color-text)'
+                            }`}
+                        >
+                            <Store size={16} />
+                            Products
+                        </button>
+                        <button
+                            type="button"
+                            onClick={() => {
+                                setActiveTab('resellers');
+                                setSearchQuery('');
+                            }}
+                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                                activeTab === 'resellers'
+                                    ? 'bg-(--color-gold) text-white shadow-sm'
+                                    : 'text-(--color-text-soft) hover:text-(--color-text)'
+                            }`}
+                        >
+                            <Users size={16} />
+                            Resellers
+                        </button>
+                    </div>
+                </div>
+
                 {/* Search Bar */}
                 <div className="px-5 sm:px-6">
                     <div className="relative w-full max-w-full mx-auto">
-                        <Search className="absolute right-2 text-(--color-text-soft)" size={20} />
+                        <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-text-soft)" size={20} />
                         <input 
                             type="text" 
-                            placeholder="Find the right glow..."
-                            className="w-full text-(--color-text) bg-white border border-(--color-border-strong) focus:outline-none focus:ring-2 focus:ring-(--color-gold) transition-all shadow-sm"
+                            placeholder={activeTab === 'products' ? "Find the right glow..." : "Search reseller items..."}
+                            className="w-full text-(--color-text) bg-white border border-(--color-border-strong) focus:outline-none focus:ring-2 focus:ring-(--color-gold) transition-all shadow-sm px-4 py-2.5 rounded-md"
                             onChange={(e) => setSearchQuery(e.target.value)} 
                             value={searchQuery}
                         />
