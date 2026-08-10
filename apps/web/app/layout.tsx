@@ -23,6 +23,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <meta name="theme-color" content="#2a1f0a" />
                 <link rel="apple-touch-icon" href="/icon-192.png" />
                 <link rel="icon" href="/favicon.png" type="image/png" />
+                <title>Glowa Vee Boutique - Find the right glow!</title>
             </head>
             
             <body className="min-h-screen overflow-x-hidden bg-(--color-background) text-(--color-text)">
