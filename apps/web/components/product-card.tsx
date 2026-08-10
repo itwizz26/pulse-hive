@@ -13,7 +13,7 @@ export function ProductCard({ product }: { product: any }) {
                 <img 
                     src={product.image}
                     alt={product.name} 
-                    className="h-32 w-32 object-contain transition-transform duration-500 group-hover:scale-110"
+                    className="h-40 w-40 object-contain transition-transform duration-500 group-hover:scale-110"
                 />
             </div>
 
