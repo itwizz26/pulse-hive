@@ -118,11 +118,11 @@ const collagenProducts = [
 const resellerProducts = [
     { 
         id: 'r1', 
-        image: '/products/reseller-kit.png', 
-        name: 'Reseller Starter Bundle', 
-        price: 1500, 
-        size: 'Bulk Pack', 
-        description: 'Curated mix of top-selling items designed to kickstart your GlowaVee reseller business.' 
+        image: '/products/starterpack.png', 
+        name: 'Reseller Starter Pack', 
+        price: 2600, 
+        size: '29 items', 
+        description: 'Curated mix of top-selling items designed to kickstart your Glowa Vee reseller business. 5x Cream, 5x Capsules, 5x Serum, 5x Bar soaps, 5x Day Creams, 2x Body Hydrating Lotions, 2x Skin Brightening Glow Body Gels' 
     }
     // Add additional reseller-specific products here as needed
 ];

@@ -22,8 +22,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 <link rel="manifest" href="/manifest.json" />
                 <meta name="theme-color" content="#2a1f0a" />
                 <link rel="apple-touch-icon" href="/icon-192.png" />
-                <link rel="icon" href="/logo.png" type="image/png" />
+                <link rel="icon" href="/favicon.png" type="image/png" />
             </head>
+            
             <body className="min-h-screen overflow-x-hidden bg-(--color-background) text-(--color-text)">
                 {/* Outer centering wrapper */}
                 <div className="relative flex justify-center w-full min-h-screen py-0 sm:py-4">
