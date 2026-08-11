@@ -33,7 +33,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {/* App Container: Uses box-border and px-4/px-6 safeguards to ensure child content stays within safe bounds */}
                     <div className="relative flex flex-col w-full max-w-lg sm:max-w-11/12 min-h-screen sm:min-h-[calc(100vh-2rem)] bg-(--color-surface-elevated) backdrop-blur-xl border-x sm:border border-(--color-border) shadow-[0_24px_70px_rgba(42,35,24,0.06)] box-border">
                         <CartProvider>
-                            <main className="flex-1 w-full box-border py-44">
+                            <main className="flex-1 w-full box-border py-48">
                                 {children}
                             </main>
 

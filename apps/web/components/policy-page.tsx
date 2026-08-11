@@ -122,7 +122,7 @@ export function PolicyPage({
                 </div>
 
                 {/* Business Details */}
-                <div className="border border-(--color-border-strong) bg-white p-5 shadow-xs">
+                <div className="border border-(--color-border-strong) bg-white p-5 shadow-xs text-center">
                     <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) pb-3 border-b border-(--color-border) mb-3">
                         Business Information
                     </h2>
