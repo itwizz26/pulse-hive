@@ -151,28 +151,6 @@ export function PolicyPage({
                         </p>
                     </div>
                 </div>
-
-                {/* Support Box */}
-                <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs text-center">
-                    <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) mb-1">
-                        Need more help?
-                    </h3>
-
-                    <p className="text-xs text-(--color-text-muted) mb-4">
-                        Message us on WhatsApp if you have any questions about
-                        this policy.
-                    </p>
-
-                    <a
-                        href="https://wa.me/27681037459"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full h-12 inline-flex items-center justify-center gap-2 bg-linear-to-r from-[#3d2c10] to-[#f3c54b] text-xs font-bold uppercase tracking-wider text-white shadow-md shadow-[#3d2c10]/15 transition-all hover:brightness-105"
-                    >
-                        Chat to us
-                        <ArrowRight size={14} />
-                    </a>
-                </div>
             </main>
         </div>
     );
