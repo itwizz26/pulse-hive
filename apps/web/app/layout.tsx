@@ -2,6 +2,7 @@ import './globals.css';
 import { NavBar } from '@/components/nav-bar';
 import { CartProvider } from '@/context/cart-context';
 import { Barlow_Condensed, Saira_Condensed } from 'next/font/google';
+import { Footer } from '@/components/footer';
 
 const barlow = Barlow_Condensed({
     weight: '900',
@@ -32,7 +33,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                     {/* App Container: Uses box-border and px-4/px-6 safeguards to ensure child content stays within safe bounds */}
                     <div className="relative flex flex-col w-full max-w-lg sm:max-w-11/12 min-h-screen sm:min-h-[calc(100vh-2rem)] bg-(--color-surface-elevated) backdrop-blur-xl border-x sm:border border-(--color-border) shadow-[0_24px_70px_rgba(42,35,24,0.06)] box-border">
                         <CartProvider>
-                            <main className="flex-1 w-full box-border pb-28">{children}</main>
+                            <main className="flex-1 w-full box-border py-44">
+                                {children}
+                            </main>
+
+                            <Footer />
                             <NavBar />
                         </CartProvider>
                     </div>
