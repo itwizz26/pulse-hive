@@ -9,7 +9,7 @@ const links = [
     { href: '/guides', label: 'Guides', icon: BookOpen },
     { href: '/about', label: 'About', icon: Sparkles },
     { href: '/contact', label: 'Contact', icon: PhoneCall },
-    { href: '/account', label: 'Account', icon: User },
+    // { href: '/account', label: 'Account', icon: User },
 ];
 
 export function NavBar() {

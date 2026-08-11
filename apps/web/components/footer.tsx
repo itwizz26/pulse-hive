@@ -3,7 +3,7 @@ import Link from 'next/link';
 const legalLinks = [
     { href: '/terms-and-conditions', label: 'Terms & Conditions' },
     { href: '/privacy-policy', label: 'Privacy Policy' },
-    { href: '/refund-cancellation-returns', label: 'Refund & Returns' },
+    { href: '/refunds-cancellations-returns', label: 'Refund & Returns' },
 ];
 
 export function Footer() {
