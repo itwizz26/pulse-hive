@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { PackageOpen, Clock, Loader2, CheckCircle2, PackageCheck, Truck, Sparkles, Package } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from '@/app/api/api-client';
 
 const ORDER_STEPS = [
     { key: 'placed', label: 'Order Placed', icon: Clock },

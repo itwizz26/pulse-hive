@@ -33,19 +33,6 @@ export default function ContactPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
-                
-                <Link 
-                    href="/cart" 
-                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
-                    aria-label={`${cart.length} items in cart`}
-                >
-                    <div className="relative">
-                        <ShoppingCart size={40} className="text-(--color-gold)" />
-                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
-                            {cart.length}
-                        </span>
-                    </div>
-                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6 max-w-full mx-auto w-full box-border">
@@ -61,7 +48,7 @@ export default function ContactPage() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs space-y-4 md:col-span-1">
+                    <div className="border border-(--color-border-strong) p-6 shadow-xs space-y-4 md:col-span-1">
                         <h2 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Direct Channels</h2>
                         
                         <div className="space-y-3">
@@ -91,7 +78,7 @@ export default function ContactPage() {
                         </div>
                     </div>
 
-                    <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs md:col-span-2">
+                    <div className="border border-(--color-border-strong) p-6 shadow-xs md:col-span-2">
                         {submitted ? (
                             <div className="py-12 text-center space-y-3">
                                 <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-full flex items-center justify-center mx-auto border border-emerald-200">
@@ -117,7 +104,7 @@ export default function ContactPage() {
                                         type="text"
                                         value={name}
                                         onChange={(e) => setName(e.target.value)}
-                                        className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
+                                        className="w-full border border-(--color-border) px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
                                         placeholder="Full Name"
                                         required
                                     />
@@ -129,7 +116,7 @@ export default function ContactPage() {
                                         type="email"
                                         value={email}
                                         onChange={(e) => setEmail(e.target.value)}
-                                        className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
+                                        className="w-full border border-(--color-border) px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
                                         placeholder="name@example.com"
                                         required
                                     />
@@ -141,7 +128,7 @@ export default function ContactPage() {
                                         rows={4}
                                         value={message}
                                         onChange={(e) => setMessage(e.target.value)}
-                                        className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10] resize-none"
+                                        className="w-full border border-(--color-border) px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10] resize-none"
                                         placeholder="How can we help you?"
                                         required
                                     />

@@ -6,7 +6,7 @@ import { useState } from 'react';
 import { ArrowRight, ShoppingCart, Lock, ShieldCheck, Loader2, CheckCircle2 } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from '@/app/api/api-client';
 
 export default function LoginPage() {
     const { cart } = useCart();
@@ -57,19 +57,6 @@ export default function LoginPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
-                
-                <Link 
-                    href="/cart" 
-                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
-                    aria-label={`${cart.length} items in cart`}
-                >
-                    <div className="relative">
-                        <ShoppingCart size={40} className="text-(--color-gold)" />
-                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
-                            {cart.length}
-                        </span>
-                    </div>
-                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6 max-w-full mx-auto w-full box-border">
@@ -86,7 +73,7 @@ export default function LoginPage() {
                 </div>
 
                 {/* Form Card */}
-                <div className="w-full border border-(--color-border-strong) bg-white p-6 shadow-xs box-border">
+                <div className="w-full border border-(--color-border-strong) p-6 shadow-xs box-border">
                     {error && (
                         <div className="mb-4 p-3 bg-red-50 border border-red-200 text-red-700 text-xs rounded">
                             {error}
@@ -107,7 +94,7 @@ export default function LoginPage() {
                                 type="email"
                                 value={email}
                                 onChange={(e) => setEmail(e.target.value)}
-                                className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
+                                className="w-full border border-(--color-border) px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
                                 placeholder="name@example.com"
                                 required
                             />
@@ -119,7 +106,7 @@ export default function LoginPage() {
                                 type="password"
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full border border-(--color-border) bg-white px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
+                                className="w-full border border-(--color-border) px-4 py-3 text-xs sm:text-sm outline-none transition focus:border-[#3d2c10]"
                                 placeholder="Enter your password"
                                 required
                             />

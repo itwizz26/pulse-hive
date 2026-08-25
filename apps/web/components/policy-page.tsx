@@ -42,29 +42,12 @@ export function PolicyPage({
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
-
-                <Link
-                    href="/cart"
-                    className="absolute top-5 right-5 transition-transform hover:scale-105"
-                    aria-label={`${cart.length} items in cart`}
-                >
-                    <div className="relative">
-                        <ShoppingCart
-                            size={40}
-                            className="text-(--color-gold)"
-                        />
-
-                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
-                            {cart.length}
-                        </span>
-                    </div>
-                </Link>
             </header>
 
-            <main className="flex flex-col gap-6 px-6 pt-6">
+            <main className="flex flex-col gap-6 px-6 pt-6 pb-16">
                 {/* Page Title */}
                 <div className="flex flex-col gap-1 items-center text-center">
-                    <div className="w-12 h-12 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-2 rounded-full border border-(--color-border)">
+                    <div className="w-12 h-12 flex items-center justify-center text-(--color-gold-dark) mb-2 rounded-full border border-(--color-border)">
                         <Icon size={20} />
                     </div>
 
@@ -82,11 +65,11 @@ export function PolicyPage({
                 </div>
 
                 {/* Policy Sections */}
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 items-center text-center">
                     {sections.map((section, index) => (
                         <section
                             key={index}
-                            className="border border-(--color-border-strong) bg-white p-5 shadow-xs space-y-3"
+                            className="border border-(--color-border-strong) p-5 shadow-xs space-y-3"
                         >
                             <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) pb-3 border-b border-(--color-border)">
                                 {index + 1}. {section.title}
@@ -122,7 +105,7 @@ export function PolicyPage({
                 </div>
 
                 {/* Business Details */}
-                <div className="border border-(--color-border-strong) bg-white p-5 shadow-xs text-center">
+                <div className="border border-(--color-border-strong) p-5 shadow-xs text-center">
                     <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) pb-3 border-b border-(--color-border) mb-3">
                         Business Information
                     </h2>

@@ -30,19 +30,6 @@ export default function GuidesPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
-                
-                <Link 
-                    href="/cart" 
-                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
-                    aria-label={`${cart.length} items in cart`}
-                >
-                    <div className="relative">
-                        <ShoppingCart size={40} className="text-(--color-gold)" />
-                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
-                            {cart.length}
-                        </span>
-                    </div>
-                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6">
@@ -59,9 +46,9 @@ export default function GuidesPage() {
                 </div>
 
                 {/* Guides List */}
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-3 items-center text-center">
                     {GUIDES.map((guide, index) => (
-                        <div key={index} className="border border-(--color-border-strong) bg-white p-5 shadow-xs space-y-4">
+                        <div key={index} className="border border-(--color-border-strong) p-5 shadow-xs space-y-4">
                             <h2 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) pb-3 border-b border-(--color-border)">
                                 {guide.title}
                             </h2>
@@ -78,7 +65,7 @@ export default function GuidesPage() {
                 </div>
 
                 {/* Support Box */}
-                <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs text-center">
+                <div className="border border-(--color-border-strong) p-6 shadow-xs text-center">
                     <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) mb-1">Need more help?</h3>
                     <p className="text-xs text-(--color-text-muted) mb-4">Message us on WhatsApp for personalised advice.</p>
                     <a 

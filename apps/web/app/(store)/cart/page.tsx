@@ -39,19 +39,6 @@ export default function CartPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
-                
-                <Link 
-                    href="/cart" 
-                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
-                    aria-label={`${cart.length} items in cart`}
-                >
-                    <div className="relative">
-                        <ShoppingCart size={40} className="text-(--color-gold)" />
-                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
-                            {cart.length}
-                        </span>
-                    </div>
-                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6">
@@ -63,7 +50,7 @@ export default function CartPage() {
                 </div>
 
                 {cart.length === 0 ? (
-                    <div className="w-full border border-(--color-border-strong) bg-white p-10 text-center shadow-xs flex flex-col items-center justify-center">
+                    <div className="w-full border border-(--color-border-strong) p-10 text-center shadow-xs flex flex-col items-center justify-center">
                         <div className="w-16 h-16 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) mb-4 border border-(--color-border)">
                             <ShoppingCart size={28} />
                         </div>
@@ -77,7 +64,7 @@ export default function CartPage() {
                     <>
                         <div className="flex w-full flex-col gap-3">
                             {cart.map((item: any) => (
-                                <div key={item.id} className="flex w-full items-center justify-between border border-(--color-border) bg-white p-4 sm:p-5 shadow-xs transition hover:border-(--color-gold)/50">
+                                <div key={item.id} className="flex w-full items-center justify-between border border-(--color-border) p-4 sm:p-5 shadow-xs transition hover:border-(--color-gold)/50">
                                     <div className="flex flex-col gap-1 pr-4">
                                         <h2 className="text-xs sm:text-sm font-bold text-(--color-text) line-clamp-1">{item.name}</h2>
                                         <p className="text-[11px] text-(--color-gold-dark) font-semibold">R{Number(item.price).toFixed(2)} each</p>
@@ -96,7 +83,7 @@ export default function CartPage() {
                             ))}
                         </div>
 
-                        <div className="w-full border border-(--color-border-strong) bg-white p-6 shadow-xs">
+                        <div className="w-full border border-(--color-border-strong) p-6 shadow-xs">
                             <div className="mb-5 flex items-center justify-between">
                                 <div>
                                     <label className="text-[11px] font-bold uppercase tracking-[0.2em] text-(--color-gold-dark) flex items-center gap-2 mb-1.5">
@@ -105,7 +92,7 @@ export default function CartPage() {
                                     <p className="text-xs text-(--color-text-muted)">Choose your preferred delivery option to calculate final pricing.</p>
                                     <p>The Courier Guy</p>
                                 </div>
-                                <div className="relative w-16 h-8 shrink-0 overflow-hidden rounded-sm border border-(--color-border) bg-white flex items-center justify-center">
+                                <div className="relative w-16 h-8 shrink-0 overflow-hidden rounded-sm border border-(--color-border) flex items-center justify-center">
                                     <Image 
                                         src="/courier.jpg" 
                                         alt="The Courier Guy" 

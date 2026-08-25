@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { User, Package, MapPin, LogOut, ArrowRight, ShoppingCart, ShieldCheck, Loader2, Award } from 'lucide-react';
 import { useCart } from '@/context/cart-context';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
-import { apiClient } from '@/lib/api-client';
+import { apiClient } from '@/app/api/api-client';
 
 interface UserProfile {
     email: string;
@@ -65,19 +65,6 @@ export default function AccountPage() {
                 <div className="flex justify-center items-center">
                     <GlowaVeeLogo />
                 </div>
-                
-                <Link 
-                    href="/cart" 
-                    className="absolute top-5 right-5 transition-transform hover:scale-105" 
-                    aria-label={`${cart.length} items in cart`}
-                >
-                    <div className="relative">
-                        <ShoppingCart size={40} className="text-(--color-gold)" />
-                        <span className="absolute -top-1 -right-1 w-6 h-6 flex items-center justify-center rounded-full bg-(--color-gold) text-white text-[0.875rem] font-bold">
-                            {cart.length}
-                        </span>
-                    </div>
-                </Link>
             </header>
 
             <main className="flex flex-col gap-6 px-6 pt-6 max-w-full mx-auto w-full box-border">
@@ -99,7 +86,7 @@ export default function AccountPage() {
                 {/* Grid layout matching Contact Page style */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                     {/* Left Column: Account Summary / Status */}
-                    <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs space-y-4 md:col-span-1">
+                    <div className="border border-(--color-border-strong) p-6 shadow-xs space-y-4 md:col-span-1">
                         <h2 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Account Standing</h2>
                         
                         <div className="space-y-3">
@@ -119,13 +106,13 @@ export default function AccountPage() {
                     </div>
 
                     {/* Right Column: Navigation & Settings */}
-                    <div className="border border-(--color-border-strong) bg-white p-6 shadow-xs md:col-span-2 space-y-4">
+                    <div className="border border-(--color-border-strong) p-6 shadow-xs md:col-span-2 space-y-4">
                         <h2 className="text-xs font-bold uppercase tracking-wider text-(--color-text)">Navigation & Settings</h2>
                         
                         <div className="space-y-3">
                             <Link 
                                 href="/orders" 
-                                className="flex items-center justify-between p-4 border border-(--color-border) bg-white transition-all hover:border-[#3d2c10] hover:shadow-xs group"
+                                className="flex items-center justify-between p-4 border border-(--color-border) transition-all hover:border-[#3d2c10] hover:shadow-xs group"
                             >
                                 <div className="flex items-center gap-3.5">
                                     <div className="w-9 h-9 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) border border-(--color-border)">
@@ -139,7 +126,7 @@ export default function AccountPage() {
                                 <ArrowRight size={16} className="text-(--color-text-muted) transition-transform group-hover:translate-x-1" />
                             </Link>
 
-                            <div className="flex items-center justify-between p-4 border border-(--color-border) bg-white transition-all hover:border-(--color-border-strong)">
+                            <div className="flex items-center justify-between p-4 border border-(--color-border) transition-all hover:border-(--color-border-strong)">
                                 <div className="flex items-center gap-3.5">
                                     <div className="w-9 h-9 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) border border-(--color-border)">
                                         <MapPin size={18} />
@@ -154,7 +141,7 @@ export default function AccountPage() {
 
                             <Link 
                                 href="/contact" 
-                                className="flex items-center justify-between p-4 border border-(--color-border) bg-white transition-all hover:border-[#3d2c10] hover:shadow-xs group"
+                                className="flex items-center justify-between p-4 border border-(--color-border) transition-all hover:border-[#3d2c10] hover:shadow-xs group"
                             >
                                 <div className="flex items-center gap-3.5">
                                     <div className="w-9 h-9 bg-(--color-surface) flex items-center justify-center text-(--color-gold-dark) border border-(--color-border)">

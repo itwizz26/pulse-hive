@@ -2,85 +2,209 @@
 @import "tailwindcss/preflight";
 
 @layer base {
-  /* Prevent zoom-in on iOS inputs while maintaining readability */
-    input, select, textarea {
+    /* Prevent zoom-in on iOS inputs while maintaining readability */
+    input,
+    select,
+    textarea {
         font-size: 16px !important;
         @apply focus:outline-none focus:ring-1 focus:ring-amber-900/20 transition-all duration-300;
     }
 }
 
 :root {
-    color-scheme: light;
-    /* Shifted to a more sophisticated 'warm linen' palette */
-    --color-background: #fcfbf9;
-    --color-background-soft: #f4f2ef;
-    --color-logo-background: #00001e;
-    
-    /* Increased transparency for a glass effect */
-    --color-surface: rgba(255, 255, 255, 0.7);
-    --color-surface-elevated: rgba(255, 255, 255, 0.85);
-    
-    /* Softer borders to reduce visual noise */
-    --color-border: rgba(34, 30, 22, 0.05);
-    --color-border-strong: rgba(34, 30, 22, 0.1);
-    
-    /* Richer, deep text colors instead of flat black */
-    --color-text: #1a1712;
-    --color-text-muted: #665f54;
-    --color-text-soft: #8c8578;
-    
-    /* Refined gold tones for an understated elegance */
-    --color-gold: #a67c52;
-    --color-gold-dark: #2a1f0a;
-    --color-gold-light: #d4af37;
+    color-scheme: dark;
+
+    /* =========================================================
+       BLACK & GOLD LUXURY THEME
+       ========================================================= */
+
+    /* Lighter charcoal page background */
+    --color-background: #171512;
+    --color-background-soft: #211e18;
+
+    /* Logo background */
+    --color-logo-background: #000000;
+
+    /* Surfaces */
+    --color-surface: rgba(30, 28, 23, 0.94);
+    --color-surface-elevated: rgba(36, 33, 27, 0.97);
+
+    /* Borders */
+    --color-border: rgba(212, 175, 55, 0.14);
+    --color-border-strong: rgba(212, 175, 55, 0.26);
+
+    /* Text */
+    --color-text: #f7f3e9;
+    --color-text-muted: #c4bbaa;
+    --color-text-soft: #999184;
+
+    /* Luxury gold */
+    --color-gold: #d4af37;
+    --color-gold-dark: #8c6b1f;
+    --color-gold-light: #f3d675;
 }
 
-html, body {
+
+/* =========================================================
+   HTML / BODY
+   ========================================================= */
+
+html,
+body {
     margin: 0;
     padding: 0;
     min-height: 100%;
-    background-color: var(--color-background);
+
+    background-color: whitesmoke;
     color: var(--color-text);
+
     font-family: var(--font-barlow), sans-serif;
-    -webkit-font-smoothing: antialiased; /* Sharper text rendering */
+
+    -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
 }
 
-body {
-    /* A very subtle gradient for depth without being distracting */
-    background: radial-gradient(circle at 50% -20%, var(--color-background-soft), var(--color-background));
-    background-attachment: fixed;
-}
 
-h1, h2, h3, h4, h5, h6 {
+/* =========================================================
+   HEADINGS
+   ========================================================= */
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
     font-family: var(--font-saira), serif;
-    letter-spacing: -0.02em; /* Tighter tracking looks more high-end */
+
+    letter-spacing: -0.02em;
     line-height: 1.2;
+
+    color: var(--color-text);
 }
 
-/* Premium interactions */
+
+/* =========================================================
+   LINKS
+   ========================================================= */
+
 a {
     color: inherit;
     text-decoration: none;
-    transition: color 0.3s ease, opacity 0.3s ease;
+
+    transition:
+        color 0.3s ease,
+        opacity 0.3s ease;
 }
 
 a:hover {
-    color: var(--color-gold);
+    color: var(--color-gold-light);
 }
 
-/* Glassmorphism utility for containers */
+
+/* =========================================================
+   PREMIUM CARD
+   ========================================================= */
+
 .card-premium {
     background: var(--color-surface);
+
     backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+
     border: 1px solid var(--color-border);
-    box-shadow: 0 8px 30px rgba(0,0,0,0.04);
+
+    box-shadow:
+        0 8px 30px rgba(0, 0, 0, 0.35),
+        0 1px 0 rgba(212, 175, 55, 0.04) inset;
 }
 
+
+/* =========================================================
+   GOLD GLOW
+   ========================================================= */
+
+.gold-glow {
+    box-shadow:
+        0 0 20px rgba(212, 175, 55, 0.12),
+        0 8px 30px rgba(0, 0, 0, 0.35);
+}
+
+
+/* =========================================================
+   SCROLLBAR
+   ========================================================= */
+
 .scrollbar-hide {
-    scrollbar-width: none; 
+    scrollbar-width: none;
     -ms-overflow-style: none;
 }
+
 .scrollbar-hide::-webkit-scrollbar {
     display: none;
+}
+
+
+/* =========================================================
+   STANDARD SCROLLBAR
+   ========================================================= */
+
+::-webkit-scrollbar {
+    width: 6px;
+}
+
+::-webkit-scrollbar-track {
+    background: #080808;
+}
+
+::-webkit-scrollbar-thumb {
+    background: #8c6b1f;
+    border-radius: 999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #d4af37;
+}
+
+
+/* =========================================================
+   SELECTION
+   ========================================================= */
+
+::selection {
+    background: rgba(212, 175, 55, 0.35);
+    color: #ffffff;
+}
+
+
+/* =========================================================
+   INPUTS
+   ========================================================= */
+
+input,
+select,
+textarea {
+    color: var(--color-text);
+    background-color: #11100d;
+    border-color: var(--color-border-strong);
+}
+
+input::placeholder,
+textarea::placeholder {
+    color: var(--color-text-soft);
+}
+
+
+/* =========================================================
+   FOCUS
+   ========================================================= */
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: rgba(212, 175, 55, 0.5);
+
+    box-shadow:
+        0 0 0 2px rgba(212, 175, 55, 0.08),
+        0 0 20px rgba(212, 175, 55, 0.05);
 }
