@@ -68,6 +68,10 @@ export default function GuidesPage() {
                 <div className="border border-(--color-border-strong) p-6 shadow-xs text-center">
                     <h3 className="text-xs sm:text-sm font-bold uppercase tracking-wider text-(--color-text) mb-1">Need more help?</h3>
                     <p className="text-xs text-(--color-text-muted) mb-4">Message us on WhatsApp for personalised advice.</p>
+
+                    {/* Explicit spacing */}
+                    <div className="h-16" />
+                    
                     <a 
                         href="https://wa.me/27681037459" 
                         target="_blank" 

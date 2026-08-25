@@ -891,6 +891,10 @@ export default function CheckoutPage() {
                                 </div>
                             )}
 
+
+                            {/* Explicit spacing */}
+                            <div className="h-10" />
+
                             {/* Pay button */}
                             <button
                                 type="submit"

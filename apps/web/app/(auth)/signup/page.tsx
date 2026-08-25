@@ -122,6 +122,9 @@ export default function RegisterPage() {
                             />
                         </div>
 
+                        {/* Explicit spacing */}
+                        <div className="h-10" />
+
                         <button 
                             type="submit" 
                             disabled={loading}
@@ -144,7 +147,7 @@ export default function RegisterPage() {
                         <p className="text-xs text-(--color-text-muted)">
                             Already have an account?{' '}
                             <Link href="/signin" className="font-bold text-(--color-gold-dark) hover:underline">
-                                Log in
+                                Sign in
                             </Link>
                         </p>
                     </div>

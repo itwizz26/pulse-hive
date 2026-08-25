@@ -112,6 +112,9 @@ export default function LoginPage() {
                             />
                         </div>
 
+                        {/* Explicit spacing */}
+                        <div className="h-10" />
+
                         <button 
                             type="submit" 
                             disabled={loading}
@@ -119,11 +122,11 @@ export default function LoginPage() {
                         >
                             {loading ? (
                                 <>
-                                    <Loader2 size={16} className="animate-spin" /> Logging in...
+                                    <Loader2 size={16} className="animate-spin" /> Signing in...
                                 </>
                             ) : (
                                 <>
-                                    Log in <ArrowRight size={16} />
+                                    Sign in <ArrowRight size={16} />
                                 </>
                             )}
                         </button>

@@ -122,6 +122,9 @@ export default function AboutPage() {
 
                     </div>
 
+                    {/* Explicit spacing */}
+                    <div className="h-16" />
+
                     {/* =================================================
                         CTA
                         ================================================= */}
