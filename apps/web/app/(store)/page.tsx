@@ -6,6 +6,7 @@ import { Search, Sparkles, Users, Store } from 'lucide-react';
 import { GlowaVeeLogo } from '@/components/glowa-vee-logo';
 import { ProductCard } from '@/components/product-card';
 import { useCart } from '@/context/cart-context';
+import { WelcomeModal } from '@/components/welcome-modal';
 
 const collagenProducts = [
     {
@@ -218,193 +219,197 @@ export default function CatalogPage() {
     }, [searchQuery, activeTab]);
 
     return (
-        <div className="w-full min-h-screen bg-(--color-background) text-(--color-text)">
-            {/* =====================================================
-                HEADER
-                ===================================================== */}
+        <>
+            <WelcomeModal />
+            
+            <div className="w-full min-h-screen bg-(--color-background) text-(--color-text)">
+                {/* =====================================================
+                    HEADER
+                    ===================================================== */}
 
-            <header className="relative z-40 border-b border-(--color-border-strong) bg-(--color-surface-elevated)/95 backdrop-blur-md">
-                <div className="flex justify-center items-center p-6">
-                    <GlowaVeeLogo />
-                </div>
-            </header>
-
-            {/* =====================================================
-                MAIN CONTENT
-                ===================================================== */}
-
-            <main className="relative z-30 flex w-full min-w-0 max-w-full flex-col gap-6">
-                {/* =================================================
-                    HERO BANNER
-                    ================================================= */}
-
-                <div className="px-5 sm:px-6 pt-1">
-                    <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-[0_16px_45px_rgba(0,0,0,0.35)] border border-(--color-border-strong) min-h-80 sm:min-h-96 flex items-end bg-black">
-                        {/* Background slides */}
-                        {bannerSlides.map((slide, index) => (
-                            <div
-                                key={index}
-                                className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
-                                    currentSlide === index
-                                        ? 'opacity-100 scale-100 z-10'
-                                        : 'opacity-0 scale-105 pointer-events-none z-0'
-                                }`}
-                            >
-                                <Image
-                                    src={slide.image}
-                                    alt={slide.title}
-                                    fill
-                                    className="object-cover"
-                                    priority={index === 0}
-                                    loading={
-                                        index === 0
-                                            ? 'eager'
-                                            : 'lazy'
-                                    }
-                                />
-
-                                {/* Premium black/gold overlay */}
-                                <div className="absolute inset-0 bg-linear-to-t from-black via-black/55 to-black/10 z-10" />
-
-                                {/* Subtle gold glow */}
-                                <div className="absolute inset-0 bg-linear-to-tr from-(--color-gold-dark)/25 via-transparent to-transparent z-10" />
-                            </div>
-                        ))}
-
-                        {/* Slide content */}
-                        <div className="relative z-20 p-6 sm:p-7 flex flex-col justify-end items-center text-center w-full">
-                            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 text-(--color-gold-light) text-xs font-semibold w-max mb-3 tracking-wide backdrop-blur-md border border-(--color-gold)/40">
-                                <Sparkles size={12} />
-                                {bannerSlides[currentSlide].tag}
-                            </div>
-
-                            <h2 className="text-xl sm:text-2xl font-serif tracking-tight mb-1 text-white drop-shadow-lg">
-                                {bannerSlides[currentSlide].title}
-                            </h2>
-
-                            <p className="text-xs sm:text-sm text-white/85 font-sans drop-shadow-md max-w-xl">
-                                {
-                                    bannerSlides[currentSlide]
-                                        .subtitle
-                                }
-                            </p>
-                        </div>
-
-                        {/* Slider dots */}
-                        <div className="absolute bottom-5 right-6 flex gap-1.5 z-40 pointer-events-auto">
-                            {bannerSlides.map((_, index) => (
-                                <button
-                                    key={index}
-                                    type="button"
-                                    onClick={() =>
-                                        setCurrentSlide(index)
-                                    }
-                                    className={`h-1.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
-                                        currentSlide === index
-                                            ? 'w-6 bg-(--color-gold-light)'
-                                            : 'w-1.5 bg-white/50 hover:bg-(--color-gold-light)/80'
-                                    }`}
-                                    aria-label={`Go to slide ${
-                                        index + 1
-                                    }`}
-                                />
-                            ))}
-                        </div>
+                <header className="relative z-40 border-b border-(--color-border-strong) bg-(--color-surface-elevated)/95 backdrop-blur-md">
+                    <div className="flex justify-center items-center p-6">
+                        <GlowaVeeLogo />
                     </div>
-                </div>
+                </header>
 
-                {/* =================================================
-                    PRODUCT / RESELLER TABS
-                    ================================================= */}
+                {/* =====================================================
+                    MAIN CONTENT
+                    ===================================================== */}
 
-                <div className="px-5 sm:px-6">
-                    <div className="flex rounded-lg bg-(--color-surface) p-1.5 border border-(--color-border-strong) max-w-md mx-auto shadow-[0_8px_25px_rgba(0,0,0,0.18)]">
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setActiveTab('products');
-                                setSearchQuery('');
-                            }}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
-                                activeTab === 'products'
-                                    ? 'bg-(--color-gold) text-black shadow-[0_4px_15px_rgba(212,175,55,0.2)]'
-                                    : 'text-(--color-text-soft) hover:text-(--color-gold-light) hover:bg-white/5'
-                            }`}
-                        >
-                            <Store size={16} />
-                            Products
-                        </button>
+                <main className="relative z-30 flex w-full min-w-0 max-w-full flex-col gap-6">
+                    {/* =================================================
+                        HERO BANNER
+                        ================================================= */}
 
-                        <button
-                            type="button"
-                            onClick={() => {
-                                setActiveTab('resellers');
-                                setSearchQuery('');
-                            }}
-                            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
-                                activeTab === 'resellers'
-                                    ? 'bg-(--color-gold) text-black shadow-[0_4px_15px_rgba(212,175,55,0.2)]'
-                                    : 'text-(--color-text-soft) hover:text-(--color-gold-light) hover:bg-white/5'
-                            }`}
-                        >
-                            <Users size={16} />
-                            Resellers
-                        </button>
-                    </div>
-                </div>
-
-                {/* =================================================
-                    SEARCH
-                    ================================================= */}
-
-                <div className="px-5 sm:px-6">
-                    <div className="relative w-full max-w-full mx-auto">
-                        <Search
-                            className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-gold)"
-                            size={20}
-                        />
-
-                        <input
-                            type="text"
-                            placeholder={
-                                activeTab === 'products'
-                                    ? 'Find the right glow...'
-                                    : 'Search reseller items...'
-                            }
-                            className="w-full text-(--color-text) bg-(--color-surface) border border-(--color-border-strong) placeholder:text-(--color-text-soft) focus:outline-none focus:ring-2 focus:ring-(--color-gold)/40 focus:border-(--color-gold)/50 transition-all shadow-[0_6px_20px_rgba(0,0,0,0.15)] px-4 py-2.5 rounded-md"
-                            onChange={(e) =>
-                                setSearchQuery(e.target.value)
-                            }
-                            value={searchQuery}
-                        />
-                    </div>
-                </div>
-
-                {/* =================================================
-                    CATALOGUE
-                    ================================================= */}
-
-                <div className="px-5 sm:px-6 pb-12">
-                    {filteredProducts.length > 0 ? (
-                        <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-full mx-auto">
-                            {filteredProducts.map((product) => (
+                    <div className="px-5 sm:px-6 pt-1">
+                        <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-[0_16px_45px_rgba(0,0,0,0.35)] border border-(--color-border-strong) min-h-80 sm:min-h-115 flex items-end bg-black">
+                            {/* Background slides */}
+                            {bannerSlides.map((slide, index) => (
                                 <div
-                                    key={product.id}
-                                    className="flex flex-col h-full *:h-full"
+                                    key={index}
+                                    className={`absolute inset-0 transition-all duration-1000 ease-in-out ${
+                                        currentSlide === index
+                                            ? 'opacity-100 scale-100 z-10'
+                                            : 'opacity-0 scale-105 pointer-events-none z-0'
+                                    }`}
                                 >
-                                    <ProductCard
-                                        product={product}
+                                    <Image
+                                        src={slide.image}
+                                        alt={slide.title}
+                                        fill
+                                        className="object-cover"
+                                        priority={index === 0}
+                                        loading={
+                                            index === 0
+                                                ? 'eager'
+                                                : 'lazy'
+                                        }
                                     />
+
+                                    {/* Premium black/gold overlay */}
+                                    <div className="absolute inset-0 bg-linear-to-t from-black via-black/55 to-black/10 z-10" />
+
+                                    {/* Subtle gold glow */}
+                                    <div className="absolute inset-0 bg-linear-to-tr from-(--color-gold-dark)/25 via-transparent to-transparent z-10" />
                                 </div>
                             ))}
+
+                            {/* Slide content */}
+                            <div className="relative z-20 p-6 sm:p-7 flex flex-col justify-end items-center text-center w-full">
+                                <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-black/50 text-(--color-gold-light) text-xs font-semibold w-max mb-3 tracking-wide backdrop-blur-md border border-(--color-gold)/40">
+                                    <Sparkles size={12} />
+                                    {bannerSlides[currentSlide].tag}
+                                </div>
+
+                                <h2 className="text-xl sm:text-2xl font-serif tracking-tight mb-1 text-white drop-shadow-lg">
+                                    {bannerSlides[currentSlide].title}
+                                </h2>
+
+                                <p className="text-xs sm:text-sm text-white/85 font-sans drop-shadow-md max-w-xl">
+                                    {
+                                        bannerSlides[currentSlide]
+                                            .subtitle
+                                    }
+                                </p>
+                            </div>
+
+                            {/* Slider dots */}
+                            <div className="absolute bottom-5 right-6 flex gap-1.5 z-40 pointer-events-auto">
+                                {bannerSlides.map((_, index) => (
+                                    <button
+                                        key={index}
+                                        type="button"
+                                        onClick={() =>
+                                            setCurrentSlide(index)
+                                        }
+                                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                                            currentSlide === index
+                                                ? 'w-6 bg-(--color-gold-light)'
+                                                : 'w-1.5 bg-white/50 hover:bg-(--color-gold-light)/80'
+                                        }`}
+                                        aria-label={`Go to slide ${
+                                            index + 1
+                                        }`}
+                                    />
+                                ))}
+                            </div>
                         </div>
-                    ) : (
-                        <div className="w-full text-center py-20 text-(--color-text-muted) italic">
-                            No products match your search.
+                    </div>
+
+                    {/* =================================================
+                        PRODUCT / RESELLER TABS
+                        ================================================= */}
+
+                    <div className="px-5 sm:px-6">
+                        <div className="flex rounded-lg bg-(--color-surface) p-1.5 border border-(--color-border-strong) max-w-md mx-auto shadow-[0_8px_25px_rgba(0,0,0,0.18)]">
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setActiveTab('products');
+                                    setSearchQuery('');
+                                }}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                                    activeTab === 'products'
+                                        ? 'bg-(--color-gold) text-black shadow-[0_4px_15px_rgba(212,175,55,0.2)]'
+                                        : 'text-(--color-text-soft) hover:text-(--color-gold-light) hover:bg-white/5'
+                                }`}
+                            >
+                                <Store size={16} />
+                                Products
+                            </button>
+
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    setActiveTab('resellers');
+                                    setSearchQuery('');
+                                }}
+                                className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-md text-sm font-medium transition-all cursor-pointer ${
+                                    activeTab === 'resellers'
+                                        ? 'bg-(--color-gold) text-black shadow-[0_4px_15px_rgba(212,175,55,0.2)]'
+                                        : 'text-(--color-text-soft) hover:text-(--color-gold-light) hover:bg-white/5'
+                                }`}
+                            >
+                                <Users size={16} />
+                                Resellers
+                            </button>
                         </div>
-                    )}
-                </div>
-            </main>
-        </div>
+                    </div>
+
+                    {/* =================================================
+                        SEARCH
+                        ================================================= */}
+
+                    <div className="px-5 sm:px-6">
+                        <div className="relative w-full max-w-full mx-auto">
+                            <Search
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-(--color-gold)"
+                                size={20}
+                            />
+
+                            <input
+                                type="text"
+                                placeholder={
+                                    activeTab === 'products'
+                                        ? 'Find the right glow...'
+                                        : 'Search reseller items...'
+                                }
+                                className="w-full text-(--color-text) bg-(--color-surface) border border-(--color-border-strong) placeholder:text-(--color-text-soft) focus:outline-none focus:ring-2 focus:ring-(--color-gold)/40 focus:border-(--color-gold)/50 transition-all shadow-[0_6px_20px_rgba(0,0,0,0.15)] px-4 py-2.5 rounded-md"
+                                onChange={(e) =>
+                                    setSearchQuery(e.target.value)
+                                }
+                                value={searchQuery}
+                            />
+                        </div>
+                    </div>
+
+                    {/* =================================================
+                        CATALOGUE
+                        ================================================= */}
+
+                    <div className="px-5 sm:px-6 pb-12">
+                        {filteredProducts.length > 0 ? (
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-full mx-auto">
+                                {filteredProducts.map((product) => (
+                                    <div
+                                        key={product.id}
+                                        className="flex flex-col h-full *:h-full"
+                                    >
+                                        <ProductCard
+                                            product={product}
+                                        />
+                                    </div>
+                                ))}
+                            </div>
+                        ) : (
+                            <div className="w-full text-center py-20 text-(--color-text-muted) italic">
+                                No products match your search.
+                            </div>
+                        )}
+                    </div>
+                </main>
+            </div>
+        </>
     );
 }
