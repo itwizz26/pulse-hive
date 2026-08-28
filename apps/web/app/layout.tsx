@@ -56,7 +56,6 @@ export default function RootLayout({
             </head>
 
             <body className="min-h-screen bg-(--color-background) text-(--color-text)">
-
                 <CartProvider>
 
                     {/* Main application area */}
@@ -93,21 +92,15 @@ export default function RootLayout({
                             <div className="pt-8 pb-24">
                                 <Footer />
                             </div>
-
-                            <NavBar />
                         </div>
                     </div>
 
-                    {/* 
-                        IMPORTANT:
-                        This MUST be outside the App Container.
-                        It is therefore unaffected by backdrop-blur,
-                        transforms, overflow, etc. inside the app.
-                    */}
+                    {/* Fixed elements MUST live outside the App Container */}
+                    <NavBar />
+
                     <FloatingCart />
 
                 </CartProvider>
-
             </body>
         </html>
     );

@@ -141,28 +141,39 @@ const resellerProducts = [
 
 const bannerSlides = [
     {
-        title: 'Discover Your Ultimate Radiance',
+        title: 'Glow From Head to Toe',
         subtitle:
-            'Luxury formulations designed to nourish and elevate your natural skin tone.',
-        tag: 'New Collection',
+            'Discover our collection of skincare and wellness products designed to help you look and feel your best.',
+        tag: 'Shop Our Collection',
         image:
-            'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&w=1200&q=80',
+            '/banners/banner1.jpg',
     },
+
     {
-        title: 'Flawless Skin, Naturally',
+        title: 'Say Goodbye to Skin Tags',
         subtitle:
-            'Experience advanced collagen treatments built for everyday luxury.',
-        tag: 'Best Sellers',
+            'Target the appearance of unwanted skin tags and reveal smoother, clearer-looking skin.',
+        tag: 'Skin Tag Care',
         image:
-            'https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?auto=format&fit=crop&w=1200&q=80',
+            '/banners/banner2.jpg',
     },
+
     {
-        title: 'The Golden Standard of Glow',
+        title: 'Restore Your Skin’s Natural Beauty',
         subtitle:
-            'Unlock luminous skin with our signature editor-approved selection.',
-        tag: 'Limited Offer',
+            'Give your skin the care it deserves and work towards a smoother, healthier-looking appearance.',
+        tag: 'Skin Care',
         image:
-            'https://images.unsplash.com/photo-1616683693504-3ea7e9ad6fec?auto=format&fit=crop&w=1200&q=80',
+            '/banners/banner3.jpg',
+    },
+
+    {
+        title: 'Your Journey to a Healthier You',
+        subtitle:
+            'Support your weight-loss journey with products designed to help you feel confident in your body.',
+        tag: 'Weight Management',
+        image:
+            '/banners/banner4.jpg',
     },
 ];
 

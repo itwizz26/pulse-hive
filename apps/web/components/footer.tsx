@@ -8,7 +8,7 @@ const legalLinks = [
 
 export function Footer() {
     return (
-        <footer className="w-full border-b border-(--color-border-strong) bg-(--color-background) min-h-20 flex flex-col justify-center">
+        <footer className="w-full border-b border-(--color-border-strong) bg-(--color-background) min-h-40 flex flex-col justify-center">
 
             {/* =====================================================
                 LEGAL LINKS
