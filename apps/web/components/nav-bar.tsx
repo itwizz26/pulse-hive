@@ -6,8 +6,8 @@ import { Home, BookOpen, Sparkles, PhoneCall, User } from 'lucide-react';
 
 const links = [
     { href: '/', label: 'Store', icon: Home },
-    { href: '/guides', label: 'Guides', icon: BookOpen },
     { href: '/about', label: 'About', icon: Sparkles },
+    { href: '/guides', label: 'Guides', icon: BookOpen },
     { href: '/contact', label: 'Contact', icon: PhoneCall },
     { href: '/account', label: 'Account', icon: User },
 ];
