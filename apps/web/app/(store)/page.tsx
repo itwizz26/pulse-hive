@@ -14,7 +14,7 @@ const collagenProducts = [
         image: '/products/nightcream.png',
         name: 'Insumpa/Skin Tags Collagen Cream',
         price: 150,
-        size: '50ml',
+        size: '50g',
         description:
             'Targeted collagen cream formulated for smooth, clear skin and skin tag care.',
     },
@@ -41,7 +41,7 @@ const collagenProducts = [
         image: '/products/daycream.png',
         name: 'Collagen Day Cream',
         price: 150,
-        size: '50ml',
+        size: '50g',
         description:
             'Daily protective collagen moisturizer for sustained radiance and softness.',
     },
@@ -125,6 +125,69 @@ const collagenProducts = [
         size: '100ml',
         description:
             'Specialized soothing gel formulated to help even out skin tone in sensitive areas.',
+    },
+    {
+        id: '14',
+        image: '/products/allglam.jpg',
+        name: 'All Glam',
+        price: 700,
+        size: '5-Piece Collection',
+        description:
+            'A complete Glowa Vee skincare collection featuring Collagen Night Cream, Collagen Glowing Serum, Collagen Capsules, Collagen Day Cream Brightening, and Collagen Bar Soap.',
+    },
+    {
+        id: '15',
+        image: '/products/bodyhealth.jpg',
+        name: 'Body Health',
+        price: 700,
+        size: '3-Piece Collection',
+        description:
+            'A complete body wellness collection featuring Hips & Bum Gain Tablets, Body Gain Tablets, and Body Gain Powder.',
+    },
+    {
+        id: '16',
+        image: '/products/combo.jpg',
+        name: 'Skin Tag Removal Combo',
+        price: 420,
+        size: '50g night cream plus 30 Caps',
+        description:
+            'A specially selected combination of Glowa Vee products for your beauty and wellness routine featuring the Collagen Night Cream and Collagen Capsules.',
+    },
+    {
+        id: '17',
+        image: '/products/creamsserum.jpg',
+        name: 'Collagen Creams & Serum',
+        price: 330,
+        size: '3-Piece Collection',
+        description:
+            'A skincare combination designed to complement your daily beauty routine. Inside the box: 1x 50g Night Cream, 1x 50g Day Cream plus 30ml Serum',
+    },
+    {
+        id: '18',
+        image: '/products/famous.jpg',
+        name: 'Famous Box',
+        price: 1000,
+        size: '7-Piece COllection',
+        description:
+            'A premium Glowa Vee beauty and wellness product created to support your self-care routine. Inside the box: 1x 50g Night Cream, 1x 50g Day Cream, 1x 30ml Serum, 1x 100g Soap Bar, 1x 30 Capsules, 1x 100ml Hydrating Body Lotion and 1x 100ml Body Hydrating Gel',
+    },
+    {
+        id: '19',
+        image: '/products/hormone.jpg',
+        name: 'Hormone Balance Tablets',
+        price: 170,
+        size: '30 Tablets',
+        description:
+            'A wellness product formulated to complement your personal health. Support hormone health and overall well-being.',
+    },
+    {
+        id: '20',
+        image: '/products/prebiotic.jpg',
+        name: 'Prebiotic Tablets',
+        price: 120,
+        size: '20 tablets',
+        description:
+            'A prebiotic supplement designed to support digestive wellness. Supports digestion and gut health.',
     },
 ];
 
@@ -243,7 +306,7 @@ export default function CatalogPage() {
                         ================================================= */}
 
                     <div className="px-5 sm:px-6 pt-1">
-                        <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-[0_16px_45px_rgba(0,0,0,0.35)] border border-(--color-border-strong) min-h-80 sm:min-h-115 flex items-end bg-black">
+                        <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-[0_16px_45px_rgba(0,0,0,0.35)] border border-(--color-border-strong) min-h-80 sm:min-h-150 flex items-end bg-black">
                             {/* Background slides */}
                             {bannerSlides.map((slide, index) => (
                                 <div
