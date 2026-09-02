@@ -4,6 +4,14 @@ import crypto from 'node:crypto';
 const OZOW_API_URL =
     'https://api.ozow.com/PostPaymentRequest';
 
+interface CartItem {
+    id?: string;
+    name?: string;
+    price?: number;
+    quantity?: number;
+    [key: string]: unknown;
+}
+
 interface OzowApiResponse {
     paymentRequestId?: string;
     url?: string;
@@ -11,14 +19,37 @@ interface OzowApiResponse {
     message?: string | null;
 }
 
+interface CheckoutRequest {
+    amount: number;
+    transactionReference: string;
+    customerName: string;
+    phoneNumber: string;
+    deliveryAddress: string;
+    shippingMethod: string;
+    shippingFee: number;
+    items: CartItem[];
+}
+
 export async function POST(request: NextRequest) {
     try {
-        const body = await request.json();
+        /*
+         * ---------------------------------------------------------
+         * READ CHECKOUT REQUEST
+         * ---------------------------------------------------------
+         */
+
+        const body =
+            (await request.json()) as Partial<CheckoutRequest>;
 
         const {
             amount,
             transactionReference,
             customerName,
+            phoneNumber,
+            deliveryAddress,
+            shippingMethod,
+            shippingFee,
+            items,
         } = body;
 
         /*
@@ -47,9 +78,7 @@ export async function POST(request: NextRequest) {
          */
 
         if (!siteCode) {
-            console.error(
-                'Missing OZOW_SITE_CODE'
-            );
+            console.error('Missing OZOW_SITE_CODE');
 
             return NextResponse.json(
                 {
@@ -61,9 +90,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!privateKey) {
-            console.error(
-                'Missing OZOW_PRIVATE_KEY'
-            );
+            console.error('Missing OZOW_PRIVATE_KEY');
 
             return NextResponse.json(
                 {
@@ -75,9 +102,7 @@ export async function POST(request: NextRequest) {
         }
 
         if (!apiKey) {
-            console.error(
-                'Missing OZOW_API_KEY'
-            );
+            console.error('Missing OZOW_API_KEY');
 
             return NextResponse.json(
                 {
@@ -144,12 +169,116 @@ export async function POST(request: NextRequest) {
 
         /*
          * ---------------------------------------------------------
-         * AMOUNT
+         * VALIDATE CUSTOMER
+         * ---------------------------------------------------------
+         */
+
+        if (
+            !customerName ||
+            typeof customerName !== 'string' ||
+            !customerName.trim()
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Customer name is required.',
+                },
+                { status: 400 }
+            );
+        }
+
+        if (
+            !phoneNumber ||
+            typeof phoneNumber !== 'string' ||
+            !phoneNumber.trim()
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Phone number is required.',
+                },
+                { status: 400 }
+            );
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * VALIDATE DELIVERY
+         * ---------------------------------------------------------
+         */
+
+        if (
+            !deliveryAddress ||
+            typeof deliveryAddress !== 'string' ||
+            !deliveryAddress.trim()
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Delivery address is required.',
+                },
+                { status: 400 }
+            );
+        }
+
+        if (
+            !shippingMethod ||
+            typeof shippingMethod !== 'string' ||
+            !shippingMethod.trim()
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Shipping method is required.',
+                },
+                { status: 400 }
+            );
+        }
+
+        if (
+            typeof shippingFee !== 'number' ||
+            !Number.isFinite(shippingFee) ||
+            shippingFee < 0
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Invalid shipping fee.',
+                },
+                { status: 400 }
+            );
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * VALIDATE CART
+         * ---------------------------------------------------------
+         */
+
+        if (
+            !Array.isArray(items) ||
+            items.length === 0
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Order must contain at least one item.',
+                },
+                { status: 400 }
+            );
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * NORMALISE PAYMENT VALUES
          * ---------------------------------------------------------
          */
 
         const formattedAmount =
             amount.toFixed(2);
+
+        const formattedShippingFee =
+            shippingFee.toFixed(2);
 
         /*
          * ---------------------------------------------------------
@@ -185,32 +314,27 @@ export async function POST(request: NextRequest) {
          * ---------------------------------------------------------
          */
 
-        /*
-         * Ozow BankReference maximum length:
-         * 20 characters.
-         */
-
         const bankReference =
             cleanTransactionReference.substring(
                 0,
                 20
             );
 
-        /*
-         * Customer is optional.
-         */
-
         const customer =
-            typeof customerName === 'string'
-                ? customerName
-                      .trim()
-                      .substring(0, 100)
-                : '';
+            customerName
+                .trim()
+                .substring(0, 100);
 
         /*
          * ---------------------------------------------------------
          * OPTIONAL FIELDS
          * ---------------------------------------------------------
+         *
+         * We deliberately do not try to put the complete order
+         * into Ozow Optional fields.
+         *
+         * The order/payment correlation will be handled by our
+         * own application architecture.
          */
 
         const optional1 = '';
@@ -232,12 +356,6 @@ export async function POST(request: NextRequest) {
          * ---------------------------------------------------------
          * HASH
          * ---------------------------------------------------------
-         *
-         * Hash values are concatenated in the documented order,
-         * followed by the private key.
-         *
-         * The complete string is converted to lowercase before
-         * SHA-512 hashing.
          */
 
         const hashValues = [
@@ -277,30 +395,13 @@ export async function POST(request: NextRequest) {
          * ---------------------------------------------------------
          * OZOW API PAYLOAD
          * ---------------------------------------------------------
-         *
-         * IMPORTANT:
-         *
-         * apiKey is included explicitly in the JSON body.
-         *
-         * Your previous test against:
-         *
-         * https://api.ozow.com/PostPaymentRequest
-         *
-         * returned:
-         *
-         * "The apiKey field is required."
-         *
-         * Therefore we send:
-         *
-         *     apiKey: apiKey
-         *
-         * in addition to the HTTP ApiKey header.
          */
 
         const ozowPayload = {
             apiKey,
 
-            SiteCode: siteCode,
+            SiteCode:
+                siteCode,
 
             CountryCode:
                 countryCode,
@@ -359,12 +460,13 @@ export async function POST(request: NextRequest) {
          * DEBUG LOGGING
          * ---------------------------------------------------------
          *
-         * NEVER log:
+         * Never log:
          *
          * - privateKey
          * - apiKey
          * - hashInput
          * - hashCheck
+         * - complete customer/order payload
          */
 
         console.log(
@@ -387,7 +489,22 @@ export async function POST(request: NextRequest) {
 
                 bankReference,
 
-                customer,
+                customerPresent:
+                    Boolean(customer),
+
+                phoneNumberPresent:
+                    Boolean(phoneNumber),
+
+                deliveryPresent:
+                    Boolean(deliveryAddress),
+
+                shippingMethod,
+
+                shippingFee:
+                    formattedShippingFee,
+
+                itemCount:
+                    items.length,
 
                 successUrl,
 
@@ -431,14 +548,6 @@ export async function POST(request: NextRequest) {
 
                             'Content-Type':
                                 'application/json',
-
-                            /*
-                             * Keep this header as well.
-                             * The API appears to validate the
-                             * apiKey body property, but the header
-                             * is harmless and may be expected by
-                             * some Ozow infrastructure.
-                             */
 
                             ApiKey:
                                 apiKey,
@@ -568,12 +677,6 @@ export async function POST(request: NextRequest) {
                         ozowResponse.statusText,
 
                     errorMessage,
-
-                    response:
-                        responseText.substring(
-                            0,
-                            2000
-                        ),
                 }
             );
 
@@ -604,12 +707,6 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        /*
-         * ---------------------------------------------------------
-         * HANDLE OZOW ERROR MESSAGE
-         * ---------------------------------------------------------
-         */
-
         if (ozowData.errorMessage) {
             return NextResponse.json(
                 {
@@ -632,9 +729,6 @@ export async function POST(request: NextRequest) {
                 {
                     paymentRequestId:
                         ozowData.paymentRequestId,
-
-                    response:
-                        ozowData,
                 }
             );
 
@@ -652,12 +746,14 @@ export async function POST(request: NextRequest) {
          * SUCCESS
          * ---------------------------------------------------------
          *
-         * The PostPaymentRequest API creates the payment request
-         * and returns a unique Ozow payment URL.
+         * IMPORTANT:
          *
-         * The frontend must redirect the browser to gatewayUrl.
+         * We still do NOT create an order here.
          *
-         * DO NOT POST another form to pay.ozow.com.
+         * We also do NOT mark payment as successful.
+         *
+         * The payment is only considered successful after Ozow
+         * sends a valid Complete notification.
          */
 
         console.log(
@@ -706,6 +802,28 @@ export async function POST(request: NextRequest) {
             notifyUrl,
 
             isTest,
+
+            /*
+             * These fields are returned for our application
+             * correlation flow. They are NOT sent to Ozow.
+             */
+
+            checkout: {
+                phoneNumber:
+                    phoneNumber.trim(),
+
+                deliveryAddress:
+                    deliveryAddress.trim(),
+
+                shippingMethod:
+                    shippingMethod.trim(),
+
+                shippingFee:
+                    formattedShippingFee,
+
+                itemCount:
+                    items.length,
+            },
         });
     } catch (error) {
         console.error(

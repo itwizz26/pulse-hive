@@ -205,6 +205,14 @@ const resellerProducts = [
 
 const bannerSlides = [
     {
+        title: 'Laser Skin Tag Removal',
+        subtitle:
+            'Target unwanted skin tags with our laser skin tag removal solution for smoother, clearer-looking skin.',
+        tag: 'Laser Skin Tag Remover',
+        image:
+            '/banners/banner5.jpg',
+    },
+    {
         title: 'Glow From Head to Toe',
         subtitle:
             'Discover our collection of skincare and wellness products designed to help you look and feel your best.',
@@ -212,7 +220,6 @@ const bannerSlides = [
         image:
             '/banners/banner1.jpg',
     },
-
     {
         title: 'Say Goodbye to Skin Tags',
         subtitle:
@@ -221,7 +228,6 @@ const bannerSlides = [
         image:
             '/banners/banner2.jpg',
     },
-
     {
         title: 'Restore Your Skin’s Natural Beauty',
         subtitle:
@@ -230,7 +236,6 @@ const bannerSlides = [
         image:
             '/banners/banner3.jpg',
     },
-
     {
         title: 'Your Journey to a Healthier You',
         subtitle:
@@ -240,6 +245,7 @@ const bannerSlides = [
             '/banners/banner4.jpg',
     },
 ];
+
 
 export default function CatalogPage() {
     const { cart } = useCart();
