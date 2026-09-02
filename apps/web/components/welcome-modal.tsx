@@ -68,9 +68,6 @@ export function WelcomeModal() {
         >
             {/* =====================================================
                 MODAL FRAME
-
-                This is the ONLY element responsible for the
-                20px spacing around the modal.
                 ===================================================== */}
             <div
                 style={{
@@ -81,7 +78,6 @@ export function WelcomeModal() {
                     right: '20px',
 
                     height: 'calc(100dvh - 40px)',
-
                     maxHeight: 'calc(100dvh - 40px)',
 
                     overflow: 'hidden',
@@ -103,9 +99,12 @@ export function WelcomeModal() {
                         '0 25px 80px rgba(0,0,0,0.7)',
                 }}
             >
-
                 {/* =================================================
                     IMAGE
+
+                    Keep the original full-frame positioning.
+                    The image fills the modal just like the hero
+                    banners.
                     ================================================= */}
                 <img
                     src="/welcome.jpg"
@@ -136,6 +135,8 @@ export function WelcomeModal() {
 
                         background:
                             'rgba(0, 0, 0, 0.22)',
+
+                        pointerEvents: 'none',
                     }}
                 />
 
@@ -150,7 +151,7 @@ export function WelcomeModal() {
                         right: 0,
                         bottom: 0,
 
-                        height: '65%',
+                        height: '55%',
 
                         background:
                             'linear-gradient(to top, rgba(0,0,0,0.96), rgba(0,0,0,0.55), transparent)',
@@ -161,9 +162,6 @@ export function WelcomeModal() {
 
                 {/* =================================================
                     CLOSE BUTTON — TOP LEFT
-
-                    Moved here so it doesn't clash with the
-                    floating shopping cart.
                     ================================================= */}
                 <button
                     type="button"
@@ -237,7 +235,6 @@ export function WelcomeModal() {
                         pointerEvents: 'none',
                     }}
                 >
-
                     {/* Icon */}
                     <div
                         style={{
@@ -296,6 +293,9 @@ export function WelcomeModal() {
                             fontWeight: 700,
 
                             color: '#fff',
+
+                            textShadow:
+                                '0 3px 12px rgba(0,0,0,0.7)',
                         }}
                     >
                         Welcome to Glowa Vee
@@ -326,6 +326,9 @@ export function WelcomeModal() {
 
                             color:
                                 'rgba(255,255,255,0.9)',
+
+                            textShadow:
+                                '0 2px 8px rgba(0,0,0,0.7)',
                         }}
                     >
                         Discover beauty, skincare, body care and
@@ -352,9 +355,7 @@ export function WelcomeModal() {
                     >
                         Your glow starts here
                     </p>
-
                 </div>
-
             </div>
         </div>
     );

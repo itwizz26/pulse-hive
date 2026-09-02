@@ -312,7 +312,7 @@ export default function CatalogPage() {
                         ================================================= */}
 
                     <div className="px-5 sm:px-6 pt-1">
-                        <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-[0_16px_45px_rgba(0,0,0,0.35)] border border-(--color-border-strong) min-h-80 sm:min-h-150 flex items-end bg-black">
+                        <div className="relative w-full max-w-full mx-auto overflow-hidden shadow-[0_16px_45px_rgba(0,0,0,0.35)] border border-(--color-border-strong) aspect-5/3.5 flex items-end bg-black">
                             {/* Background slides */}
                             {bannerSlides.map((slide, index) => (
                                 <div
@@ -364,22 +364,18 @@ export default function CatalogPage() {
                             </div>
 
                             {/* Slider dots */}
-                            <div className="absolute bottom-5 right-6 flex gap-1.5 z-40 pointer-events-auto">
+                            <div className="absolute bottom-5 right-6 flex items-center gap-2 z-50 pointer-events-auto">
                                 {bannerSlides.map((_, index) => (
                                     <button
                                         key={index}
                                         type="button"
-                                        onClick={() =>
-                                            setCurrentSlide(index)
-                                        }
-                                        className={`h-1.5 rounded-full transition-all duration-300 shadow-sm cursor-pointer ${
+                                        onClick={() => setCurrentSlide(index)}
+                                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                                             currentSlide === index
-                                                ? 'w-6 bg-(--color-gold-light)'
-                                                : 'w-1.5 bg-white/50 hover:bg-(--color-gold-light)/80'
+                                                ? 'w-7 bg-(--color-gold-light)'
+                                                : 'w-2 bg-white/70 hover:bg-white'
                                         }`}
-                                        aria-label={`Go to slide ${
-                                            index + 1
-                                        }`}
+                                        aria-label={`Go to slide ${index + 1}`}
                                     />
                                 ))}
                             </div>
