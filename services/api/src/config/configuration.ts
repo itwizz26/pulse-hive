@@ -6,6 +6,5 @@ export const environmentValidationSchema = Joi.object({
     ALLOWED_ORIGINS: Joi.string().default('*'),
     AUTH_SERVICE_URL: Joi.string().uri().required(),
     ORDER_SERVICE_URL: Joi.string().uri().required(),
-    PAYMENT_SERVICE_URL: Joi.string().uri().required(),
     JWT_SECRET: Joi.string().required(),
 });

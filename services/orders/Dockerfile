@@ -1,17 +1,21 @@
-FROM node:18-bullseye-slim
+FROM node:22-alpine
+
+RUN apk add --no-cache openssl
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends openssl ca-certificates && rm -rf /var/lib/apt/lists/*
+RUN npm install -g pnpm
 
-COPY services/db/ ../db/
-RUN cd ../db && npm install --fetch-retries=5 --fetch-retry-factor=2 --fetch-retry-mintimeout=1000 --fetch-retry-maxtimeout=60000
-RUN cd ../db && npx prisma generate --schema=./prisma/schema.prisma
+COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
 
-COPY services/orders/package.json ./package.json
-COPY services/orders/index.js ./index.js
-RUN npm install --fetch-retries=5 --fetch-retry-factor=2 --fetch-retry-mintimeout=1000 --fetch-retry-maxtimeout=60000
+RUN pnpm install --frozen-lockfile
 
-EXPOSE 4001
+COPY . .
 
-CMD ["sh", "-c", "cd ../db && npx prisma migrate deploy --schema=./prisma/schema.prisma && cd /app && npm start"]
+RUN pnpm prisma:generate
+
+RUN pnpm run build
+
+EXPOSE 4002
+
+CMD ["pnpm", "run", "start:dev"]

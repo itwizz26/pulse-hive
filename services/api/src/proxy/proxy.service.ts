@@ -14,7 +14,6 @@ export class ProxyService {
         this.routeMapping = {
             auth: this.configService.get<string>('AUTH_SERVICE_URL')!,
             orders: this.configService.get<string>('ORDER_SERVICE_URL')!,
-            payments: this.configService.get<string>('PAYMENT_SERVICE_URL')!,
         };
     }
 

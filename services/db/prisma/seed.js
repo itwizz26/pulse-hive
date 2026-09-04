@@ -1,4 +1,4 @@
-const prisma = require('./prismaClient');
+const prisma = require('../prismaClient');
 
 async function main() {
   const tenant = await prisma.tenant.upsert({
