@@ -22,41 +22,25 @@ function getValue(
     return params.get(key) ?? '';
 }
 
-/**
- * Builds the exact Ozow notification hash input.
- *
- * Ozow notification hash order:
- *
- * SiteCode
- * TransactionId
- * TransactionReference
- * Amount
- * Status
- * Optional1
- * Optional2
- * Optional3
- * Optional4
- * Optional5
- * CurrencyCode
- * IsTest
- * StatusMessage
- * PrivateKey
- */
 function buildOzowHashInput(
     params: URLSearchParams,
     privateKey: string,
 ): string {
-    const siteCode = getValue(params, 'SiteCode');
+    const siteCode = getValue(
+        params,
+        'SiteCode',
+    );
 
     const transactionId = getValue(
         params,
         'TransactionId',
     );
 
-    const transactionReference = getValue(
-        params,
-        'TransactionReference',
-    );
+    const transactionReference =
+        getValue(
+            params,
+            'TransactionReference',
+        );
 
     const amount = getValue(
         params,
@@ -108,11 +92,19 @@ function buildOzowHashInput(
         'StatusMessage',
     );
 
+    /*
+     * Ozow requires Amount to be represented
+     * with exactly two decimal places when
+     * calculating the notification hash.
+     */
+    const normalizedAmount =
+        Number(amount || 0).toFixed(2);
+
     return [
         siteCode,
         transactionId,
         transactionReference,
-        amount,
+        normalizedAmount,
         status,
         optional1,
         optional2,
@@ -132,10 +124,11 @@ function calculateOzowHash(
     params: URLSearchParams,
     privateKey: string,
 ): string {
-    const hashInput = buildOzowHashInput(
-        params,
-        privateKey,
-    );
+    const hashInput =
+        buildOzowHashInput(
+            params,
+            privateKey,
+        );
 
     return createHash('sha512')
         .update(hashInput)
@@ -154,15 +147,15 @@ function verifyOzowHash(
         .trim()
         .toLowerCase();
 
+    if (!suppliedHash) {
+        return false;
+    }
+
     const expectedHash =
         calculateOzowHash(
             params,
             privateKey,
         );
-
-    if (!suppliedHash) {
-        return false;
-    }
 
     const expectedBuffer =
         Buffer.from(
@@ -191,28 +184,73 @@ function verifyOzowHash(
 
 async function getTenantByCode(
     tenantCode: string,
-) {
-    const response = await fetch(
+): Promise<{
+    id: string;
+    tenantCode?: string;
+    name?: string;
+}> {
+    if (!PULSEHIVE_DB_SERVICE_URL) {
+        throw new Error(
+            'PULSEHIVE_DB_SERVICE_URL is not configured',
+        );
+    }
+
+    const url =
         `${PULSEHIVE_DB_SERVICE_URL}/tenants/code/${encodeURIComponent(
             tenantCode,
-        )}`,
+        )}`;
+
+    console.log(
+        'Calling PulseHive DB service:',
         {
-            cache: 'no-store',
+            url,
+            tenantCode,
         },
     );
+
+    let response: Response;
+
+    try {
+        response = await fetch(
+            url,
+            {
+                cache: 'no-store',
+            },
+        );
+    } catch (error) {
+        console.error(
+            'Failed to connect to PulseHive DB service:',
+            {
+                url,
+                error,
+            },
+        );
+
+        throw new Error(
+            `DB service fetch failed: ${
+                error instanceof Error
+                    ? error.message
+                    : String(error)
+            }`,
+        );
+    }
 
     if (!response.ok) {
         const errorText =
             await response.text();
 
         console.error(
-            'Failed to resolve tenant from DB service:',
-            response.status,
-            errorText,
+            'PulseHive DB service returned an error:',
+            {
+                status:
+                    response.status,
+                body: errorText,
+                url,
+            },
         );
 
         throw new Error(
-            `Tenant lookup failed with status ${response.status}`,
+            `Tenant lookup failed with status ${response.status}: ${errorText}`,
         );
     }
 
@@ -227,38 +265,90 @@ async function publishPaymentCompletedEvent(
         provider: string;
         amount: number;
         currency: string;
+        orderNumber?: string;
+        optional1?: string;
+        optional2?: string;
+        optional3?: string;
+        optional4?: string;
+        optional5?: string;
     },
 ) {
-    const response = await fetch(
-        `${PULSEHIVE_EVENTS_SERVICE_URL}/events/publish`,
+    if (!PULSEHIVE_EVENTS_SERVICE_URL) {
+        throw new Error(
+            'PULSEHIVE_EVENTS_SERVICE_URL is not configured',
+        );
+    }
+
+    const url =
+        `${PULSEHIVE_EVENTS_SERVICE_URL}/events/publish`;
+
+    console.log(
+        'Calling PulseHive Events service:',
         {
-            method: 'POST',
-            headers: {
-                'Content-Type':
-                    'application/json',
-            },
-            body: JSON.stringify({
-                eventType:
-                    EVENT_TYPE,
-                version:
-                    EVENT_VERSION,
-                data: event,
-            }),
+            url,
+            eventType:
+                EVENT_TYPE,
+            tenantId:
+                event.tenantId,
+            transactionReference:
+                event.transactionReference,
         },
     );
+
+    let response: Response;
+
+    try {
+        response = await fetch(
+            url,
+            {
+                method: 'POST',
+                headers: {
+                    'Content-Type':
+                        'application/json',
+                },
+                body: JSON.stringify({
+                    eventType:
+                        EVENT_TYPE,
+                    version:
+                        EVENT_VERSION,
+                    data: event,
+                }),
+            },
+        );
+    } catch (error) {
+        console.error(
+            'Failed to connect to PulseHive Events service:',
+            {
+                url,
+                error,
+            },
+        );
+
+        throw new Error(
+            `Events service fetch failed: ${
+                error instanceof Error
+                    ? error.message
+                    : String(error)
+            }`,
+        );
+    }
 
     if (!response.ok) {
         const errorText =
             await response.text();
 
         console.error(
-            'Failed to publish payment.completed event:',
-            response.status,
-            errorText,
+            'PulseHive Events service returned an error:',
+            {
+                status:
+                    response.status,
+                body: errorText,
+                url,
+            },
         );
 
         throw new Error(
-            `Events service returned status ${response.status}`,
+            `Events service returned status ${response.status}: ${errorText}`,
         );
     }
 
@@ -268,8 +358,19 @@ async function publishPaymentCompletedEvent(
 export async function POST(
     request: NextRequest,
 ) {
-    let processingStage = 'starting ...';
+    let processingStage =
+        'starting';
+
     try {
+        /*
+         * ---------------------------------------------------------
+         * 1. Validate environment configuration
+         * ---------------------------------------------------------
+         */
+
+        processingStage =
+            'environment-validation';
+
         if (!OZOW_SITE_CODE) {
             console.error(
                 'OZOW_SITE_CODE is not configured',
@@ -326,6 +427,15 @@ export async function POST(
             );
         }
 
+        /*
+         * ---------------------------------------------------------
+         * 2. Read notification body
+         * ---------------------------------------------------------
+         */
+
+        processingStage =
+            'reading-notification';
+
         const body =
             await request.text();
 
@@ -380,6 +490,36 @@ export async function POST(
                 'StatusMessage',
             );
 
+        const optional1 =
+            getValue(
+                params,
+                'Optional1',
+            );
+
+        const optional2 =
+            getValue(
+                params,
+                'Optional2',
+            );
+
+        const optional3 =
+            getValue(
+                params,
+                'Optional3',
+            );
+
+        const optional4 =
+            getValue(
+                params,
+                'Optional4',
+            );
+
+        const optional5 =
+            getValue(
+                params,
+                'Optional5',
+            );
+
         const suppliedHash =
             getValue(
                 params,
@@ -392,123 +532,32 @@ export async function POST(
                 siteCode,
                 transactionId,
                 transactionReference,
-                amount: amountValue,
+                amount:
+                    amountValue,
                 status,
                 currencyCode,
                 isTest,
                 statusMessage,
-                optional1:
-                    getValue(
-                        params,
-                        'Optional1',
-                    ),
-                optional2:
-                    getValue(
-                        params,
-                        'Optional2',
-                    ),
-                optional3:
-                    getValue(
-                        params,
-                        'Optional3',
-                    ),
-                optional4:
-                    getValue(
-                        params,
-                        'Optional4',
-                    ),
-                optional5:
-                    getValue(
-                        params,
-                        'Optional5',
+                optional1,
+                optional2,
+                optional3,
+                optional4,
+                optional5,
+                hasHash:
+                    Boolean(
+                        suppliedHash,
                     ),
             },
         );
 
         /*
-         * ============================================================
-         * DEVELOPMENT HASH GENERATOR
-         * ============================================================
-         *
-         * TEMPORARY.
-         *
-         * This allows us to generate a valid notification hash
-         * using the SAME OZOW_PRIVATE_KEY that is configured on
-         * Railway.
-         *
-         * Remove this endpoint after testing.
-         * ============================================================
+         * ---------------------------------------------------------
+         * 3. Validate required fields
+         * ---------------------------------------------------------
          */
 
-        if (
-            request.nextUrl.searchParams.get(
-                'debugHash',
-            ) === 'true'
-        ) {
-            const generatedHash =
-                calculateOzowHash(
-                    params,
-                    OZOW_PRIVATE_KEY,
-                );
-
-            console.log(
-                'Generated Ozow debug hash:',
-                generatedHash,
-            );
-
-            return NextResponse.json({
-                hash: generatedHash,
-                fields: {
-                    SiteCode:
-                        siteCode,
-                    TransactionId:
-                        transactionId,
-                    TransactionReference:
-                        transactionReference,
-                    Amount:
-                        amountValue,
-                    Status:
-                        status,
-                    Optional1:
-                        getValue(
-                            params,
-                            'Optional1',
-                        ),
-                    Optional2:
-                        getValue(
-                            params,
-                            'Optional2',
-                        ),
-                    Optional3:
-                        getValue(
-                            params,
-                            'Optional3',
-                        ),
-                    Optional4:
-                        getValue(
-                            params,
-                            'Optional4',
-                        ),
-                    Optional5:
-                        getValue(
-                            params,
-                            'Optional5',
-                        ),
-                    CurrencyCode:
-                        currencyCode,
-                    IsTest:
-                        isTest,
-                    StatusMessage:
-                        statusMessage,
-                },
-            });
-        }
-
-        /*
-         * ============================================================
-         * BASIC VALIDATION
-         * ============================================================
-         */
+        processingStage =
+            'field-validation';
 
         if (!siteCode) {
             return NextResponse.json(
@@ -593,10 +642,13 @@ export async function POST(
         }
 
         /*
-         * ============================================================
-         * VERIFY OZOW HASH
-         * ============================================================
+         * ---------------------------------------------------------
+         * 4. Verify Ozow notification hash
+         * ---------------------------------------------------------
          */
+
+        processingStage =
+            'hash-verification';
 
         const hashValid =
             verifyOzowHash(
@@ -623,11 +675,18 @@ export async function POST(
             );
         }
 
+        console.log(
+            'Ozow notification hash verified successfully.',
+        );
+
         /*
-         * ============================================================
-         * VALIDATE TEST MODE
-         * ============================================================
+         * ---------------------------------------------------------
+         * 5. Validate test/live mode
+         * ---------------------------------------------------------
          */
+
+        processingStage =
+            'test-mode-validation';
 
         if (
             OZOW_IS_TEST &&
@@ -654,10 +713,13 @@ export async function POST(
         }
 
         /*
-         * ============================================================
-         * ONLY COMPLETED PAYMENTS ENTER THE CURRENT EVENT PIPELINE
-         * ============================================================
+         * ---------------------------------------------------------
+         * 6. Only process completed payments
+         * ---------------------------------------------------------
          */
+
+        processingStage =
+            'status-validation';
 
         if (
             status !==
@@ -680,10 +742,13 @@ export async function POST(
         }
 
         /*
-         * ============================================================
-         * RESOLVE TENANT
-         * ============================================================
+         * ---------------------------------------------------------
+         * 7. Extract tenant code
+         * ---------------------------------------------------------
          */
+
+        processingStage =
+            'tenant-code-extraction';
 
         const tenantCodeMatch =
             transactionReference.match(
@@ -707,6 +772,23 @@ export async function POST(
 
         const tenantCode =
             tenantCodeMatch[1];
+
+        console.log(
+            'Tenant code extracted from transaction reference:',
+            {
+                transactionReference,
+                tenantCode,
+            },
+        );
+
+        /*
+         * ---------------------------------------------------------
+         * 8. Resolve tenant
+         * ---------------------------------------------------------
+         */
+
+        processingStage =
+            'tenant-lookup';
 
         const tenant =
             await getTenantByCode(
@@ -732,30 +814,99 @@ export async function POST(
             );
         }
 
+        console.log(
+            'Tenant resolved successfully:',
+            {
+                tenantCode,
+                tenantId:
+                    tenant.id,
+                tenantName:
+                    tenant.name,
+            },
+        );
+
         /*
-         * ============================================================
-         * PUBLISH PAYMENT COMPLETED
-         * ============================================================
+         * ---------------------------------------------------------
+         * 9. Convert amount
+         * ---------------------------------------------------------
          */
 
+        processingStage =
+            'amount-processing';
+
         const amount =
-            Number(amountValue);
+            Number(
+                amountValue,
+            );
+
+        if (
+            !Number.isFinite(
+                amount,
+            )
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Invalid transaction amount',
+                },
+                { status: 400 },
+            );
+        }
+
+        /*
+         * ---------------------------------------------------------
+         * 10. Publish payment.completed event
+         * ---------------------------------------------------------
+         */
+
+        processingStage =
+            'events-publish';
 
         const event =
             await publishPaymentCompletedEvent(
                 {
                     tenantId:
                         tenant.id,
+
                     transactionReference,
+
                     providerReference:
                         transactionId,
+
                     provider:
                         'OZOW',
+
                     amount,
+
                     currency:
                         currencyCode,
+
+                    /*
+                     * These fields allow the downstream
+                     * orders service to eventually
+                     * reconstruct useful order metadata
+                     * from the payment event.
+                     */
+
+                    orderNumber:
+                        optional1,
+
+                    optional1,
+                    optional2,
+                    optional3,
+                    optional4,
+                    optional5,
                 },
             );
+
+        /*
+         * ---------------------------------------------------------
+         * 11. Success
+         * ---------------------------------------------------------
+         */
+
+        processingStage =
+            'completed';
 
         console.log(
             'Ozow payment.completed event published:',
@@ -789,6 +940,14 @@ export async function POST(
             },
         );
 
+        /*
+         * Temporary diagnostic mode.
+         *
+         * IMPORTANT:
+         * This never exposes the Ozow private key.
+         * It only exposes the failing stage and
+         * the resulting error message.
+         */
         const isDebug =
             request.nextUrl.searchParams.get(
                 'debugNotify',
@@ -800,8 +959,12 @@ export async function POST(
                     error:
                         error instanceof Error
                             ? error.message
-                            : String(error),
+                            : String(
+                                  error,
+                              ),
+
                     processingStage,
+
                     stack:
                         error instanceof Error
                             ? error.stack
