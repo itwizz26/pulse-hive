@@ -6,6 +6,7 @@ import { Logger } from '@nestjs/common';
 async function bootstrap() {
     const logger = new Logger('PulseHiveAuth');
     const app = await NestFactory.create(AppModule);
+    const port = Number(process.env.PORT ?? 4001);
 
     app.useGlobalPipes(new ValidationPipe({
         whitelist: true,
@@ -14,8 +15,8 @@ async function bootstrap() {
 
     app.setGlobalPrefix('api/v1');
     
-    // Listen comes last
-    await app.listen(4001, '0.0.0.0');
+    await app.listen(port, '0.0.0.0');
+    
     logger.log(`Auth service running on: ${await app.getUrl()}`);
 }
 bootstrap();
