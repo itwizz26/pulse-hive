@@ -8,13 +8,22 @@
     "allowSyntheticDefaultImports": true,
     "target": "ES2021",
     "sourceMap": true,
-    "rootDir": "./src",
+    "rootDir": ".",
     "outDir": "./dist",
     "incremental": true,
     "skipLibCheck": true,
     "strict": true,
     "strictNullChecks": true,
     "resolveJsonModule": true,
-    "esModuleInterop": true
-  }
+    "esModuleInterop": true,
+    "types": ["node"]
+  },
+  "include": [
+    "src/**/*.ts",
+    "prisma/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
 }

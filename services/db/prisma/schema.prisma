@@ -1,24 +1,24 @@
-datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
-}
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native"]
 }
 
-model Tenant {
-  id        String   @id @default(cuid())
-  name      String
-  slug      String   @unique
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
 
-  customers Customer[]
-  products  Product[]
-  orders    Order[]
-  payments  Payment[]
+model Tenant {
+  id         String     @id @default(cuid())
+  name       String
+  createdAt  DateTime   @default(now())
+  slug       String     @unique
+  updatedAt  DateTime   @updatedAt
+  tenantCode String     @unique
+  customers  Customer[]
+  orders     Order[]
+  payments   Payment[]
+  products   Product[]
 
   @@index([slug])
 }
@@ -26,17 +26,14 @@ model Tenant {
 model Customer {
   id        String   @id @default(cuid())
   tenantId  String
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
   name      String
   phone     String?
   email     String?
   address   String?
-
-  orders    Order[]
-
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
+  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  orders    Order[]
 
   @@index([tenantId])
   @@index([tenantId, phone])
@@ -46,18 +43,17 @@ model Customer {
 model Product {
   id          String      @id @default(cuid())
   tenantId    String
-  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
   name        String
   description String?
   sku         String?
+  image       String?
+  size        String?
   price       Decimal     @db.Decimal(10, 2)
   active      Boolean     @default(true)
-
-  orderItems  OrderItem[]
-
   createdAt   DateTime    @default(now())
   updatedAt   DateTime    @updatedAt
+  orderItems  OrderItem[]
+  tenant      Tenant      @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([tenantId, active])
@@ -65,31 +61,24 @@ model Product {
 }
 
 model Order {
-  id              String       @id @default(cuid())
+  id              String        @id @default(cuid())
   tenantId        String
-  tenant          Tenant       @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
   reference       String
-  customerId      String?
-  customer        Customer?    @relation(fields: [customerId], references: [id], onDelete: SetNull)
-
-  status          OrderStatus  @default(PENDING_PAYMENT)
-  paymentStatus   PaymentStatus @default(PENDING)
-
-  subtotal        Decimal      @db.Decimal(10, 2)
-  shippingFee     Decimal      @db.Decimal(10, 2)
-  totalAmount     Decimal      @db.Decimal(10, 2)
-
-  shippingMethod  String?
-  deliveryAddress String?
-
+  totalAmount     Decimal       @db.Decimal(10, 2)
   trackingNumber  String?
-
+  createdAt       DateTime      @default(now())
+  customerId      String?
+  deliveryAddress String?
+  paymentStatus   PaymentStatus @default(PENDING)
+  shippingFee     Decimal       @db.Decimal(10, 2)
+  shippingMethod  String?
+  subtotal        Decimal       @db.Decimal(10, 2)
+  updatedAt       DateTime      @updatedAt
+  status          OrderStatus   @default(PENDING_PAYMENT)
+  customer        Customer?     @relation(fields: [customerId], references: [id])
+  tenant          Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
   items           OrderItem[]
   payments        Payment[]
-
-  createdAt       DateTime     @default(now())
-  updatedAt       DateTime     @updatedAt
 
   @@unique([tenantId, reference])
   @@index([tenantId])
@@ -100,47 +89,46 @@ model Order {
 }
 
 model OrderItem {
-  id         String   @id @default(cuid())
-  orderId    String
-  order      Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
-
-  productId  String?
-  product    Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
-
+  id          String   @id @default(cuid())
+  orderId     String
+  productId   String?
   productName String
   sku         String?
   quantity    Int
   unitPrice   Decimal  @db.Decimal(10, 2)
   totalPrice  Decimal  @db.Decimal(10, 2)
-
-  createdAt  DateTime @default(now())
+  createdAt   DateTime @default(now())
+  order       Order    @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product     Product? @relation(fields: [productId], references: [id])
 
   @@index([orderId])
   @@index([productId])
 }
 
 model Payment {
-  id                String        @id @default(cuid())
-  tenantId          String
-  tenant            Tenant        @relation(fields: [tenantId], references: [id], onDelete: Cascade)
-
-  orderId           String?
-  order             Order?        @relation(fields: [orderId], references: [id], onDelete: SetNull)
-
-  provider          PaymentProvider
-  status            PaymentStatus @default(PENDING)
-
-  amount            Decimal       @db.Decimal(10, 2)
-  currency          String        @default("ZAR")
-
-  transactionReference String?
-  providerReference    String?
-
-  customerName      String?
-
-  completedAt       DateTime?
-  createdAt         DateTime      @default(now())
-  updatedAt         DateTime      @updatedAt
+  id                    String          @id @default(cuid())
+  tenantId              String
+  customerName          String?
+  customerEmail         String?
+  customerPhone         String?
+  amount                Decimal         @db.Decimal(10, 2)
+  orderId               String?
+  createdAt             DateTime        @default(now())
+  completedAt           DateTime?
+  currency              String          @default("ZAR")
+  provider              PaymentProvider
+  providerReference     String?
+  status                PaymentStatus   @default(PENDING)
+  transactionReference  String?
+  providerOptional1     String?
+  providerOptional2     String?
+  providerOptional3     String?
+  providerOptional4     String?
+  providerOptional5     String?
+  providerStatusMessage String?
+  updatedAt             DateTime        @updatedAt
+  order                 Order?          @relation(fields: [orderId], references: [id])
+  tenant                Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@index([tenantId])
   @@index([tenantId, status])

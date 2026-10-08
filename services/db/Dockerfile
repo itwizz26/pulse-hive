@@ -6,7 +6,7 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY package.json pnpm-lock.yaml* pnpm-workspace.yaml ./
+COPY package.json pnpm-lock.yaml pnpm-workspace.yaml ./
 
 RUN pnpm install --frozen-lockfile
 
@@ -18,4 +18,4 @@ RUN pnpm run build
 
 EXPOSE 4003
 
-CMD ["pnpm", "run", "start:dev"]
+CMD ["pnpm", "run", "start:railway"]

@@ -4,24 +4,28 @@ import Joi from 'joi';
 
 import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
+import { ProductsModule } from './products/products.module';
+import { TenantsModule } from './tenants/tenants.module';
 
 @Module({
-  imports: [
-    ConfigModule.forRoot({
-      isGlobal: true,
-      validationSchema: Joi.object({
-        NODE_ENV: Joi.string()
-          .valid('development', 'test', 'production')
-          .default('development'),
+    imports: [
+        ConfigModule.forRoot({
+            isGlobal: true,
+            validationSchema: Joi.object({
+                NODE_ENV: Joi.string()
+                .valid('development', 'test', 'production')
+                .default('development'),
 
-        PORT: Joi.number().default(4003).required(),
+                PORT: Joi.number().default(4003).required(),
 
-        DATABASE_URL: Joi.string().uri().required(),
-      }),
-    }),
+                DATABASE_URL: Joi.string().uri().required(),
+            }),
+        }),
 
-    DatabaseModule,
-    HealthModule,
-  ],
+        DatabaseModule,
+        HealthModule,
+        TenantsModule,
+        ProductsModule,
+    ],
 })
 export class AppModule {}
