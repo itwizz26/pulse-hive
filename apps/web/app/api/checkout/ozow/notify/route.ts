@@ -1,4 +1,5 @@
 import { createHash, timingSafeEqual } from 'crypto';
+
 import { NextRequest, NextResponse } from 'next/server';
 
 const OZOW_SITE_CODE = process.env.OZOW_SITE_CODE;
@@ -21,44 +22,93 @@ function getValue(
     return params.get(key) ?? '';
 }
 
-function verifyOzowHash(
+/**
+ * Builds the exact Ozow notification hash input.
+ *
+ * Ozow notification hash order:
+ *
+ * SiteCode
+ * TransactionId
+ * TransactionReference
+ * Amount
+ * Status
+ * Optional1
+ * Optional2
+ * Optional3
+ * Optional4
+ * Optional5
+ * CurrencyCode
+ * IsTest
+ * StatusMessage
+ * PrivateKey
+ */
+function buildOzowHashInput(
     params: URLSearchParams,
     privateKey: string,
-): boolean {
+): string {
     const siteCode = getValue(params, 'SiteCode');
+
     const transactionId = getValue(
         params,
         'TransactionId',
     );
+
     const transactionReference = getValue(
         params,
         'TransactionReference',
     );
-    const amount = getValue(params, 'Amount');
-    const status = getValue(params, 'Status');
 
-    const optional1 = getValue(params, 'Optional1');
-    const optional2 = getValue(params, 'Optional2');
-    const optional3 = getValue(params, 'Optional3');
-    const optional4 = getValue(params, 'Optional4');
-    const optional5 = getValue(params, 'Optional5');
+    const amount = getValue(
+        params,
+        'Amount',
+    );
+
+    const status = getValue(
+        params,
+        'Status',
+    );
+
+    const optional1 = getValue(
+        params,
+        'Optional1',
+    );
+
+    const optional2 = getValue(
+        params,
+        'Optional2',
+    );
+
+    const optional3 = getValue(
+        params,
+        'Optional3',
+    );
+
+    const optional4 = getValue(
+        params,
+        'Optional4',
+    );
+
+    const optional5 = getValue(
+        params,
+        'Optional5',
+    );
 
     const currencyCode = getValue(
         params,
         'CurrencyCode',
     );
 
-    const isTest = getValue(params, 'IsTest');
+    const isTest = getValue(
+        params,
+        'IsTest',
+    );
+
     const statusMessage = getValue(
         params,
         'StatusMessage',
     );
 
-    const suppliedHash = getValue(params, 'Hash')
-        .trim()
-        .toLowerCase();
-
-    const hashInput = [
+    return [
         siteCode,
         transactionId,
         transactionReference,
@@ -76,25 +126,55 @@ function verifyOzowHash(
     ]
         .join('')
         .toLowerCase();
+}
 
-    const expectedHash = createHash('sha512')
+function calculateOzowHash(
+    params: URLSearchParams,
+    privateKey: string,
+): string {
+    const hashInput = buildOzowHashInput(
+        params,
+        privateKey,
+    );
+
+    return createHash('sha512')
         .update(hashInput)
         .digest('hex')
         .toLowerCase();
+}
+
+function verifyOzowHash(
+    params: URLSearchParams,
+    privateKey: string,
+): boolean {
+    const suppliedHash = getValue(
+        params,
+        'Hash',
+    )
+        .trim()
+        .toLowerCase();
+
+    const expectedHash =
+        calculateOzowHash(
+            params,
+            privateKey,
+        );
 
     if (!suppliedHash) {
         return false;
     }
 
-    const expectedBuffer = Buffer.from(
-        expectedHash,
-        'utf8',
-    );
+    const expectedBuffer =
+        Buffer.from(
+            expectedHash,
+            'utf8',
+        );
 
-    const suppliedBuffer = Buffer.from(
-        suppliedHash,
-        'utf8',
-    );
+    const suppliedBuffer =
+        Buffer.from(
+            suppliedHash,
+            'utf8',
+        );
 
     if (
         expectedBuffer.length !==
@@ -122,7 +202,8 @@ async function getTenantByCode(
     );
 
     if (!response.ok) {
-        const errorText = await response.text();
+        const errorText =
+            await response.text();
 
         console.error(
             'Failed to resolve tenant from DB service:',
@@ -153,18 +234,22 @@ async function publishPaymentCompletedEvent(
         {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json',
+                'Content-Type':
+                    'application/json',
             },
             body: JSON.stringify({
-                eventType: EVENT_TYPE,
-                version: EVENT_VERSION,
+                eventType:
+                    EVENT_TYPE,
+                version:
+                    EVENT_VERSION,
                 data: event,
             }),
         },
     );
 
     if (!response.ok) {
-        const errorText = await response.text();
+        const errorText =
+            await response.text();
 
         console.error(
             'Failed to publish payment.completed event:',
@@ -240,54 +325,65 @@ export async function POST(
             );
         }
 
-        const body = await request.text();
+        const body =
+            await request.text();
 
-        const params = new URLSearchParams(body);
+        const params =
+            new URLSearchParams(body);
 
-        const siteCode = getValue(
-            params,
-            'SiteCode',
-        );
+        const siteCode =
+            getValue(
+                params,
+                'SiteCode',
+            );
 
-        const transactionId = getValue(
-            params,
-            'TransactionId',
-        );
+        const transactionId =
+            getValue(
+                params,
+                'TransactionId',
+            );
 
-        const transactionReference = getValue(
-            params,
-            'TransactionReference',
-        );
+        const transactionReference =
+            getValue(
+                params,
+                'TransactionReference',
+            );
 
-        const amountValue = getValue(
-            params,
-            'Amount',
-        );
+        const amountValue =
+            getValue(
+                params,
+                'Amount',
+            );
 
-        const status = getValue(
-            params,
-            'Status',
-        );
+        const status =
+            getValue(
+                params,
+                'Status',
+            );
 
-        const currencyCode = getValue(
-            params,
-            'CurrencyCode',
-        );
+        const currencyCode =
+            getValue(
+                params,
+                'CurrencyCode',
+            );
 
-        const isTest = getValue(
-            params,
-            'IsTest',
-        );
+        const isTest =
+            getValue(
+                params,
+                'IsTest',
+            );
 
-        const statusMessage = getValue(
-            params,
-            'StatusMessage',
-        );
+        const statusMessage =
+            getValue(
+                params,
+                'StatusMessage',
+            );
 
-        const suppliedHash = getValue(
-            params,
-            'Hash',
-        );
+        const suppliedHash =
+            getValue(
+                params,
+                'Hash',
+            );
 
         console.log(
             'Ozow notification received:',
@@ -300,8 +396,112 @@ export async function POST(
                 currencyCode,
                 isTest,
                 statusMessage,
+                optional1:
+                    getValue(
+                        params,
+                        'Optional1',
+                    ),
+                optional2:
+                    getValue(
+                        params,
+                        'Optional2',
+                    ),
+                optional3:
+                    getValue(
+                        params,
+                        'Optional3',
+                    ),
+                optional4:
+                    getValue(
+                        params,
+                        'Optional4',
+                    ),
+                optional5:
+                    getValue(
+                        params,
+                        'Optional5',
+                    ),
             },
         );
+
+        /*
+         * ============================================================
+         * DEVELOPMENT HASH GENERATOR
+         * ============================================================
+         *
+         * TEMPORARY.
+         *
+         * This allows us to generate a valid notification hash
+         * using the SAME OZOW_PRIVATE_KEY that is configured on
+         * Railway.
+         *
+         * Remove this endpoint after testing.
+         * ============================================================
+         */
+
+        if (
+            request.nextUrl.searchParams.get(
+                'debugHash',
+            ) === 'true'
+        ) {
+            const generatedHash =
+                calculateOzowHash(
+                    params,
+                    OZOW_PRIVATE_KEY,
+                );
+
+            console.log(
+                'Generated Ozow debug hash:',
+                generatedHash,
+            );
+
+            return NextResponse.json({
+                hash: generatedHash,
+                fields: {
+                    SiteCode:
+                        siteCode,
+                    TransactionId:
+                        transactionId,
+                    TransactionReference:
+                        transactionReference,
+                    Amount:
+                        amountValue,
+                    Status:
+                        status,
+                    Optional1:
+                        getValue(
+                            params,
+                            'Optional1',
+                        ),
+                    Optional2:
+                        getValue(
+                            params,
+                            'Optional2',
+                        ),
+                    Optional3:
+                        getValue(
+                            params,
+                            'Optional3',
+                        ),
+                    Optional4:
+                        getValue(
+                            params,
+                            'Optional4',
+                        ),
+                    Optional5:
+                        getValue(
+                            params,
+                            'Optional5',
+                        ),
+                    CurrencyCode:
+                        currencyCode,
+                    IsTest:
+                        isTest,
+                    StatusMessage:
+                        statusMessage,
+                },
+            });
+        }
 
         /*
          * ============================================================
@@ -319,7 +519,10 @@ export async function POST(
             );
         }
 
-        if (siteCode !== OZOW_SITE_CODE) {
+        if (
+            siteCode !==
+            OZOW_SITE_CODE
+        ) {
             console.error(
                 'Ozow notification SiteCode mismatch:',
                 siteCode,
@@ -392,14 +595,13 @@ export async function POST(
          * ============================================================
          * VERIFY OZOW HASH
          * ============================================================
-         *
-         * This MUST happen before we trust the notification.
          */
 
-        const hashValid = verifyOzowHash(
-            params,
-            OZOW_PRIVATE_KEY,
-        );
+        const hashValid =
+            verifyOzowHash(
+                params,
+                OZOW_PRIVATE_KEY,
+            );
 
         if (!hashValid) {
             console.error(
@@ -434,8 +636,10 @@ export async function POST(
             console.error(
                 'Ozow IsTest mismatch:',
                 {
-                    expected: OZOW_IS_TEST,
-                    received: isTest,
+                    expected:
+                        OZOW_IS_TEST,
+                    received:
+                        isTest,
                 },
             );
 
@@ -452,15 +656,12 @@ export async function POST(
          * ============================================================
          * ONLY COMPLETED PAYMENTS ENTER THE CURRENT EVENT PIPELINE
          * ============================================================
-         *
-         * We currently have payment.completed wired through
-         * RabbitMQ -> Orders.
-         *
-         * Cancelled, Error, Abandoned and Pending notifications
-         * are acknowledged but do not publish payment.completed.
          */
 
-        if (status !== 'Complete') {
+        if (
+            status !==
+            'Complete'
+        ) {
             console.log(
                 'Ozow notification acknowledged without payment.completed:',
                 {
@@ -469,21 +670,18 @@ export async function POST(
                 },
             );
 
-            return new NextResponse(null, {
-                status: 200,
-            });
+            return new NextResponse(
+                null,
+                {
+                    status: 200,
+                },
+            );
         }
 
         /*
          * ============================================================
          * RESOLVE TENANT
          * ============================================================
-         *
-         * Our transaction references are generated as:
-         *
-         * GLV-001-<timestamp>
-         *
-         * Therefore the first seven characters identify the tenant.
          */
 
         const tenantCodeMatch =
@@ -516,7 +714,8 @@ export async function POST(
 
         if (
             !tenant ||
-            typeof tenant.id !== 'string'
+            typeof tenant.id !==
+                'string'
         ) {
             console.error(
                 'Tenant was not found:',
@@ -538,20 +737,22 @@ export async function POST(
          * ============================================================
          */
 
-        const amount = Number(
-            amountValue,
-        );
+        const amount =
+            Number(amountValue);
 
         const event =
             await publishPaymentCompletedEvent(
                 {
-                    tenantId: tenant.id,
+                    tenantId:
+                        tenant.id,
                     transactionReference,
                     providerReference:
                         transactionId,
-                    provider: 'OZOW',
+                    provider:
+                        'OZOW',
                     amount,
-                    currency: currencyCode,
+                    currency:
+                        currencyCode,
                 },
             );
 
@@ -559,7 +760,8 @@ export async function POST(
             'Ozow payment.completed event published:',
             {
                 tenantCode,
-                tenantId: tenant.id,
+                tenantId:
+                    tenant.id,
                 transactionReference,
                 providerReference:
                     transactionId,
@@ -571,14 +773,12 @@ export async function POST(
             },
         );
 
-        /*
-         * Ozow expects HTTP 200 once the notification has been
-         * successfully handled.
-         */
-
-        return new NextResponse(null, {
-            status: 200,
-        });
+        return new NextResponse(
+            null,
+            {
+                status: 200,
+            },
+        );
     } catch (error) {
         console.error(
             'Ozow notification error:',
