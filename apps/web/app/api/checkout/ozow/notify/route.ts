@@ -268,6 +268,7 @@ async function publishPaymentCompletedEvent(
 export async function POST(
     request: NextRequest,
 ) {
+    let processingStage = 'starting ...';
     try {
         if (!OZOW_SITE_CODE) {
             console.error(
@@ -782,8 +783,33 @@ export async function POST(
     } catch (error) {
         console.error(
             'Ozow notification error:',
-            error,
+            {
+                processingStage,
+                error,
+            },
         );
+
+        const isDebug =
+            request.nextUrl.searchParams.get(
+                'debugNotify',
+            ) === 'true';
+
+        if (isDebug) {
+            return NextResponse.json(
+                {
+                    error:
+                        error instanceof Error
+                            ? error.message
+                            : String(error),
+                    processingStage,
+                    stack:
+                        error instanceof Error
+                            ? error.stack
+                            : undefined,
+                },
+                { status: 500 },
+            );
+        }
 
         return NextResponse.json(
             {
