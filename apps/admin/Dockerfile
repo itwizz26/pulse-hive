@@ -1,20 +1,15 @@
-FROM node:20-alpine
+FROM node:22-alpine
+
 WORKDIR /app
 
-# Copy dependency manifests first
-COPY package*.json ./
+RUN npm install -g pnpm
 
-# Clear cache and install all packages with high network resilience
-RUN npm cache clean --force && \
-    npm install \
-    --fetch-retries=5 \
-    --fetch-retry-factor=2 \
-    --fetch-retry-mintimeout=5000 \
-    --fetch-retry-maxtimeout=60000 \
-    --loglevel=notice
+COPY package.json pnpm-lock.yaml ./
 
-# Copy source configuration files
+RUN pnpm install --frozen-lockfile --config.allowBuilds='{"sharp":true,"unrs-resolver":true}'
+
 COPY . .
 
-# Execute next framework binary command inside dev runtime mode
-CMD ["npm", "run", "dev"]
+EXPOSE 3001
+
+CMD ["pnpm", "exec", "next", "dev", "-H", "0.0.0.0"]
