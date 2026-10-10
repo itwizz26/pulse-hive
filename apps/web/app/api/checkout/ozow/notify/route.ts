@@ -1,3 +1,4 @@
+
 import { createHash, timingSafeEqual } from 'crypto';
 
 import {
@@ -13,6 +14,12 @@ const OZOW_PRIVATE_KEY =
 
 const OZOW_IS_TEST =
     process.env.OZOW_IS_TEST;
+
+const DB_SERVICE_URL =
+    process.env.PULSEHIVE_DB_SERVICE_URL?.replace(/\/+$/, '');
+
+const EVENTS_SERVICE_URL =
+    process.env.PULSEHIVE_EVENTS_SERVICE_URL?.replace(/\/+$/, '');
 
 const MAX_TRANSACTION_REFERENCE_LENGTH = 50;
 const MAX_OPTIONAL_FIELD_LENGTH = 50;
@@ -104,7 +111,7 @@ function verifyOzowHash(
             .trim()
             .toLowerCase();
 
-    if (!suppliedHash) {
+    if (!/^[0-9a-f]{128}$/.test(suppliedHash)) {
         return false;
     }
 
@@ -353,7 +360,8 @@ export async function POST(
         }
 
         /*
-         * Amount must be exactly two decimal places.
+         * Amount must be positive and have exactly
+         * two decimal places.
          */
         if (!amount) {
             return NextResponse.json(
@@ -366,14 +374,14 @@ export async function POST(
         }
 
         if (
-            !/^\d+\.\d{2}$/.test(
-                amount,
-            )
+            !/^\d+\.\d{2}$/.test(amount) ||
+            !Number.isFinite(Number(amount)) ||
+            Number(amount) <= 0
         ) {
             return NextResponse.json(
                 {
                     error:
-                        'Invalid Amount format',
+                        'Invalid Amount format or value',
                 },
                 { status: 400 },
             );
@@ -404,7 +412,6 @@ export async function POST(
         }
 
         if (
-            !isTest ||
             !/^(True|False)$/.test(
                 isTest,
             )
@@ -419,15 +426,12 @@ export async function POST(
         }
 
         if (
-            status &&
-            !VALID_STATUSES.has(
-                status,
-            )
+            !VALID_STATUSES.has(status)
         ) {
             return NextResponse.json(
                 {
                     error:
-                        'Invalid Status',
+                        'Missing or invalid Status',
                 },
                 { status: 400 },
             );
@@ -572,14 +576,12 @@ export async function POST(
 
         /*
          * -------------------------------------------------------
-         * Tenant code
+         * Extract tenant code from the transaction reference.
          *
          * Example:
+         * GLV-001-1723456789-abcdef12
          *
-         * GLV-001-ORD-000001
-         *
-         * becomes:
-         *
+         * Tenant code:
          * GLV-001
          * -------------------------------------------------------
          */
@@ -604,44 +606,228 @@ export async function POST(
 
         /*
          * -------------------------------------------------------
-         * At this stage we have successfully validated the
-         * complete Ozow notification.
-         *
-         * DB/order/event processing will be added once the
-         * Railway PostgreSQL layer is ready.
+         * Resolve the tenant's internal database ID.
          * -------------------------------------------------------
          */
 
+        if (!DB_SERVICE_URL) {
+            console.error(
+                'PULSEHIVE_DB_SERVICE_URL is not configured',
+            );
+
+            return NextResponse.json(
+                {
+                    error:
+                        'Tenant service is not configured',
+                },
+                { status: 503 },
+            );
+        }
+
+        let tenantId: string;
+
+        try {
+            const tenantResponse = await fetch(
+                `${DB_SERVICE_URL}/tenants/code/${encodeURIComponent(tenantCode)}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        Accept: 'application/json',
+                    },
+                    cache: 'no-store',
+                },
+            );
+
+            const tenantData: unknown =
+                await tenantResponse
+                    .json()
+                    .catch(() => null);
+
+            if (
+                !tenantResponse.ok ||
+                !tenantData ||
+                typeof tenantData !== 'object' ||
+                !('id' in tenantData) ||
+                !('tenantCode' in tenantData) ||
+                typeof tenantData.id !== 'string' ||
+                tenantData.tenantCode !== tenantCode
+            ) {
+                console.error(
+                    'Ozow callback tenant lookup failed',
+                    {
+                        tenantCode,
+                        status: tenantResponse.status,
+                    },
+                );
+
+                return NextResponse.json(
+                    {
+                        error:
+                            'Unable to resolve notification tenant',
+                    },
+                    { status: 502 },
+                );
+            }
+
+            tenantId = tenantData.id;
+        } catch (error) {
+            console.error(
+                'Tenant service unavailable during Ozow callback',
+                error,
+            );
+
+            return NextResponse.json(
+                {
+                    error:
+                        'Tenant service unavailable',
+                },
+                { status: 503 },
+            );
+        }
+
+        /*
+         * -------------------------------------------------------
+         * Only a verified Complete notification may trigger
+         * payment completion.
+         *
+         * Other valid statuses must not mark the order as paid.
+         * -------------------------------------------------------
+         */
+
+        if (status !== 'Complete') {
+            console.log(
+                'Ozow notification validated; no completion event required',
+                {
+                    tenantCode,
+                    transactionReference,
+                    status,
+                },
+            );
+
+            return new NextResponse(
+                null,
+                { status: 200 },
+            );
+        }
+
+        /*
+         * -------------------------------------------------------
+         * Publish the payment.completed domain event.
+         * -------------------------------------------------------
+         */
+
+        if (!EVENTS_SERVICE_URL) {
+            console.error(
+                'PULSEHIVE_EVENTS_SERVICE_URL is not configured',
+            );
+
+            return NextResponse.json(
+                {
+                    error:
+                        'Events service is not configured',
+                },
+                { status: 503 },
+            );
+        }
+
+        const numericAmount =
+            Number(amount);
+
+        const amountCents =
+            Math.round(numericAmount * 100);
+
+        if (
+            !Number.isFinite(numericAmount) ||
+            !Number.isSafeInteger(amountCents) ||
+            amountCents <= 0
+        ) {
+            return NextResponse.json(
+                {
+                    error:
+                        'Invalid payment amount',
+                },
+                { status: 400 },
+            );
+        }
+
+        try {
+            const eventResponse = await fetch(
+                `${EVENTS_SERVICE_URL}/events/publish`,
+                {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        Accept: 'application/json',
+                    },
+                    body: JSON.stringify({
+                        eventType: 'payment.completed',
+                        version: 1,
+                        data: {
+                            tenantId,
+                            transactionReference,
+                            providerReference: transactionId,
+                            provider: 'OZOW',
+                            amount: numericAmount,
+                            currency: currencyCode,
+                        },
+                    }),
+                    cache: 'no-store',
+                },
+            );
+
+            if (!eventResponse.ok) {
+                const responseText =
+                    await eventResponse
+                        .text()
+                        .catch(() => '');
+
+                console.error(
+                    'Failed to publish Ozow payment completion event',
+                    {
+                        tenantCode,
+                        transactionReference,
+                        httpStatus: eventResponse.status,
+                        response: responseText.slice(0, 500),
+                    },
+                );
+
+                return NextResponse.json(
+                    {
+                        error:
+                            'Unable to publish payment completion event',
+                    },
+                    { status: 503 },
+                );
+            }
+        } catch (error) {
+            console.error(
+                'Events service unavailable during Ozow callback',
+                error,
+            );
+
+            return NextResponse.json(
+                {
+                    error:
+                        'Events service unavailable',
+                },
+                { status: 503 },
+            );
+        }
+
         console.log(
-            'Ozow notification validated successfully:',
+            'Ozow payment completion event accepted',
             {
                 tenantCode,
-                transactionId,
                 transactionReference,
+                transactionId,
                 amount,
-                status,
                 currencyCode,
-                isTest,
-                optional1,
-                optional2,
-                optional3,
-                optional4,
-                optional5,
             },
         );
 
-        /*
-         * For now acknowledge the notification.
-         *
-         * Production Ozow handler should eventually persist
-         * this notification before returning 200.
-         */
-
         return new NextResponse(
             null,
-            {
-                status: 200,
-            },
+            { status: 200 },
         );
     } catch (error) {
         console.error(

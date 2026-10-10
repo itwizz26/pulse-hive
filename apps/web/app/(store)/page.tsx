@@ -8,188 +8,19 @@ import { ProductCard } from '@/components/product-card';
 import { useCart } from '@/context/cart-context';
 import { WelcomeModal } from '@/components/welcome-modal';
 
-const collagenProducts = [
-    {
-        id: '1',
-        image: '/products/nightcream.png',
-        name: 'Insumpa/Skin Tags Collagen Cream',
-        price: 150,
-        size: '50g',
-        description:
-            'Targeted collagen cream formulated for smooth, clear skin and skin tag care.',
-    },
-    {
-        id: '2',
-        image: '/products/capsules.png',
-        name: 'Insumpa/Skin Tags Collagen Capsules',
-        price: 300,
-        size: '30 caps.',
-        description:
-            'Advanced internal collagen capsules to support overall skin clarity from within.',
-    },
-    {
-        id: '3',
-        image: '/products/serum.png',
-        name: 'Collagen Serum',
-        price: 60,
-        size: '30ml',
-        description:
-            'Concentrated collagen serum for deep hydration and a youthful glow.',
-    },
-    {
-        id: '4',
-        image: '/products/daycream.png',
-        name: 'Collagen Day Cream',
-        price: 150,
-        size: '50g',
-        description:
-            'Daily protective collagen moisturizer for sustained radiance and softness.',
-    },
-    {
-        id: '5',
-        image: '/products/malesma.png',
-        name: 'Melasma Oil',
-        price: 180,
-        size: '50ml',
-        description:
-            'Specialized treatment oil designed to visibly address melasma and uneven tone.',
-    },
-    {
-        id: '6',
-        image: '/products/soap.png',
-        name: 'Collagen Bar Soap',
-        price: 60,
-        size: '100g',
-        description:
-            'Nourishing cleansing bar infused with collagen for daily freshness.',
-    },
-    {
-        id: '7',
-        image: '/products/bodyglowgel.png',
-        name: 'Collagen Skin Brightening Glow Body Gel',
-        price: 220,
-        size: '100ml',
-        description:
-            'Luxurious body oil formulated to brighten, firm, and enrich skin tone.',
-    },
-    {
-        id: '8',
-        image: '/products/bodylotion.png',
-        name: 'Collagen Hydrating Body Lotion',
-        price: 180,
-        size: '100ml',
-        description:
-            'Deeply moisturizing body lotion that locks in hydration for silky-smooth skin.',
-    },
-    {
-        id: '9',
-        image: '/products/slimmingtea.png',
-        name: 'Slimming Tea',
-        price: 450,
-        size: '1 pack',
-        description:
-            'Refreshing herbal tea blend designed to support a healthy lifestyle and wellness goals.',
-    },
-    {
-        id: '10',
-        image: '/products/bodygain.png',
-        name: 'Body Gain Tablets',
-        price: 250,
-        size: '20 tablets',
-        description:
-            'Formulated tablets to help support healthy body mass and physical development.',
-    },
-    {
-        id: '11',
-        image: '/products/bodypowder.png',
-        name: 'Body Gain Powder',
-        price: 120,
-        size: '100g',
-        description:
-            'Nutritious powder supplement created to support healthy weight gain and body goals.',
-    },
-    {
-        id: '12',
-        image: '/products/hipsbumgain.png',
-        name: 'Hips and Bum Gain Tablets',
-        price: 400,
-        size: '20 tablets',
-        description:
-            'Targeted supplement designed to help tone, enhance, and support curves.',
-    },
-    {
-        id: '13',
-        image: '/products/innerthighs.png',
-        name: 'Inner Dark Thighs Gel',
-        price: 150,
-        size: '100ml',
-        description:
-            'Specialized soothing gel formulated to help even out skin tone in sensitive areas.',
-    },
-    {
-        id: '14',
-        image: '/products/allglam.jpg',
-        name: 'All Glam',
-        price: 700,
-        size: '5-Piece Collection',
-        description:
-            'A complete Glowa Vee skincare collection featuring Collagen Night Cream, Collagen Glowing Serum, Collagen Capsules, Collagen Day Cream Brightening, and Collagen Bar Soap.',
-    },
-    {
-        id: '15',
-        image: '/products/bodyhealth.jpg',
-        name: 'Body Health',
-        price: 700,
-        size: '3-Piece Collection',
-        description:
-            'A complete body wellness collection featuring Hips & Bum Gain Tablets, Body Gain Tablets, and Body Gain Powder.',
-    },
-    {
-        id: '16',
-        image: '/products/combo.jpg',
-        name: 'Skin Tag Removal Combo',
-        price: 420,
-        size: '50g night cream plus 30 Caps',
-        description:
-            'A specially selected combination of Glowa Vee products for your beauty and wellness routine featuring the Collagen Night Cream and Collagen Capsules.',
-    },
-    {
-        id: '17',
-        image: '/products/creamsserum.jpg',
-        name: 'Collagen Creams & Serum',
-        price: 330,
-        size: '3-Piece Collection',
-        description:
-            'A skincare combination designed to complement your daily beauty routine. Inside the box: 1x 50g Night Cream, 1x 50g Day Cream plus 30ml Serum',
-    },
-    {
-        id: '18',
-        image: '/products/famous.jpg',
-        name: 'Famous Box',
-        price: 1000,
-        size: '7-Piece COllection',
-        description:
-            'A premium Glowa Vee beauty and wellness product created to support your self-care routine. Inside the box: 1x 50g Night Cream, 1x 50g Day Cream, 1x 30ml Serum, 1x 100g Soap Bar, 1x 30 Capsules, 1x 100ml Hydrating Body Lotion and 1x 100ml Body Hydrating Gel',
-    },
-    {
-        id: '19',
-        image: '/products/hormone.jpg',
-        name: 'Hormone Balance Tablets',
-        price: 170,
-        size: '30 Tablets',
-        description:
-            'A wellness product formulated to complement your personal health. Support hormone health and overall well-being.',
-    },
-    {
-        id: '20',
-        image: '/products/prebiotic.jpg',
-        name: 'Prebiotic Tablets',
-        price: 120,
-        size: '20 tablets',
-        description:
-            'A prebiotic supplement designed to support digestive wellness. Supports digestion and gut health.',
-    },
-];
+type Product = {
+    id: string;
+    tenantId: string;
+    name: string;
+    description: string | null;
+    sku: string | null;
+    image: string | null;
+    size: string | null;
+    price: number;
+    active: boolean;
+    createdAt: string;
+    updatedAt: string;
+};
 
 const resellerProducts = [
     {
@@ -246,9 +77,14 @@ const bannerSlides = [
     },
 ];
 
-
 export default function CatalogPage() {
     const { cart } = useCart();
+
+    const [products, setProducts] = useState<Product[]>([]);
+    const [productsLoading, setProductsLoading] = useState(true);
+    const [productsError, setProductsError] = useState<string | null>(
+        null,
+    );
 
     const [searchQuery, setSearchQuery] = useState('');
     const [currentSlide, setCurrentSlide] = useState(0);
@@ -271,13 +107,53 @@ export default function CatalogPage() {
     }, []);
 
     /* =========================================================
+       LOAD PRODUCTS
+       ========================================================= */
+
+    useEffect(() => {
+        const loadProducts = async () => {
+            try {
+                setProductsLoading(true);
+                setProductsError(null);
+
+                const response = await fetch('/api/products', {
+                    cache: 'no-store',
+                });
+
+                if (!response.ok) {
+                    throw new Error(
+                        `Failed to load products (${response.status})`,
+                    );
+                }
+
+                const data: Product[] = await response.json();
+
+                setProducts(data);
+            } catch (error) {
+                console.error(
+                    'Failed to load catalogue:',
+                    error,
+                );
+
+                setProductsError(
+                    'Unable to load products. Please try again.',
+                );
+            } finally {
+                setProductsLoading(false);
+            }
+        };
+
+        loadProducts();
+    }, []);
+
+    /* =========================================================
        PRODUCT FILTERING
        ========================================================= */
 
     const filteredProducts = useMemo(() => {
         const targetList =
             activeTab === 'products'
-                ? collagenProducts
+                ? products
                 : resellerProducts;
 
         return targetList.filter((product) =>
@@ -285,12 +161,12 @@ export default function CatalogPage() {
                 .toLowerCase()
                 .includes(searchQuery.toLowerCase())
         );
-    }, [searchQuery, activeTab]);
+    }, [products, searchQuery, activeTab]);
 
     return (
         <>
             <WelcomeModal />
-            
+
             <div className="w-full min-h-screen bg-(--color-background) text-(--color-text)">
                 {/* =====================================================
                     HEADER
@@ -369,7 +245,9 @@ export default function CatalogPage() {
                                     <button
                                         key={index}
                                         type="button"
-                                        onClick={() => setCurrentSlide(index)}
+                                        onClick={() =>
+                                            setCurrentSlide(index)
+                                        }
                                         className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
                                             currentSlide === index
                                                 ? 'w-7 bg-(--color-gold-light)'
@@ -454,18 +332,29 @@ export default function CatalogPage() {
                         ================================================= */}
 
                     <div className="px-5 sm:px-6 pb-12">
-                        {filteredProducts.length > 0 ? (
+                        {activeTab === 'products' &&
+                        productsLoading ? (
+                            <div className="w-full text-center py-20 text-(--color-text-muted)">
+                                Loading products...
+                            </div>
+                        ) : productsError ? (
+                            <div className="w-full text-center py-20 text-(--color-text-muted)">
+                                {productsError}
+                            </div>
+                        ) : filteredProducts.length > 0 ? (
                             <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 max-w-full mx-auto">
-                                {filteredProducts.map((product) => (
-                                    <div
-                                        key={product.id}
-                                        className="flex flex-col h-full *:h-full"
-                                    >
-                                        <ProductCard
-                                            product={product}
-                                        />
-                                    </div>
-                                ))}
+                                {filteredProducts.map(
+                                    (product) => (
+                                        <div
+                                            key={product.id}
+                                            className="flex flex-col h-full *:h-full"
+                                        >
+                                            <ProductCard
+                                                product={product}
+                                            />
+                                        </div>
+                                    ),
+                                )}
                             </div>
                         ) : (
                             <div className="w-full text-center py-20 text-(--color-text-muted) italic">

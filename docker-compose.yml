@@ -3,8 +3,12 @@ networks:
     driver: bridge
 
 services:
+
+  # --------------------------------------------------
+  # RabbitMQ
+  # --------------------------------------------------
   rabbitmq:
-    image: rabbitmq:management-alpine
+    image: rabbitmq:3-management-alpine
     container_name: pulsehive-rabbitmq
     user: "999:999"
     ports:
@@ -24,15 +28,22 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
 
+  # --------------------------------------------------
+  # PostgreSQL
+  # --------------------------------------------------
   postgres:
-    image: postgres:latest
+    image: postgres:16-alpine
     container_name: pulsehive-postgres
     environment:
       POSTGRES_USER: ${POSTGRES_USER}
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
       POSTGRES_DB: ${POSTGRES_DB}
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
       interval: 5s
       timeout: 5s
       retries: 5
@@ -41,56 +52,59 @@ services:
     networks:
       - pulsehive-mesh
     volumes:
-      - postgres_data:/var/lib/postgresql
+      - postgres_data:/var/lib/postgresql/data
       - ./services/db/config/init.sql:/docker-entrypoint-initdb.d/init.sql
 
-  api:
+  # --------------------------------------------------
+  # DB Service
+  # --------------------------------------------------
+  db:
     build:
-      context: ./services/api
+      context: ./services/db
       dockerfile: Dockerfile
-      args:
-        - CI=true
-    container_name: pulsehive-api-gateway
+    container_name: pulsehive-db
     ports:
-      - "4000:4000"
+      - "4003:4003"
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - PORT=${API_PORT}
-      - ALLOWED_ORIGINS=${ALLOWED_ORIGINS}
-      - AUTH_SERVICE_URL=${AUTH_SERVICE_URL}
-      - ORDER_SERVICE_URL=${ORDER_SERVICE_URL}
-      - PAYMENT_SERVICE_URL=${PAYMENT_SERVICE_URL}
-      - JWT_SECRET=${JWT_SECRET}
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4003
+      DATABASE_URL: ${DATABASE_URL}
     depends_on:
-      - orders
-      - payments
-      - auth
+      postgres:
+        condition: service_healthy
     networks:
       - pulsehive-mesh
     develop:
       watch:
-        - path: ./services/api
+        - path: ./services/db
           target: /app
           action: sync
           ignore:
             - node_modules/
-        - path: ./services/api/package.json
+            - dist/
+        - path: ./services/db/package.json
+          action: rebuild
+        - path: ./services/db/pnpm-lock.yaml
           action: rebuild
 
+  # --------------------------------------------------
+  # Auth
+  # --------------------------------------------------
   auth:
     build:
       context: ./services/auth
       dockerfile: Dockerfile
       args:
-        - CI=true
+        CI: "true"
+    container_name: pulsehive-auth
     ports:
       - "4001:4001"
-    container_name: pulsehive-auth-service
     environment:
-      - DATABASE_URL=${AUTH_DATABASE_URL}
-      - JWT_SECRET=${JWT_SECRET}
-      - NODE_ENV=${NODE_ENV}
-    command: sh -c "npx prisma db push --url=$$DATABASE_URL && npm run start:dev"
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4001
+      DATABASE_URL: ${DATABASE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    command: sh -c "pnpm start:dev"
     depends_on:
       postgres:
         condition: service_healthy
@@ -105,20 +119,29 @@ services:
             - node_modules/
         - path: ./services/auth/package.json
           action: rebuild
+        - path: ./services/auth/pnpm-lock.yaml
+          action: rebuild
 
+  # --------------------------------------------------
+  # Orders
+  # --------------------------------------------------
   orders:
     build:
-      context: .
-      dockerfile: services/orders/Dockerfile
-    container_name: pulsehive-orders-service
+      context: ./services/orders
+      dockerfile: Dockerfile
+    container_name: pulsehive-orders
     ports:
       - "4002:4002"
     environment:
-      DATABASE_URL: ${ORDERS_DATABASE_URL}
-      EVENT_BUS_URL: ${EVENT_BUS_URL}
+      NODE_ENV: ${NODE_ENV}
+      PORT: 4002
+      DATABASE_URL: ${DATABASE_URL}
+      RABBITMQ_URL: ${RABBITMQ_URL}
     depends_on:
-      - postgres
-      - events
+      postgres:
+        condition: service_healthy
+      events:
+        condition: service_healthy
     networks:
       - pulsehive-mesh
     develop:
@@ -130,62 +153,81 @@ services:
             - node_modules/
         - path: ./services/orders/package.json
           action: rebuild
-
-  payments:
-    build:
-      context: .
-      dockerfile: services/payments/Dockerfile
-    container_name: pulsehive-payments-service
-    ports:
-      - "4003:4003"
-    environment:
-      DATABASE_URL: ${PAYMENT_DATABASE_URL}
-      EVENT_BUS_URL: ${EVENT_BUS_URL}
-    depends_on:
-      - postgres
-      - events
-    networks:
-      - pulsehive-mesh
-    develop:
-      watch:
-        - path: ./services/payments
-          target: /app
-          action: sync
-          ignore:
-            - node_modules/
-        - path: ./services/payments/package.json
+        - path: ./services/orders/pnpm-lock.yaml
           action: rebuild
 
+  # --------------------------------------------------
+  # Events
+  # --------------------------------------------------
   events:
     build:
       context: ./services/events
-    container_name: pulsehive-event-bus
+      dockerfile: Dockerfile
+    container_name: pulsehive-events
     ports:
       - "5000:5000"
     environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: 5000
       RABBITMQ_URL: ${RABBITMQ_URL}
-      EVENT_SUBSCRIBERS: payment.matched=http://orders:4002/events,order.created=http://payments:4003/events
+    command: sh -c "pnpm start:dev"
     depends_on:
       rabbitmq:
         condition: service_healthy
     healthcheck:
-      test: ["CMD-SHELL", "node -e \"require('http').get('http://localhost:5000/health', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""]
+      test:
+        [
+          "CMD-SHELL",
+          "node -e \"require('http').get('http://localhost:5000/health', res => process.exit(res.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))\""
+        ]
       interval: 10s
       timeout: 5s
       retries: 5
       start_period: 20s
     networks:
       - pulsehive-mesh
+
+  # --------------------------------------------------
+  # API
+  # --------------------------------------------------
+  api:
+    build:
+      context: ./services/api
+      dockerfile: Dockerfile
+      args:
+        CI: "true"
+    container_name: pulsehive-api
+    ports:
+      - "4000:4000"
+    environment:
+      NODE_ENV: ${NODE_ENV}
+      PORT: ${API_PORT}
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      AUTH_SERVICE_URL: ${PULSEHIVE_AUTH_SERVICE_URL}
+      ORDER_SERVICE_URL: ${PULSEHIVE_ORDERS_SERVICE_URL}
+      JWT_SECRET: ${JWT_SECRET}
+    depends_on:
+      auth:
+        condition: service_started
+      orders:
+        condition: service_started
+    networks:
+      - pulsehive-mesh
     develop:
       watch:
-        - path: ./services/events
+        - path: ./services/api
           target: /app
           action: sync
           ignore:
             - node_modules/
-        - path: ./services/events/package.json
+        - path: ./services/api/package.json
+          action: rebuild
+        - path: ./services/api/pnpm-lock.yaml
           action: rebuild
 
+  # --------------------------------------------------
+  # Web
+  # --------------------------------------------------
   web:
     build:
       context: ./apps/web
@@ -193,13 +235,21 @@ services:
     container_name: pulsehive-web
     ports:
       - "3000:3000"
-    command: npm run dev
+    command: pnpm exec next dev -H 0.0.0.0
     depends_on:
-      - api
+      api:
+        condition: service_started
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - WATCHPACK_POLLING=${WATCHPACK_POLLING}
-      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING}
+      PULSEHIVE_TENANT_CODE: ${PULSEHIVE_TENANT_CODE}
+      PULSEHIVE_DB_SERVICE_URL: ${PULSEHIVE_DB_SERVICE_URL}
+      PULSEHIVE_ORDERS_SERVICE_URL: ${PULSEHIVE_ORDERS_SERVICE_URL}
+      PULSEHIVE_EVENTS_SERVICE_URL: ${PULSEHIVE_EVENTS_SERVICE_URL}
+      NODE_ENV: ${NODE_ENV}
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
+      NODE_OPTIONS: --max-old-space-size=4096
+      PNPM_DISABLE_CHECK_UPDATE: "true"
+      CI: "true"
     networks:
       - pulsehive-mesh
     develop:
@@ -210,9 +260,18 @@ services:
           ignore:
             - node_modules/
             - .next/
+            - pnpm-lock.yaml
+            - Dockerfile
         - path: ./apps/web/package.json
+          target: /app/package.json
+          action: rebuild
+        - path: ./apps/web/pnpm-lock.yaml
+          target: /app/pnpm-lock.yaml
           action: rebuild
 
+  # --------------------------------------------------
+  # Admin
+  # --------------------------------------------------
   admin:
     build:
       context: ./apps/admin
@@ -220,13 +279,15 @@ services:
     container_name: pulsehive-admin
     ports:
       - "3001:3001"
-    command: npm run dev
+    command: pnpm dev
     depends_on:
-      - api
+      api:
+        condition: service_started
     environment:
-      - NODE_ENV=${NODE_ENV}
-      - WATCHPACK_POLLING=${WATCHPACK_POLLING}
-      - CHOKIDAR_USEPOLLING=${CHOKIDAR_USEPOLLING}
+      NODE_ENV: ${NODE_ENV}
+      PORT: 3001
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING}
+      CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
     networks:
       - pulsehive-mesh
     develop:
@@ -238,6 +299,8 @@ services:
             - node_modules/
             - .next/
         - path: ./apps/admin/package.json
+          action: rebuild
+        - path: ./apps/admin/pnpm-lock.yaml
           action: rebuild
 
 volumes:

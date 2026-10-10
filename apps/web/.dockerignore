@@ -1,4 +1,8 @@
 node_modules
-.git
-dist
 .next
+.git
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+Dockerfile
+.dockerignore

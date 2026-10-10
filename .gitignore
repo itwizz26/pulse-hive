@@ -23,3 +23,5 @@ pnpm-debug.log*
 # Developer Tooling / AI
 .aider*
 .aider.tags.cache*/
+/node_modules
+/.pnpm-store
