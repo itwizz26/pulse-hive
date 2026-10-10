@@ -3,20 +3,22 @@ import {
   FastifyAdapter,
   NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-
+import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
-  const app = await NestFactory.create<NestFastifyApplication>(
-    AppModule,
-    new FastifyAdapter(),
-  );
+    const logger = new Logger('PulseHiveOrders');
 
-  const port = Number(process.env.PORT ?? 4002);
+    const app = await NestFactory.create<NestFastifyApplication>(
+        AppModule,
+        new FastifyAdapter(),
+    );
 
-  await app.listen(port, '0.0.0.0');
+    const port = Number(process.env.PORT ?? 4002);
 
-  console.log(`Orders service running on port ${port}`);
+    await app.listen(port, '0.0.0.0');
+
+    logger.log(`Orders service running on port ${port}`);
 }
 
 bootstrap();
