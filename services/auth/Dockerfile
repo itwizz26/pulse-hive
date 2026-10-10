@@ -4,12 +4,16 @@ WORKDIR /app
 
 RUN npm install -g pnpm
 
-COPY package.json ./
+# Copy both manifests before installing dependencies
+COPY package.json pnpm-lock.yaml ./
 
-RUN pnpm install --config.allowBuilds='{"@prisma/engines":true,"bcrypt":true,"prisma":true}'
+# Install exactly the versions recorded in the lockfile
+RUN pnpm install --frozen-lockfile --config.allowBuilds='{"@prisma/engines":true,"bcrypt":true,"prisma":true}'
 
+# Copy the application source and Prisma schema
 COPY . .
 
+# Generate Prisma Client and compile the application
 RUN pnpm run build
 
 EXPOSE 4001

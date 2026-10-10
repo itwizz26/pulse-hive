@@ -1,6 +1,8 @@
 node_modules
 dist
-.pnpm-store
-pnpm-lock.yaml
 .env
-.prisma/
+.env.*
+.git
+.gitignore
+npm-debug.log
+pnpm-debug.log
