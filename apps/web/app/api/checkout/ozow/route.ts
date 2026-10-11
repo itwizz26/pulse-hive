@@ -3,6 +3,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 
 const OZOW_API_URL = 'https://api.ozow.com/PostPaymentRequest';
+const OZOW_OPTIONAL_FIELD_MAX_LENGTH = 50;
 
 interface CartItem {
     id?: string;
@@ -56,6 +57,59 @@ interface OrderItem {
     totalPrice: number;
 }
 
+/**
+ * Builds two compact product-summary fields.
+ *
+ * Each field is limited to 50 characters.
+ * Product descriptions are kept intact where possible.
+ * If a description itself is too long, it is shortened.
+ * Products that do not fit in either field are omitted
+ * from Ozow's summary, but remain in the PulseHive order.
+ */
+function buildItemSummary(
+    orderItems: OrderItem[],
+): [string, string] {
+    let optional2 = '';
+    let optional3 = '';
+
+    for (const item of orderItems) {
+        let description =
+            `${item.productName} x${item.quantity}`;
+
+        if (description.length > OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
+            description =
+                `${description.substring(
+                    0,
+                    OZOW_OPTIONAL_FIELD_MAX_LENGTH - 3,
+                )}...`;
+        }
+
+        const candidate2 = optional2
+            ? `${optional2}, ${description}`
+            : description;
+
+        if (candidate2.length <= OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
+            optional2 = candidate2;
+            continue;
+        }
+
+        const candidate3 = optional3
+            ? `${optional3}, ${description}`
+            : description;
+
+        if (candidate3.length <= OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
+            optional3 = candidate3;
+            continue;
+        }
+
+        // The remaining products stay in the full PulseHive order.
+        // Stop here so the Ozow summary remains compact.
+        break;
+    }
+
+    return [optional2, optional3];
+}
+
 export async function POST(request: NextRequest) {
     try {
         /*
@@ -89,13 +143,16 @@ export async function POST(request: NextRequest) {
         const siteCode = process.env.OZOW_SITE_CODE?.trim();
         const privateKey = process.env.OZOW_PRIVATE_KEY?.trim();
         const apiKey = process.env.OZOW_API_KEY?.trim();
+
         const isTest =
             process.env.OZOW_IS_TEST?.trim().toLowerCase() === 'true';
 
         const tenantCode =
             process.env.PULSEHIVE_TENANT_CODE?.trim().toUpperCase();
+
         const dbServiceUrl =
             process.env.PULSEHIVE_DB_SERVICE_URL?.trim()?.replace(/\/+$/, '');
+
         const ordersServiceUrl =
             process.env.PULSEHIVE_ORDERS_SERVICE_URL?.trim()?.replace(/\/+$/, '');
 
@@ -179,11 +236,11 @@ export async function POST(request: NextRequest) {
         }
 
         /*
-         * TEMPORARY SHIPPING FEE VALIDATION
+         * SHIPPING FEE VALIDATION
          *
          * The fee is still supplied by the client in this version.
-         * It must be moved to server-side shipping rules before
-         * treating the checkout total as fully trusted.
+         * Move it to server-side shipping rules before treating
+         * the checkout total as fully trusted.
          */
 
         if (
@@ -199,7 +256,8 @@ export async function POST(request: NextRequest) {
         }
 
         const shippingFeeCents = Math.round(shippingFee * 100);
-        const formattedShippingFee = (shippingFeeCents / 100).toFixed(2);
+        const formattedShippingFee =
+            (shippingFeeCents / 100).toFixed(2);
 
         /*
          * VALIDATE CART STRUCTURE
@@ -253,14 +311,10 @@ export async function POST(request: NextRequest) {
         const errorUrl = `${baseUrl}/checkout/error`;
         const notifyUrl = `${baseUrl}/api/checkout/ozow/notify`;
 
-        const bankReference = cleanTransactionReference.substring(0, 20);
-        const customer = customerName.trim().substring(0, 100);
+        const bankReference =
+            cleanTransactionReference.substring(0, 20);
 
-        const optional1 = cleanTransactionReference.substring(0, 50);
-        const optional2 = tenantCode.substring(0, 50);
-        const optional3 = shippingMethod.trim().substring(0, 50);
-        let optional4 = '';
-        let optional5 = '';
+        const customer = customerName.trim().substring(0, 100);
 
         const countryCode = 'ZA';
         const currencyCode = 'ZAR';
@@ -308,7 +362,9 @@ export async function POST(request: NextRequest) {
             tenant = tenantData as Tenant;
 
             if (tenant.tenantCode !== tenantCode) {
-                console.error('Resolved tenant code did not match configuration.');
+                console.error(
+                    'Resolved tenant code did not match configuration.',
+                );
 
                 return NextResponse.json(
                     { error: 'Unable to validate checkout tenant.' },
@@ -358,7 +414,10 @@ export async function POST(request: NextRequest) {
 
             catalogue = productsData as CatalogueProduct[];
         } catch (error) {
-            console.error('PulseHive product catalogue service unavailable.', error);
+            console.error(
+                'PulseHive product catalogue service unavailable.',
+                error,
+            );
 
             return NextResponse.json(
                 { error: 'Unable to connect to the product catalogue.' },
@@ -384,7 +443,10 @@ export async function POST(request: NextRequest) {
                 item.quantity < 1
             ) {
                 return NextResponse.json(
-                    { error: 'Each cart item must have a valid product ID and quantity.' },
+                    {
+                        error:
+                            'Each cart item must have a valid product ID and quantity.',
+                    },
                     { status: 400 },
                 );
             }
@@ -472,8 +534,41 @@ export async function POST(request: NextRequest) {
         const subtotal = subtotalCents / 100;
         const formattedAmount = (totalAmountCents / 100).toFixed(2);
 
-        optional4 = `ZAR ${formattedAmount}`.substring(0, 50);
-        optional5 = `Items: ${orderItems.length}`.substring(0, 50);
+        /*
+         * BUILD OZOW OPTIONAL FIELDS
+         *
+         * Optional 1: Delivery details
+         * Optional 2: First part of product summary
+         * Optional 3: Additional product summary
+         * Optional 4: Total quantity of units
+         * Optional 5: Shipping fee
+         *
+         * Each field is kept within 50 characters.
+         */
+
+        const optional1 = deliveryAddress
+            .trim()
+            .substring(0, OZOW_OPTIONAL_FIELD_MAX_LENGTH);
+
+        const [optional2, optional3] =
+            buildItemSummary(orderItems);
+
+        const totalUnits = orderItems.reduce(
+            (sum, item) => sum + item.quantity,
+            0,
+        );
+
+        const optional4 =
+            `Units: ${totalUnits}`.substring(
+                0,
+                OZOW_OPTIONAL_FIELD_MAX_LENGTH,
+            );
+
+        const optional5 =
+            `Shipping: R${formattedShippingFee}`.substring(
+                0,
+                OZOW_OPTIONAL_FIELD_MAX_LENGTH,
+            );
 
         /*
          * CREATE PENDING ORDER BEFORE REDIRECTING TO OZOW
@@ -537,8 +632,8 @@ export async function POST(request: NextRequest) {
         /*
          * GENERATE OZOW HASH
          *
-         * Preserve the existing hash construction for the current
-         * PostPaymentRequest integration.
+         * All five optional values used here are the exact
+         * values that will be sent in the Ozow request.
          */
 
         const hashValues = [
@@ -596,6 +691,9 @@ export async function POST(request: NextRequest) {
 
         /*
          * SAFE DEBUG LOGGING
+         *
+         * Do not log phone numbers, full addresses, API keys,
+         * private keys, or payment hashes.
          */
 
         console.log('Ozow PostPaymentRequest.', {
@@ -611,6 +709,12 @@ export async function POST(request: NextRequest) {
             shippingMethod: shippingMethod.trim(),
             shippingFee: formattedShippingFee,
             itemCount: orderItems.length,
+            totalUnits,
+            optional1,
+            optional2,
+            optional3,
+            optional4,
+            optional5,
             pendingOrderCreated: Boolean(pendingOrder),
             isTest,
         });
@@ -732,6 +836,7 @@ export async function POST(request: NextRequest) {
                 shippingMethod: shippingMethod.trim(),
                 shippingFee: formattedShippingFee,
                 itemCount: orderItems.length,
+                totalUnits,
             },
         });
     } catch (error) {
