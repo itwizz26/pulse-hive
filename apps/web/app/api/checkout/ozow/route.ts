@@ -58,56 +58,36 @@ interface OrderItem {
 }
 
 /**
- * Builds two compact product-summary fields.
- *
- * Each field is limited to 50 characters.
- * Product descriptions are kept intact where possible.
- * If a description itself is too long, it is shortened.
- * Products that do not fit in either field are omitted
- * from Ozow's summary, but remain in the PulseHive order.
+ * Builds a compact product summary for Ozow Optional 1.
+ * Ozow optional fields are limited to 50 characters. The complete
+ * item list is still stored in PulseHive if the summary cannot fit.
  */
-function buildItemSummary(
-    orderItems: OrderItem[],
-): [string, string] {
-    let optional2 = '';
-    let optional3 = '';
+function buildItemSummary(orderItems: OrderItem[]): string {
+    let summary = '';
 
     for (const item of orderItems) {
-        let description =
-            `${item.productName} x${item.quantity}`;
-
-        if (description.length > OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
-            description =
-                `${description.substring(
-                    0,
-                    OZOW_OPTIONAL_FIELD_MAX_LENGTH - 3,
-                )}...`;
-        }
-
-        const candidate2 = optional2
-            ? `${optional2}, ${description}`
+        const description = `${item.productName} x${item.quantity}`;
+        const candidate = summary
+            ? `${summary}, ${description}`
             : description;
 
-        if (candidate2.length <= OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
-            optional2 = candidate2;
+        if (candidate.length <= OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
+            summary = candidate;
             continue;
         }
 
-        const candidate3 = optional3
-            ? `${optional3}, ${description}`
-            : description;
-
-        if (candidate3.length <= OZOW_OPTIONAL_FIELD_MAX_LENGTH) {
-            optional3 = candidate3;
-            continue;
+        if (!summary) {
+            summary = `${description.substring(
+                0,
+                OZOW_OPTIONAL_FIELD_MAX_LENGTH - 3,
+            )}...`;
         }
 
-        // The remaining products stay in the full PulseHive order.
-        // Stop here so the Ozow summary remains compact.
+        // Remaining items stay in the complete PulseHive order.
         break;
     }
 
-    return [optional2, optional3];
+    return summary;
 }
 
 export async function POST(request: NextRequest) {
@@ -115,7 +95,6 @@ export async function POST(request: NextRequest) {
         /*
          * READ CHECKOUT REQUEST
          */
-
         let body: Partial<CheckoutRequest>;
 
         try {
@@ -139,7 +118,6 @@ export async function POST(request: NextRequest) {
         /*
          * ENVIRONMENT
          */
-
         const siteCode = process.env.OZOW_SITE_CODE?.trim();
         const privateKey = process.env.OZOW_PRIVATE_KEY?.trim();
         const apiKey = process.env.OZOW_API_KEY?.trim();
@@ -186,7 +164,6 @@ export async function POST(request: NextRequest) {
         /*
          * VALIDATE CUSTOMER DETAILS
          */
-
         if (
             typeof customerName !== 'string' ||
             !customerName.trim() ||
@@ -212,7 +189,6 @@ export async function POST(request: NextRequest) {
         /*
          * VALIDATE DELIVERY DETAILS
          */
-
         if (
             typeof deliveryAddress !== 'string' ||
             !deliveryAddress.trim() ||
@@ -242,7 +218,6 @@ export async function POST(request: NextRequest) {
          * Move it to server-side shipping rules before treating
          * the checkout total as fully trusted.
          */
-
         if (
             typeof shippingFee !== 'number' ||
             !Number.isFinite(shippingFee) ||
@@ -262,7 +237,6 @@ export async function POST(request: NextRequest) {
         /*
          * VALIDATE CART STRUCTURE
          */
-
         if (!Array.isArray(items) || items.length === 0 || items.length > 100) {
             return NextResponse.json(
                 { error: 'Order must contain between 1 and 100 items.' },
@@ -273,14 +247,12 @@ export async function POST(request: NextRequest) {
         /*
          * GENERATE TRANSACTION REFERENCE ON THE SERVER
          */
-
         const cleanTransactionReference =
             `${tenantCode}-${Date.now()}-${crypto.randomUUID().slice(0, 8)}`;
 
         /*
          * APPLICATION URLS
          */
-
         const configuredAppUrl = process.env.NEXT_PUBLIC_APP_URL?.trim();
         const appUrl = configuredAppUrl || request.nextUrl.origin;
         const baseUrl = appUrl.replace(/\/+$/, '');
@@ -314,7 +286,16 @@ export async function POST(request: NextRequest) {
         const bankReference =
             cleanTransactionReference.substring(0, 20);
 
-        const customer = customerName.trim().substring(0, 100);
+        /*
+         * OZOW CUSTOMER FIELD
+         *
+         * Temporarily combine the customer's name and delivery
+         * destination so both are visible in the Ozow dashboard.
+         * Ozow's Customer field is limited to 100 characters.
+         * The full details are stored separately in PulseHive.
+         */
+        const customer = `${customerName.trim()} | ${deliveryAddress.trim()}`
+            .substring(0, 100);
 
         const countryCode = 'ZA';
         const currencyCode = 'ZAR';
@@ -322,7 +303,6 @@ export async function POST(request: NextRequest) {
         /*
          * RESOLVE TENANT
          */
-
         let tenant: Tenant;
 
         try {
@@ -383,7 +363,6 @@ export async function POST(request: NextRequest) {
         /*
          * FETCH THE AUTHORITATIVE PRODUCT CATALOGUE
          */
-
         let catalogue: CatalogueProduct[];
 
         try {
@@ -430,7 +409,6 @@ export async function POST(request: NextRequest) {
          *
          * Browser-supplied product names, SKUs and prices are ignored.
          */
-
         const orderItems: OrderItem[] = [];
 
         for (const item of items) {
@@ -512,7 +490,6 @@ export async function POST(request: NextRequest) {
         /*
          * CALCULATE THE PAYMENT TOTAL ON THE SERVER
          */
-
         const subtotalCents = orderItems.reduce(
             (sum, item) => sum + Math.round(item.totalPrice * 100),
             0,
@@ -537,43 +514,37 @@ export async function POST(request: NextRequest) {
         /*
          * BUILD OZOW OPTIONAL FIELDS
          *
-         * Optional 1: Delivery details
-         * Optional 2: First part of product summary
-         * Optional 3: Additional product summary
-         * Optional 4: Total quantity of units
-         * Optional 5: Shipping fee
+         * Optional 1: Product names and quantities
+         * Optional 2: Shipping method
+         * Optional 3: Shipping fee
+         * Optional 4: PulseHive transaction reference
+         * Optional 5: Total units
          *
-         * Each field is kept within 50 characters.
+         * Each optional field is kept within 50 characters.
          */
+        const optional1 = buildItemSummary(orderItems);
 
-        const optional1 = deliveryAddress
+        const optional2 = shippingMethod
             .trim()
             .substring(0, OZOW_OPTIONAL_FIELD_MAX_LENGTH);
 
-        const [optional2, optional3] =
-            buildItemSummary(orderItems);
+        const optional3 = `Shipping: R${formattedShippingFee}`
+            .substring(0, OZOW_OPTIONAL_FIELD_MAX_LENGTH);
+
+        const optional4 = cleanTransactionReference
+            .substring(0, OZOW_OPTIONAL_FIELD_MAX_LENGTH);
 
         const totalUnits = orderItems.reduce(
             (sum, item) => sum + item.quantity,
             0,
         );
 
-        const optional4 =
-            `Units: ${totalUnits}`.substring(
-                0,
-                OZOW_OPTIONAL_FIELD_MAX_LENGTH,
-            );
-
-        const optional5 =
-            `Shipping: R${formattedShippingFee}`.substring(
-                0,
-                OZOW_OPTIONAL_FIELD_MAX_LENGTH,
-            );
+        const optional5 = `Units: ${totalUnits}`
+            .substring(0, OZOW_OPTIONAL_FIELD_MAX_LENGTH);
 
         /*
          * CREATE PENDING ORDER BEFORE REDIRECTING TO OZOW
          */
-
         let pendingOrder: unknown;
 
         try {
@@ -635,7 +606,6 @@ export async function POST(request: NextRequest) {
          * All five optional values used here are the exact
          * values that will be sent in the Ozow request.
          */
-
         const hashValues = [
             siteCode,
             countryCode,
@@ -666,7 +636,6 @@ export async function POST(request: NextRequest) {
         /*
          * OZOW API PAYLOAD
          */
-
         const ozowPayload = {
             apiKey,
             SiteCode: siteCode,
@@ -693,9 +662,8 @@ export async function POST(request: NextRequest) {
          * SAFE DEBUG LOGGING
          *
          * Do not log phone numbers, full addresses, API keys,
-         * private keys, or payment hashes.
+         * private keys, product summaries, or payment hashes.
          */
-
         console.log('Ozow PostPaymentRequest.', {
             endpoint: OZOW_API_URL,
             tenantCode,
@@ -710,11 +678,7 @@ export async function POST(request: NextRequest) {
             shippingFee: formattedShippingFee,
             itemCount: orderItems.length,
             totalUnits,
-            optional1,
-            optional2,
-            optional3,
-            optional4,
-            optional5,
+            optionalFieldsPrepared: true,
             pendingOrderCreated: Boolean(pendingOrder),
             isTest,
         });
@@ -722,7 +686,6 @@ export async function POST(request: NextRequest) {
         /*
          * CALL OZOW
          */
-
         let ozowResponse: Response;
 
         try {
@@ -748,7 +711,6 @@ export async function POST(request: NextRequest) {
         /*
          * READ OZOW RESPONSE
          */
-
         const responseText = await ozowResponse.text();
 
         let ozowData: OzowApiResponse | null = null;
@@ -805,7 +767,6 @@ export async function POST(request: NextRequest) {
          * Creating a payment request does not mean the customer
          * has paid. Only a verified Ozow notification can do that.
          */
-
         console.log('Ozow payment request created.', {
             paymentRequestId: ozowData.paymentRequestId,
             transactionReference: cleanTransactionReference,
