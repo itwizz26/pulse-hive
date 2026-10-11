@@ -10,6 +10,10 @@ RUN pnpm install --frozen-lockfile --config.allowBuilds='{"sharp":true,"unrs-res
 
 COPY . .
 
+RUN pnpm run build
+
+ENV NODE_ENV=production
+
 EXPOSE 3000
 
-CMD ["pnpm", "exec", "next", "dev", "-H", "0.0.0.0"]
+CMD ["pnpm", "exec", "next", "start", "-H", "0.0.0.0"]
