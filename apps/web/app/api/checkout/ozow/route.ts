@@ -256,11 +256,11 @@ export async function POST(request: NextRequest) {
         const bankReference = cleanTransactionReference.substring(0, 20);
         const customer = customerName.trim().substring(0, 100);
 
-        const optional1 = '';
-        const optional2 = '';
-        const optional3 = '';
-        const optional4 = '';
-        const optional5 = '';
+        const optional1 = cleanTransactionReference.substring(0, 50);
+        const optional2 = tenantCode.substring(0, 50);
+        const optional3 = shippingMethod.trim().substring(0, 50);
+        let optional4 = '';
+        let optional5 = '';
 
         const countryCode = 'ZA';
         const currencyCode = 'ZAR';
@@ -471,6 +471,9 @@ export async function POST(request: NextRequest) {
 
         const subtotal = subtotalCents / 100;
         const formattedAmount = (totalAmountCents / 100).toFixed(2);
+
+        optional4 = `ZAR ${formattedAmount}`.substring(0, 50);
+        optional5 = `Items: ${orderItems.length}`.substring(0, 50);
 
         /*
          * CREATE PENDING ORDER BEFORE REDIRECTING TO OZOW
