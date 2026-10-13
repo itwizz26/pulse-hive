@@ -66,8 +66,9 @@ services:
     ports:
       - "4003:4003"
     environment:
-      NODE_ENV: ${NODE_ENV}
       PORT: 4003
+      NODE_ENV: ${NODE_ENV}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
       DATABASE_URL: ${DATABASE_URL}
     depends_on:
       postgres:
@@ -104,6 +105,8 @@ services:
       PORT: 4001
       DATABASE_URL: ${DATABASE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      DB_SERVICE_URL: ${PULSEHIVE_DB_SERVICE_URL}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
     command: sh -c "pnpm start:dev"
     depends_on:
       postgres:

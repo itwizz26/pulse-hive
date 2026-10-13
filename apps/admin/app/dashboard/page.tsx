@@ -15,7 +15,7 @@ interface DashboardStats {
 export default function DashboardPage() {
     const [stats, setStats] = useState<DashboardStats | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
-    const { isAuthenticated, userEmail } = useAuthGuard();
+    const { isAuthenticated, isChecking, userEmail } = useAuthGuard();
 
     useEffect(() => {
         setStats({
@@ -30,7 +30,13 @@ export default function DashboardPage() {
     }, []);
 
     // AUTHENTICATION GUARD: Redirect if no token found
-    if (!isAuthenticated) return null;
+    if (isChecking || !isAuthenticated) {
+        return (
+            <div className="flex min-h-screen items-center justify-center">
+                <p>Checking session...</p>
+            </div>
+        );
+    }
     
     if (loading || !stats) {
         return (
