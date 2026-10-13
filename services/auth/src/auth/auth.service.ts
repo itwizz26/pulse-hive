@@ -1,5 +1,11 @@
-import { Injectable, NotFoundException, BadRequestException } from '@nestjs/common';
-import { PrismaService } from '../../prisma/prisma.service';
+
+import {
+    Injectable,
+    NotFoundException,
+    BadRequestException,
+    UnauthorizedException,
+    InternalServerErrorException,
+} from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
 import { UserResponseDto } from './dto/user-response.dto';
@@ -8,128 +14,171 @@ import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
+    private readonly dbUrl =
+        process.env.DB_SERVICE_URL || 'http://db:4003';
+
     constructor(
         private readonly jwtService: JwtService,
-        private readonly prisma: PrismaService,
     ) {}
 
-    async validateUser(email: string, pass: string): Promise<any> {
-        // 💡 Query your PostgreSQL database via Prisma
-        const user = await this.prisma.user.findUnique({
-            where: { email },
-        });
+    private async dbRequest<T>(
+        path: string,
+        options: RequestInit = {},
+    ): Promise<T> {
+        const serviceKey = process.env.INTERNAL_SERVICE_KEY;
 
-        if (user && await bcrypt.compare(pass, user.password)) {
-            const { password, ...result } = user;
-            return result;
+        if (!serviceKey) {
+            throw new InternalServerErrorException(
+                'Internal service authentication is not configured',
+            );
         }
-        return null;
+
+        let response: Response;
+
+        try {
+            response = await fetch(`${this.dbUrl}${path}`, {
+                ...options,
+                headers: {
+                    'Content-Type': 'application/json',
+                    'x-internal-service-key': serviceKey,
+                    ...options.headers,
+                },
+            });
+        } catch {
+            throw new InternalServerErrorException(
+                'Database service is unavailable',
+            );
+        }
+
+        const body = await response.text();
+        const result = body ? JSON.parse(body) : null;
+
+        if (!response.ok) {
+            if (response.status === 404) {
+                throw new NotFoundException(
+                    result?.message || 'User not found',
+                );
+            }
+
+            if (response.status === 409) {
+                throw new BadRequestException(
+                    result?.message || 'A user with this email already exists',
+                );
+            }
+
+            throw new InternalServerErrorException(
+                result?.message || 'Database service request failed',
+            );
+        }
+
+        return result as T;
+    }
+
+    async validateUser(email: string, pass: string): Promise<any> {
+        const user = await this.dbRequest<any>(
+            `/users/by-email?email=${encodeURIComponent(
+                email.trim().toLowerCase(),
+            )}`,
+        );
+
+        if (!user || !user.password) {
+            return null;
+        }
+
+        const passwordMatches = await bcrypt.compare(
+            pass,
+            user.password,
+        );
+
+        if (!passwordMatches) {
+            return null;
+        }
+
+        const { password, ...safeUser } = user;
+        return safeUser;
     }
 
     async singin(loginDto: LoginDto) {
-        const user = await this.validateUser(loginDto.email, loginDto.password);
-        
-        // 🚀 THIS IS THE MISSING PIECE
-        // Ensure the object passed to sign() contains the ID and role
-        const payload = { 
-            id: user.id,      // Must include this
-            role: user.role   // Must include this
+        const user = await this.validateUser(
+            loginDto.email,
+            loginDto.password,
+        );
+
+        if (!user) {
+            throw new UnauthorizedException(
+                'Invalid email or password.',
+            );
+        }
+
+        const payload = {
+            id: user.id,
+            role: user.role,
         };
-        
+
         return {
             accessToken: this.jwtService.sign(payload),
         };
     }
 
     async signout(userId: string) {
-        // 💡 If you decide to implement a blacklist (e.g., in Redis), 
-        // you would add the token to the blacklist here.
         console.log(`User ${userId} has logged out.`);
         return { message: 'Successfully logged out' };
     }
 
     async signup(dto: RegisterDto) {
-        // Check if user already exists
-        const existingUser = await this.prisma.user.findUnique({
-            where: { 
-                email: dto.email
-            },
-        });
+        const email = dto.email.trim().toLowerCase();
+
+        const existingUser = await this.dbRequest<any>(
+            `/users/by-email?email=${encodeURIComponent(email)}`,
+        );
 
         if (existingUser) {
-            throw new BadRequestException('A user account with this email address already exists.');
+            throw new BadRequestException(
+                'A user account with this email address already exists.',
+            );
         }
 
-        // Hash the password using native bcrypt bindings we unlocked earlier
-        const salt = await bcrypt.genSalt(10);
-        const hashedPassword = await bcrypt.hash(dto.password, salt);
+        const hashedPassword = await bcrypt.hash(dto.password, 10);
 
-        // Write to PostgreSQL
-        const newUser = await this.prisma.user.create({
-            data: {
-                email: dto.email,
+        return this.dbRequest<UserResponseDto>('/users', {
+            method: 'POST',
+            body: JSON.stringify({
+                email,
                 password: hashedPassword,
-                role: dto.role || 'user',
-                displayName: dto.email.split('@')[0],
-            },
+                role: 'user',
+                displayName:
+                    dto.displayName?.trim() || email.split('@')[0],
+            }),
         });
-
-        // Strip the sensitive password field out before returning the profile payload
-        const { password, ...result } = newUser;
-        return result;
     }
 
     async getProfile(userId: string): Promise<UserResponseDto> {
-        const user = await this.prisma.user.findUnique({
-            where: { id: userId },
-            select: {
-                id: true,
-                email: true,
-                role: true,
-                displayName: true,
-                bio: true,
-                tenantId: true,
-                createdAt: true,
-                // 'password' is omitted here by default
-            },
-        });
-
-        if (!user) throw new NotFoundException('User not found');
-        return user;
+        return this.dbRequest<UserResponseDto>(
+            `/users/${encodeURIComponent(userId)}`,
+        );
     }
 
-    async updateProfile(userId: string, data: { displayName: string }) {
-        return await this.prisma.user.update({
-            where: { id: userId },
-            data: {
-                displayName: data.displayName,
+    async updateProfile(
+        userId: string,
+        data: { displayName: string },
+    ) {
+        return this.dbRequest<any>(
+            `/users/${encodeURIComponent(userId)}/profile`,
+            {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    displayName: data.displayName,
+                }),
             },
-            select: {
-                id: true,
-                email: true,
-                displayName: true,
-                role: true,
-            },
-        });
+        );
     }
 
-    async onboardCompany(currentUserId: string, companyName: string) {
-        try {
-            return await this.prisma.$transaction(async (tx) => {
-                const newTenant = await tx.tenant.create({
-                    data: { name: companyName },
-                });
-
-                await tx.user.update({
-                    where: { id: currentUserId },
-                    data: { tenantId: newTenant.id },
-                });
-
-                return newTenant;
-            });
-        } catch (error) {
-            console.error('Prisma Error:', error);
-            throw error;
-        }
+    async onboardCompany(
+        _currentUserId: string,
+        _companyName: string,
+    ) {
+        throw new BadRequestException(
+            'Company onboarding will be enabled after signup and signin are verified.',
+        );
     }
 }

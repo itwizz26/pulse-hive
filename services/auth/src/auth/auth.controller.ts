@@ -66,7 +66,7 @@ export class AuthController {
      * JwtStrategy validation step, and populates the incoming request with a `user` footprint.
      */
     @Get('profile')
-    @UseGuards(AuthGuard('gateway'))
+    @UseGuards(AuthGuard('jwt'))
     async getProfile(@Req() req: any): Promise<UserResponseDto> {
         // Returns the clean token payload data: { id: "usr_...", role: "admin" }
         return await this.authService.getProfile(req.user.id);
@@ -74,7 +74,7 @@ export class AuthController {
 
     // auth.controller.ts
     @Patch('profile')
-    @UseGuards(AuthGuard('gateway'))
+    @UseGuards(AuthGuard('jwt'))
     async updateProfile(
         @Req() req: Request, 
         @Body() updateDto: { displayName: string }
