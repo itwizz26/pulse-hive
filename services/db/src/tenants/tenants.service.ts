@@ -1,3 +1,4 @@
+
 import {
   BadRequestException,
   ConflictException,
@@ -5,70 +6,69 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '../database/prisma.service';
+import {
+  allocateTenantCode,
+  createTenantSlug,
+} from './tenant-code.util';
 
 @Injectable()
 export class TenantsService {
-    constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) {}
 
-    async createTenant(input: {
-        tenantCode: string;
-        name: string;
-        slug: string;
-    }) {
-        const tenantCode = input.tenantCode.trim().toUpperCase();
-        const name = input.name.trim();
-        const slug = input.slug.trim().toLowerCase();
+  async createTenant(input: { name: string; slug?: string }) {
+    const name = input.name?.trim();
 
-        if (!/^[A-Z]{3}-[0-9]{3}$/.test(tenantCode)) {
-            throw new BadRequestException(
-                'tenantCode must follow the format XXX-NNN',
-            );
-        }
-
-        if (!name) {
-            throw new BadRequestException('Tenant name is required');
-        }
-
-        if (!slug) {
-            throw new BadRequestException('Tenant slug is required');
-        }
-
-        const existingCode = await this.prisma.tenant.findUnique({
-            where: { tenantCode },
-        });
-
-        if (existingCode) {
-            throw new ConflictException(
-                `Tenant code ${tenantCode} is already in use`,
-            );
-        }
-
-        const existingSlug = await this.prisma.tenant.findUnique({
-            where: { slug },
-        });
-
-        if (existingSlug) {
-            throw new ConflictException(
-                `Tenant slug ${slug} is already in use`,
-            );
-        }
-
-        return this.prisma.tenant.create({
-            data: {
-                tenantCode,
-                name,
-                slug,
-            },
-        });
+    if (!name) {
+      throw new BadRequestException('Tenant name is required');
     }
 
-    async getTenantByCode(tenantCode: string) {
-        const normalizedCode = tenantCode.trim().toUpperCase();
-
-        return this.prisma.tenant.findUnique({
-            where: {
-            tenantCode: normalizedCode,
-            },
-        });
+    if (name.length > 150) {
+      throw new BadRequestException(
+        'Tenant name must not exceed 150 characters',
+      );
     }
+
+    const slug = input.slug?.trim().toLowerCase() || createTenantSlug(name);
+
+    if (!slug || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(slug)) {
+      throw new BadRequestException('A valid tenant slug is required');
+    }
+
+    return this.prisma.$transaction(async (tx) => {
+      const existingSlug = await tx.tenant.findUnique({
+        where: { slug },
+        select: { id: true },
+      });
+
+      if (existingSlug) {
+        throw new ConflictException(
+          `Tenant slug "${slug}" is already in use`,
+        );
+      }
+
+      const tenantCode = await allocateTenantCode(tx, name);
+
+      return tx.tenant.create({
+        data: {
+          name,
+          slug,
+          tenantCode,
+        },
+      });
+    });
+  }
+
+  async getTenantByCode(tenantCode: string) {
+    const normalizedCode = tenantCode.trim().toUpperCase();
+
+    if (!/^[A-Z0-9]{3}-[0-9]{6}$/.test(normalizedCode)) {
+      throw new BadRequestException(
+        'tenantCode must follow the format XXX-NNNNNN',
+      );
+    }
+
+    return this.prisma.tenant.findUnique({
+      where: { tenantCode: normalizedCode },
+    });
+  }
 }

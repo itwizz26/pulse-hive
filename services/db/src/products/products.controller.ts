@@ -2,11 +2,14 @@ import {
     Controller,
     Get,
     Param,
+    UseGuards,
 } from '@nestjs/common';
 
+import { InternalServiceGuard } from '../common/guards/internal-service.guard';
 import { ProductsService } from './products.service';
 
 @Controller('products')
+@UseGuards(InternalServiceGuard)
 export class ProductsController {
     constructor(
         private readonly productsService: ProductsService,

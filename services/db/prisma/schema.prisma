@@ -100,6 +100,7 @@ model Order {
   createdAt       DateTime      @default(now())
   customerId      String?
   deliveryAddress String?
+  idempotencyKey  String?
   paymentStatus   PaymentStatus @default(PENDING)
   shippingFee     Decimal       @db.Decimal(10, 2)
   shippingMethod  String?
@@ -117,6 +118,7 @@ model Order {
   @@index([tenantId, paymentStatus])
   @@index([tenantId, createdAt])
   @@index([customerId])
+  @@unique([tenantId, idempotencyKey])
 }
 
 model OrderItem {
@@ -157,6 +159,8 @@ model Payment {
   providerOptional4     String?
   providerOptional5     String?
   providerStatusMessage String?
+  paymentRequestId      String?
+  gatewayUrl            String?
   updatedAt             DateTime        @updatedAt
   order                 Order?          @relation(fields: [orderId], references: [id])
   tenant                Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
@@ -165,7 +169,7 @@ model Payment {
   @@index([tenantId, status])
   @@index([tenantId, createdAt])
   @@index([tenantId, orderId])
-  @@index([transactionReference])
+  @@unique([tenantId, provider, transactionReference])
   @@index([providerReference])
 }
 
