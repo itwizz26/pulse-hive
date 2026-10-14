@@ -5,6 +5,7 @@ import {
     BadRequestException,
     UnauthorizedException,
     InternalServerErrorException,
+    ConflictException,
 } from '@nestjs/common';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -61,8 +62,8 @@ export class AuthService {
             }
 
             if (response.status === 409) {
-                throw new BadRequestException(
-                    result?.message || 'A user with this email already exists',
+                throw new ConflictException(
+                    result?.message || 'The requested resource already exists',
                 );
             }
 
@@ -173,12 +174,25 @@ export class AuthService {
         );
     }
 
-    async onboardCompany(
-        _currentUserId: string,
-        _companyName: string,
-    ) {
-        throw new BadRequestException(
-            'Company onboarding will be enabled after signup and signin are verified.',
+    async onboardCompany(currentUserId: string, companyName: string) {
+        const name = companyName?.trim();
+
+        if (!name) {
+            throw new BadRequestException('Business name is required');
+        }
+
+        if (name.length > 150) {
+            throw new BadRequestException(
+                'Business name must not exceed 150 characters',
+            );
+        }
+
+        return this.dbRequest<any>(
+            `/users/${encodeURIComponent(currentUserId)}/onboard`,
+            {
+                method: 'POST',
+                body: JSON.stringify({ name }),
+            },
         );
     }
 }
