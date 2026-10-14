@@ -11,6 +11,7 @@ export class CreatePendingOrderItemDto {
 
 export class CreatePendingOrderDto {
     tenantId!: string;
+    idempotencyKey!: string;
 
     customerName!: string;
     phoneNumber!: string;
@@ -26,4 +27,9 @@ export class CreatePendingOrderDto {
     provider!: PaymentProvider;
 
     items!: CreatePendingOrderItemDto[];
+}
+
+export class SavePaymentRequestDto {
+    paymentRequestId!: string;
+    gatewayUrl!: string;
 }
