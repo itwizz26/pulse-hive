@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
     ArrowRight,
     ArrowLeft,
@@ -52,6 +52,8 @@ export default function CheckoutPage() {
     const { checkoutOrder } = useCart();
 
     const [cartData, setCartData] = useState<CartItem[]>([]);
+
+    const idempotencyKeyRef = useRef<string | null>(null);
 
     const [shippingOption, setShippingOption] =
         useState<ShippingOption | null>(null);
@@ -257,8 +259,57 @@ export default function CheckoutPage() {
         /*
          * Generate a unique transaction reference.
          */
-        const transactionReference =
-            `GV-${Date.now()}`;
+        const checkoutFingerprint = JSON.stringify({
+            customerName: customerName.trim(),
+            phoneNumber: phoneNumber.trim(),
+            deliveryAddress: finalDeliveryString,
+            shippingMethod:
+                shippingOption?.name || 'Standard Delivery',
+            shippingFee: Number(shippingFee.toFixed(2)),
+            items: [...cartData]
+                .map((item) => ({
+                    id: item.id,
+                    quantity: item.quantity,
+                }))
+                .sort((a, b) =>
+                    String(a.id).localeCompare(String(b.id)),
+                ),
+        });
+
+        const storageKey = 'glowavee_checkout_attempt';
+        let idempotencyKey: string;
+
+        try {
+            const saved = sessionStorage.getItem(storageKey);
+            const previous = saved ? JSON.parse(saved) : null;
+
+            if (
+                previous?.fingerprint === checkoutFingerprint &&
+                typeof previous?.key === 'string'
+            ) {
+                idempotencyKey = previous.key;
+            } else {
+                idempotencyKey = crypto.randomUUID();
+
+                sessionStorage.setItem(
+                    storageKey,
+                    JSON.stringify({
+                        fingerprint: checkoutFingerprint,
+                        key: idempotencyKey,
+                    }),
+                );
+            }
+
+            idempotencyKeyRef.current = idempotencyKey;
+        } catch {
+            setErrorMessage(
+                'Unable to prepare a secure checkout attempt. Please refresh and try again.',
+            );
+            setLoading(false);
+            return;
+        }
+
+        const transactionReference = `GV-${Date.now()}`;
 
         /*
          * ---------------------------------------------------------
@@ -338,6 +389,7 @@ export default function CheckoutPage() {
                         ),
 
                         transactionReference,
+                        idempotencyKey,
 
                         customerName:
                             customerName.trim(),

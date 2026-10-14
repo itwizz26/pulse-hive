@@ -1,4 +1,3 @@
-
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
 
@@ -143,7 +142,7 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        if (!tenantCode || !/^[A-Z]{3}-[0-9]{3}$/.test(tenantCode)) {
+        if (!tenantCode || !/^[A-Z]{3}-[0-9]{6}$/.test(tenantCode)) {
             console.error('Invalid or missing PULSEHIVE_TENANT_CODE.');
 
             return NextResponse.json(
@@ -370,7 +369,11 @@ export async function POST(request: NextRequest) {
                 `${dbServiceUrl}/products/tenant/${encodeURIComponent(tenantCode)}`,
                 {
                     method: 'GET',
-                    headers: { Accept: 'application/json' },
+                    headers: {
+                        Accept: 'application/json',
+                        'x-internal-service-key':
+                            process.env.INTERNAL_SERVICE_KEY ?? '',
+                    },
                     cache: 'no-store',
                 },
             );
@@ -555,6 +558,8 @@ export async function POST(request: NextRequest) {
                     headers: {
                         Accept: 'application/json',
                         'Content-Type': 'application/json',
+                        'x-internal-service-key':
+                            process.env.INTERNAL_SERVICE_KEY ?? '',
                     },
                     body: JSON.stringify({
                         tenantId: tenant.id,

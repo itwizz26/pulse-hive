@@ -28,6 +28,11 @@ export async function GET() {
                 TENANT_CODE,
             )}`,
             {
+                headers: {
+                    Accept: 'application/json',
+                    'x-internal-service-key':
+                        process.env.INTERNAL_SERVICE_KEY ?? '',
+                },
                 cache: 'no-store',
             },
         );
