@@ -130,16 +130,17 @@ services:
   # --------------------------------------------------
   orders:
     build:
-      context: ./services/orders
-      dockerfile: Dockerfile
+      context: .
+      dockerfile: services/orders/Dockerfile
     container_name: pulsehive-orders
     ports:
       - "4002:4002"
     environment:
-      NODE_ENV: ${NODE_ENV}
       PORT: 4002
+      NODE_ENV: ${NODE_ENV}
       DATABASE_URL: ${DATABASE_URL}
       RABBITMQ_URL: ${RABBITMQ_URL}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
     depends_on:
       postgres:
         condition: service_healthy
@@ -170,8 +171,8 @@ services:
     ports:
       - "5000:5000"
     environment:
-      NODE_ENV: ${NODE_ENV}
       PORT: 5000
+      NODE_ENV: ${NODE_ENV}
       RABBITMQ_URL: ${RABBITMQ_URL}
     command: sh -c "pnpm start:dev"
     depends_on:
@@ -209,6 +210,7 @@ services:
       AUTH_SERVICE_URL: ${PULSEHIVE_AUTH_SERVICE_URL}
       ORDER_SERVICE_URL: ${PULSEHIVE_ORDERS_SERVICE_URL}
       JWT_SECRET: ${JWT_SECRET}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
     depends_on:
       auth:
         condition: service_started
@@ -243,13 +245,14 @@ services:
       api:
         condition: service_started
     environment:
+      NODE_ENV: ${NODE_ENV}
       PULSEHIVE_TENANT_CODE: ${PULSEHIVE_TENANT_CODE}
       PULSEHIVE_DB_SERVICE_URL: ${PULSEHIVE_DB_SERVICE_URL}
       PULSEHIVE_ORDERS_SERVICE_URL: ${PULSEHIVE_ORDERS_SERVICE_URL}
       PULSEHIVE_EVENTS_SERVICE_URL: ${PULSEHIVE_EVENTS_SERVICE_URL}
-      NODE_ENV: ${NODE_ENV}
-      WATCHPACK_POLLING: ${WATCHPACK_POLLING}
+      INTERNAL_SERVICE_KEY: ${INTERNAL_SERVICE_KEY}
       CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
+      WATCHPACK_POLLING: ${WATCHPACK_POLLING}
       NODE_OPTIONS: --max-old-space-size=4096
       PNPM_DISABLE_CHECK_UPDATE: "true"
       CI: "true"
@@ -287,8 +290,8 @@ services:
       api:
         condition: service_started
     environment:
-      NODE_ENV: ${NODE_ENV}
       PORT: 3001
+      NODE_ENV: ${NODE_ENV}
       WATCHPACK_POLLING: ${WATCHPACK_POLLING}
       CHOKIDAR_USEPOLLING: ${CHOKIDAR_USEPOLLING}
     networks:

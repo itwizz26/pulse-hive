@@ -32,12 +32,43 @@ export class ProxyService {
         try {
             const forwardHeaders: Record<string, string> = {};
             
-            // 1. Copy incoming headers
+            // 1. Copy ordinary headers, but never trust client-supplied
+            // internal credentials or identity context.
             Object.entries(req.headers).forEach(([key, value]) => {
-                if (value && typeof value === 'string' && !['content-length', 'host', 'transfer-encoding'].includes(key.toLowerCase())) {
-                    forwardHeaders[key] = value;
+                const normalizedKey = key.toLowerCase();
+
+                if (
+                    value &&
+                    typeof value === 'string' &&
+                    ![
+                        'content-length',
+                        'host',
+                        'transfer-encoding',
+                        'x-internal-service-key',
+                        'x-user-id',
+                        'x-user-role',
+                        'x-tenant-id',
+                    ].includes(normalizedKey)
+                ) {
+                    forwardHeaders[normalizedKey] = value;
                 }
             });
+
+            // Authenticate the gateway to downstream Auth requests.
+            const internalServiceKey =
+                this.configService.get<string>('INTERNAL_SERVICE_KEY');
+
+            if (targetKey === 'auth') {
+                if (!internalServiceKey) {
+                    return reply.code(503).send({
+                        statusCode: 503,
+                        error: 'Service Unavailable',
+                        message: 'Gateway internal authentication is not configured',
+                    });
+                }
+
+                forwardHeaders['x-internal-service-key'] = internalServiceKey;
+            }
 
             // 2. Centralized Auth Logic (applies to all routes)
             const authHeader = req.headers['authorization'];
