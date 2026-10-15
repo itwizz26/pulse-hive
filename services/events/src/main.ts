@@ -1,10 +1,12 @@
-import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
+import { 
+    ValidationPipe,
+    Logger,
+} from '@nestjs/common';
 import {
-  FastifyAdapter,
-  NestFastifyApplication,
+    FastifyAdapter,
+    NestFastifyApplication,
 } from '@nestjs/platform-fastify';
-import { Logger } from '@nestjs/common';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
@@ -17,9 +19,9 @@ async function bootstrap() {
 
     app.useGlobalPipes(
         new ValidationPipe({
-        whitelist: true,
-        transform: true,
-        forbidNonWhitelisted: true,
+            whitelist: true,
+            transform: true,
+            forbidNonWhitelisted: true,
         }),
     );
 

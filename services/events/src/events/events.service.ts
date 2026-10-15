@@ -23,7 +23,7 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   private readonly logger = new Logger(EventsService.name);
 
   private connection?: amqp.ChannelModel;
-  private channel?: amqp.Channel;
+  private channel?: amqp.ConfirmChannel;
 
   async onModuleInit() {
     await this.connect();
@@ -37,7 +37,9 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
     const rabbitMqUrl = process.env.RABBITMQ_URL;
 
     if (!rabbitMqUrl) {
-      throw new Error('RABBITMQ_URL environment variable is not configured');
+      throw new Error(
+        'RABBITMQ_URL environment variable is not configured',
+      );
     }
 
     this.logger.log('Connecting to RabbitMQ...');
@@ -52,14 +54,14 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
       this.logger.warn('RabbitMQ connection closed');
     });
 
-    this.channel = await this.connection.createChannel();
+    this.channel = await this.connection.createConfirmChannel();
 
     await this.channel.assertExchange(EVENT_EXCHANGE, 'topic', {
       durable: true,
     });
 
     this.logger.log(
-      `RabbitMQ connected. Exchange: ${EVENT_EXCHANGE}`,
+      `RabbitMQ connected. Confirm channel ready. Exchange: ${EVENT_EXCHANGE}`,
     );
   }
 
@@ -75,7 +77,9 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
   async publish<T extends Record<string, unknown>>(
     event: DomainEvent<T>,
   ): Promise<void> {
-    if (!this.channel) {
+    const channel = this.channel;
+
+    if (!channel) {
       throw new ServiceUnavailableException(
         'RabbitMQ channel is not available',
       );
@@ -83,31 +87,39 @@ export class EventsService implements OnModuleInit, OnModuleDestroy {
 
     const message = Buffer.from(JSON.stringify(event));
 
-    const published = this.channel.publish(
-      EVENT_EXCHANGE,
-      event.eventType,
-      message,
-      {
-        persistent: true,
-        contentType: 'application/json',
-        contentEncoding: 'utf-8',
-        messageId: event.eventId,
-        timestamp: Date.now(),
-        type: event.eventType,
-        headers: {
-          version: event.version,
+    try {
+      channel.publish(
+        EVENT_EXCHANGE,
+        event.eventType,
+        message,
+        {
+          persistent: true,
+          contentType: 'application/json',
+          contentEncoding: 'utf-8',
+          messageId: event.eventId,
+          timestamp: Date.now(),
+          type: event.eventType,
+          headers: {
+            version: event.version,
+          },
         },
-      },
-    );
+      );
 
-    if (!published) {
-      this.logger.warn(
-        `RabbitMQ write buffer is full for event ${event.eventId}`,
+      // Wait until RabbitMQ confirms the published message.
+      await channel.waitForConfirms();
+
+      this.logger.log(
+        `Published and confirmed event ${event.eventType} (${event.eventId})`,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to publish event ${event.eventType} (${event.eventId})`,
+        error instanceof Error ? error.stack : String(error),
+      );
+
+      throw new ServiceUnavailableException(
+        'RabbitMQ could not confirm the published event',
       );
     }
-
-    this.logger.log(
-      `Published event ${event.eventType} (${event.eventId})`,
-    );
   }
 }

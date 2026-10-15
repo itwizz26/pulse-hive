@@ -1,10 +1,13 @@
 import {
+  IsIn,
+  IsISO8601,
   IsNotEmpty,
   IsObject,
   IsOptional,
   IsString,
   IsUUID,
-  IsNumber,
+  IsInt,
+  Min,
 } from 'class-validator';
 
 export class PublishEventDto {
@@ -14,12 +17,15 @@ export class PublishEventDto {
 
   @IsString()
   @IsNotEmpty()
+  @IsIn(['payment.completed', 'payment.status_updated'])
   eventType!: string;
 
-  @IsNumber()
-  version!: number;
+  @IsInt()
+  @Min(1)
+  @IsOptional()
+  version?: number;
 
-  @IsString()
+  @IsISO8601()
   @IsOptional()
   occurredAt?: string;
 
