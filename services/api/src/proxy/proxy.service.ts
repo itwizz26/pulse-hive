@@ -6,11 +6,12 @@ import { IRequestUserContext } from '../common/interfaces/request-context.interf
 
 @Injectable()
 export class ProxyService {
-    private routeMapping: Record<string, string> = {};
-    private jwtSecret: string;
+    private readonly routeMapping: Record<string, string>;
+    private readonly jwtSecret: string;
 
     constructor(private readonly configService: ConfigService) {
         this.jwtSecret = this.configService.get<string>('JWT_SECRET')!;
+
         this.routeMapping = {
             auth: this.configService.get<string>('AUTH_SERVICE_URL')!,
             orders: this.configService.get<string>('ORDER_SERVICE_URL')!,
@@ -19,11 +20,15 @@ export class ProxyService {
 
     async forward(req: FastifyRequest, reply: FastifyReply) {
         const urlParts = req.url.split('?')[0].split('/').filter(Boolean);
-        const targetKey = urlParts[2];
-
+        const targetKey = urlParts[0];
         const baseTarget = this.routeMapping[targetKey];
+
         if (!baseTarget) {
-            return reply.code(404).send({ statusCode: 404, error: 'Not Found', message: `No route for: '${targetKey}'` });
+            return reply.code(404).send({
+                statusCode: 404,
+                error: 'Not Found',
+                message: `No route for: '${targetKey}'`,
+            });
         }
 
         const downstreamUrl = `${baseTarget}${req.url}`;
@@ -31,9 +36,8 @@ export class ProxyService {
 
         try {
             const forwardHeaders: Record<string, string> = {};
-            
-            // 1. Copy ordinary headers, but never trust client-supplied
-            // internal credentials or identity context.
+
+            // Never trust client-supplied internal credentials or identity.
             Object.entries(req.headers).forEach(([key, value]) => {
                 const normalizedKey = key.toLowerCase();
 
@@ -54,45 +58,84 @@ export class ProxyService {
                 }
             });
 
-            // Authenticate the gateway to downstream Auth requests.
             const internalServiceKey =
                 this.configService.get<string>('INTERNAL_SERVICE_KEY');
 
-            if (targetKey === 'auth') {
-                if (!internalServiceKey) {
-                    return reply.code(503).send({
-                        statusCode: 503,
-                        error: 'Service Unavailable',
-                        message: 'Gateway internal authentication is not configured',
+            if (!internalServiceKey) {
+                return reply.code(503).send({
+                    statusCode: 503,
+                    error: 'Service Unavailable',
+                    message: 'Internal service authentication is not configured',
+                });
+            }
+
+            // Authenticate the gateway to the downstream service.
+            forwardHeaders['x-internal-service-key'] = internalServiceKey;
+
+            const authHeader = req.headers['authorization'];
+            let userContext: IRequestUserContext | undefined;
+
+            if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+                try {
+                    const token = authHeader.slice('Bearer '.length);
+
+                    userContext = jwt.verify(
+                        token,
+                        this.jwtSecret,
+                    ) as IRequestUserContext;
+
+                    if (!userContext.id || !userContext.role) {
+                        return reply.code(401).send({
+                            statusCode: 401,
+                            error: 'Unauthorized',
+                            message: 'Invalid token payload',
+                        });
+                    }
+
+                    forwardHeaders['x-user-id'] = userContext.id;
+                    forwardHeaders['x-user-role'] = userContext.role;
+
+                    if (userContext.tenantId) {
+                        forwardHeaders['x-tenant-id'] = userContext.tenantId;
+                    }
+                } catch {
+                    return reply.code(401).send({
+                        statusCode: 401,
+                        error: 'Unauthorized',
+                        message: 'Invalid token',
                     });
                 }
-
-                forwardHeaders['x-internal-service-key'] = internalServiceKey;
-            }
-
-            // 2. Centralized Auth Logic (applies to all routes)
-            const authHeader = req.headers['authorization'];
-            if (authHeader?.startsWith('Bearer ')) {
-                try {
-                    const token = authHeader.split(' ')[1];
-                    const decoded = jwt.verify(token, this.jwtSecret) as unknown as IRequestUserContext;
-                    
-                    // Inject user context headers for downstream services
-                    forwardHeaders['x-user-id'] = decoded.id;
-                    forwardHeaders['x-user-role'] = decoded.role;
-                    if (decoded.tenantId) forwardHeaders['x-tenant-id'] = decoded.tenantId;
-                } catch (jwtError) {
-                    return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Invalid token' });
-                }
             } else if (targetKey !== 'auth') {
-                // Only reject if the route is NOT 'auth' and the token is missing
-                return reply.code(401).send({ statusCode: 401, error: 'Unauthorized', message: 'Missing token' });
+                return reply.code(401).send({
+                    statusCode: 401,
+                    error: 'Unauthorized',
+                    message: 'Missing token',
+                });
             }
 
-            // 3. Finalize headers and forward
+            // Order listing requires an authenticated tenant context.
+            // Other order routes retain their existing authorization behavior.
+            if (
+                targetKey === 'orders' &&
+                req.method === 'GET' &&
+                req.url.split('?')[0] === '/orders' &&
+                !userContext?.tenantId
+            ) {
+                return reply.code(403).send({
+                    statusCode: 403,
+                    error: 'Forbidden',
+                    message: 'Your account is not associated with a tenant',
+                });
+            }
+
             if (['POST', 'PUT', 'PATCH'].includes(req.method) && bodyBuffer) {
-                forwardHeaders['content-type'] = req.headers['content-type'] || 'application/json';
-                forwardHeaders['content-length'] = Buffer.byteLength(bodyBuffer).toString();
+                forwardHeaders['content-type'] =
+                    typeof req.headers['content-type'] === 'string'
+                        ? req.headers['content-type']
+                        : 'application/json';
+
+                forwardHeaders['content-length'] =
+                    Buffer.byteLength(bodyBuffer).toString();
             }
 
             forwardHeaders['x-forwarded-for'] = req.ip;
@@ -105,21 +148,30 @@ export class ProxyService {
                 duplex: 'half',
             } as any);
 
-            // 4. Forward response
             response.headers.forEach((value, key) => {
-                if (key.toLowerCase() !== 'transfer-encoding') reply.header(key, value);
+                if (key.toLowerCase() !== 'transfer-encoding') {
+                    reply.header(key, value);
+                }
             });
 
             const responseData = await response.text();
+
             try {
                 return reply.code(response.status).send(JSON.parse(responseData));
             } catch {
                 return reply.code(response.status).send(responseData);
             }
-
         } catch (error: any) {
-            console.error(`[Gateway Routing Crash] to ${downstreamUrl}:`, error);
-            return reply.code(503).send({ statusCode: 503, error: 'Service Unavailable', message: error.message });
+            console.error(
+                `[Gateway Routing Crash] to ${downstreamUrl}:`,
+                error,
+            );
+
+            return reply.code(503).send({
+                statusCode: 503,
+                error: 'Service Unavailable',
+                message: 'Downstream service request failed',
+            });
         }
     }
 }

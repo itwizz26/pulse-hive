@@ -28,7 +28,7 @@ async function bootstrap() {
 	// 💡 CRITICAL: Activate global distributed tracing across the ingress perimeter
 	app.useGlobalInterceptors(new CorrelationIdInterceptor());
 
-	app.setGlobalPrefix('api/v1');
+	// Remove versioning: app.setGlobalPrefix('api/v1');
 	await app.listen(port, '0.0.0.0');
 	logger.log(`🚀 Pulsehive API Gateway active on: http://localhost:${port}`);
 }
