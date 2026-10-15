@@ -578,16 +578,52 @@ export async function POST(request: NextRequest) {
                 },
             );
 
-            const orderData: unknown = await orderResponse
-                .json()
-                .catch(() => null);
+            
+            const orderResponseText = await orderResponse
+                .text()
+                .catch(() => '');
+
+            let orderData: unknown = null;
+
+            try {
+                orderData = orderResponseText
+                    ? JSON.parse(orderResponseText)
+                    : null;
+            } catch {
+                orderData = null;
+            }
 
             if (!orderResponse.ok || !orderData) {
-                console.error('PulseHive pending order creation failed.', {
-                    status: orderResponse.status,
-                    tenantCode,
-                    transactionReference: cleanTransactionReference,
-                });
+                const responseDetails =
+                    typeof orderData === 'object' &&
+                    orderData !== null
+                        ? {
+                              error:
+                                  'error' in orderData
+                                      ? orderData.error
+                                      : undefined,
+                              message:
+                                  'message' in orderData
+                                      ? orderData.message
+                                      : undefined,
+                              statusCode:
+                                  'statusCode' in orderData
+                                      ? orderData.statusCode
+                                      : undefined,
+                          }
+                        : {
+                              responseBody: orderResponseText.slice(0, 1000),
+                          };
+
+                console.error(
+                    'PulseHive pending order creation failed.',
+                    {
+                        status: orderResponse.status,
+                        tenantCode,
+                        transactionReference: cleanTransactionReference,
+                        ...responseDetails,
+                    },
+                );
 
                 return NextResponse.json(
                     { error: 'Unable to create pending order.' },
