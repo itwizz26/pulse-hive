@@ -7,4 +7,5 @@ import { OrdersMessagingService } from './orders-messaging.service';
     imports: [OrdersModule],
     providers: [OrdersMessagingService],
 })
+
 export class OrdersMessagingModule {}
