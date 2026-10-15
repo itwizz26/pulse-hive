@@ -5,14 +5,14 @@ const prisma = new PrismaClient();
 async function main() {
   const tenant = await prisma.tenant.upsert({
     where: {
-      tenantCode: 'GLV-001',
+      tenantCode: 'GLV-000001',
     },
     update: {
       name: 'Glowa Vee Boutique',
       slug: 'glowavee',
     },
     create: {
-      tenantCode: 'GLV-001',
+      tenantCode: 'GLV-000001',
       name: 'Glowa Vee Boutique',
       slug: 'glowavee',
     },

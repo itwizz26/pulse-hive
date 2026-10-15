@@ -1,4 +1,3 @@
-
 import { createHash, timingSafeEqual } from 'crypto';
 
 import {
@@ -24,6 +23,7 @@ const EVENTS_SERVICE_URL =
 const MAX_TRANSACTION_REFERENCE_LENGTH = 50;
 const MAX_OPTIONAL_FIELD_LENGTH = 50;
 const MAX_STATUS_MESSAGE_LENGTH = 500;
+const MAX_SUB_STATUS_LENGTH = 100;
 
 const VALID_STATUSES = new Set([
     'Complete',
@@ -53,12 +53,11 @@ function buildOzowHashInput(
     params: URLSearchParams,
     privateKey: string,
 ): string {
-    const amount =
-        getValue(params, 'Amount');
+    const amount = getValue(params, 'Amount');
 
     /*
-     * Ozow hashes Amount with exactly two
-     * decimal places.
+     * Ozow hashes Amount with exactly two decimal places.
+     * SubStatus is deliberately excluded from this hash input.
      */
     const normalizedAmount =
         Number(amount || 0).toFixed(2);
@@ -66,10 +65,7 @@ function buildOzowHashInput(
     return [
         getValue(params, 'SiteCode'),
         getValue(params, 'TransactionId'),
-        getValue(
-            params,
-            'TransactionReference',
-        ),
+        getValue(params, 'TransactionReference'),
         normalizedAmount,
         getValue(params, 'Status'),
         getValue(params, 'Optional1'),
@@ -91,10 +87,7 @@ function calculateOzowHash(
     privateKey: string,
 ): string {
     const hashInput =
-        buildOzowHashInput(
-            params,
-            privateKey,
-        );
+        buildOzowHashInput(params, privateKey);
 
     return createHash('sha512')
         .update(hashInput)
@@ -116,22 +109,13 @@ function verifyOzowHash(
     }
 
     const expectedHash =
-        calculateOzowHash(
-            params,
-            privateKey,
-        );
+        calculateOzowHash(params, privateKey);
 
     const expectedBuffer =
-        Buffer.from(
-            expectedHash,
-            'utf8',
-        );
+        Buffer.from(expectedHash, 'utf8');
 
     const suppliedBuffer =
-        Buffer.from(
-            suppliedHash,
-            'utf8',
-        );
+        Buffer.from(suppliedHash, 'utf8');
 
     if (
         expectedBuffer.length !==
@@ -162,10 +146,7 @@ export async function POST(
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Ozow site code is not configured',
-                },
+                { error: 'Ozow site code is not configured' },
                 { status: 500 },
             );
         }
@@ -176,10 +157,7 @@ export async function POST(
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Ozow private key is not configured',
-                },
+                { error: 'Ozow private key is not configured' },
                 { status: 500 },
             );
         }
@@ -190,95 +168,53 @@ export async function POST(
          * -------------------------------------------------------
          */
 
-        const body =
-            await request.text();
-
-        const params =
-            new URLSearchParams(body);
+        const body = await request.text();
+        const params = new URLSearchParams(body);
 
         const siteCode =
-            getValue(
-                params,
-                'SiteCode',
-            );
+            getValue(params, 'SiteCode');
 
         const transactionId =
-            getValue(
-                params,
-                'TransactionId',
-            );
+            getValue(params, 'TransactionId');
 
         const transactionReference =
-            getValue(
-                params,
-                'TransactionReference',
-            );
+            getValue(params, 'TransactionReference');
 
         const amount =
-            getValue(
-                params,
-                'Amount',
-            );
+            getValue(params, 'Amount');
 
         const status =
-            getValue(
-                params,
-                'Status',
-            );
+            getValue(params, 'Status');
 
         const optional1 =
-            getValue(
-                params,
-                'Optional1',
-            );
+            getValue(params, 'Optional1');
 
         const optional2 =
-            getValue(
-                params,
-                'Optional2',
-            );
+            getValue(params, 'Optional2');
 
         const optional3 =
-            getValue(
-                params,
-                'Optional3',
-            );
+            getValue(params, 'Optional3');
 
         const optional4 =
-            getValue(
-                params,
-                'Optional4',
-            );
+            getValue(params, 'Optional4');
 
         const optional5 =
-            getValue(
-                params,
-                'Optional5',
-            );
+            getValue(params, 'Optional5');
 
         const currencyCode =
-            getValue(
-                params,
-                'CurrencyCode',
-            );
+            getValue(params, 'CurrencyCode');
 
         const isTest =
-            getValue(
-                params,
-                'IsTest',
-            );
+            getValue(params, 'IsTest');
 
         const statusMessage =
-            getValue(
-                params,
-                'StatusMessage',
-            );
+            getValue(params, 'StatusMessage');
+
+        const subStatus =
+            getValue(params, 'SubStatus');
 
         const suppliedHash =
-            getValue(
-                params,
-                'Hash',
-            );
+            getValue(params, 'Hash');
 
         /*
          * -------------------------------------------------------
@@ -288,60 +224,35 @@ export async function POST(
 
         if (!siteCode) {
             return NextResponse.json(
-                {
-                    error:
-                        'Missing SiteCode',
-                },
+                { error: 'Missing SiteCode' },
                 { status: 400 },
             );
         }
 
-        if (
-            siteCode !==
-            OZOW_SITE_CODE
-        ) {
+        if (siteCode !== OZOW_SITE_CODE) {
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid SiteCode',
-                },
+                { error: 'Invalid SiteCode' },
                 { status: 400 },
             );
         }
 
-        /*
-         * Ozow TransactionId is a UUID.
-         */
         if (!transactionId) {
             return NextResponse.json(
-                {
-                    error:
-                        'Missing TransactionId',
-                },
+                { error: 'Missing TransactionId' },
                 { status: 400 },
             );
         }
 
-        if (
-            !isValidUuid(
-                transactionId,
-            )
-        ) {
+        if (!isValidUuid(transactionId)) {
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid TransactionId format',
-                },
+                { error: 'Invalid TransactionId format' },
                 { status: 400 },
             );
         }
 
         if (!transactionReference) {
             return NextResponse.json(
-                {
-                    error:
-                        'Missing TransactionReference',
-                },
+                { error: 'Missing TransactionReference' },
                 { status: 400 },
             );
         }
@@ -363,12 +274,10 @@ export async function POST(
          * Amount must be positive and have exactly
          * two decimal places.
          */
+
         if (!amount) {
             return NextResponse.json(
-                {
-                    error:
-                        'Missing Amount',
-                },
+                { error: 'Missing Amount' },
                 { status: 400 },
             );
         }
@@ -379,60 +288,35 @@ export async function POST(
             Number(amount) <= 0
         ) {
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid Amount format or value',
-                },
+                { error: 'Invalid Amount format or value' },
                 { status: 400 },
             );
         }
 
         if (!currencyCode) {
             return NextResponse.json(
-                {
-                    error:
-                        'Missing CurrencyCode',
-                },
+                { error: 'Missing CurrencyCode' },
                 { status: 400 },
             );
         }
 
-        if (
-            !/^[A-Z]{3}$/.test(
-                currencyCode,
-            )
-        ) {
+        if (!/^[A-Z]{3}$/.test(currencyCode)) {
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid CurrencyCode',
-                },
+                { error: 'Invalid CurrencyCode' },
                 { status: 400 },
             );
         }
 
-        if (
-            !/^(True|False)$/.test(
-                isTest,
-            )
-        ) {
+        if (!/^(True|False)$/.test(isTest)) {
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid IsTest value',
-                },
+                { error: 'Invalid IsTest value' },
                 { status: 400 },
             );
         }
 
-        if (
-            !VALID_STATUSES.has(status)
-        ) {
+        if (!VALID_STATUSES.has(status)) {
             return NextResponse.json(
-                {
-                    error:
-                        'Missing or invalid Status',
-                },
+                { error: 'Missing or invalid Status' },
                 { status: 400 },
             );
         }
@@ -444,31 +328,14 @@ export async function POST(
          */
 
         const optionalFields = [
-            {
-                name: 'Optional1',
-                value: optional1,
-            },
-            {
-                name: 'Optional2',
-                value: optional2,
-            },
-            {
-                name: 'Optional3',
-                value: optional3,
-            },
-            {
-                name: 'Optional4',
-                value: optional4,
-            },
-            {
-                name: 'Optional5',
-                value: optional5,
-            },
+            { name: 'Optional1', value: optional1 },
+            { name: 'Optional2', value: optional2 },
+            { name: 'Optional3', value: optional3 },
+            { name: 'Optional4', value: optional4 },
+            { name: 'Optional5', value: optional5 },
         ];
 
-        for (
-            const field of optionalFields
-        ) {
+        for (const field of optionalFields) {
             if (
                 field.value.length >
                 MAX_OPTIONAL_FIELD_LENGTH
@@ -478,9 +345,7 @@ export async function POST(
                         error:
                             `${field.name} exceeds maximum length of 50 characters`,
                     },
-                    {
-                        status: 400,
-                    },
+                    { status: 400 },
                 );
             }
         }
@@ -498,17 +363,14 @@ export async function POST(
             );
         }
 
-        /*
-         * -------------------------------------------------------
-         * Hash is required.
-         * -------------------------------------------------------
-         */
-
-        if (!suppliedHash) {
+        if (
+            subStatus.length >
+            MAX_SUB_STATUS_LENGTH
+        ) {
             return NextResponse.json(
                 {
                     error:
-                        'Missing Hash',
+                        'SubStatus exceeds maximum length of 100 characters',
                 },
                 { status: 400 },
             );
@@ -516,15 +378,19 @@ export async function POST(
 
         /*
          * -------------------------------------------------------
-         * Verify Ozow hash BEFORE processing notification.
+         * Hash verification
          * -------------------------------------------------------
          */
 
-        const hashValid =
-            verifyOzowHash(
-                params,
-                OZOW_PRIVATE_KEY,
+        if (!suppliedHash) {
+            return NextResponse.json(
+                { error: 'Missing Hash' },
+                { status: 400 },
             );
+        }
+
+        const hashValid =
+            verifyOzowHash(params, OZOW_PRIVATE_KEY);
 
         if (!hashValid) {
             console.error(
@@ -536,10 +402,7 @@ export async function POST(
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid notification hash',
-                },
+                { error: 'Invalid notification hash' },
                 { status: 400 },
             );
         }
@@ -558,37 +421,32 @@ export async function POST(
             console.error(
                 'Ozow IsTest mismatch:',
                 {
-                    expected:
-                        OZOW_IS_TEST,
-                    received:
-                        isTest,
+                    expected: OZOW_IS_TEST,
+                    received: isTest,
                 },
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid test mode',
-                },
+                { error: 'Invalid test mode' },
                 { status: 400 },
             );
         }
 
         /*
          * -------------------------------------------------------
-         * Extract tenant code from the transaction reference.
+         * Extract the six-digit tenant code.
          *
          * Example:
-         * GLV-001-1723456789-abcdef12
+         * GLV-000001-1723456789-abcdef12
          *
          * Tenant code:
-         * GLV-001
+         * GLV-000001
          * -------------------------------------------------------
          */
 
         const tenantCodeMatch =
             transactionReference.match(
-                /^([A-Z]{3}-\d{3})-/,
+                /^([A-Z]{3}-\d{6})-/,
             );
 
         if (!tenantCodeMatch) {
@@ -616,10 +474,7 @@ export async function POST(
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Tenant service is not configured',
-                },
+                { error: 'Tenant service is not configured' },
                 { status: 503 },
             );
         }
@@ -661,10 +516,7 @@ export async function POST(
                 );
 
                 return NextResponse.json(
-                    {
-                        error:
-                            'Unable to resolve notification tenant',
-                    },
+                    { error: 'Unable to resolve notification tenant' },
                     { status: 502 },
                 );
             }
@@ -677,62 +529,18 @@ export async function POST(
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Tenant service unavailable',
-                },
+                { error: 'Tenant service unavailable' },
                 { status: 503 },
             );
         }
 
         /*
          * -------------------------------------------------------
-         * Only a verified Complete notification may trigger
-         * payment completion.
-         *
-         * Other valid statuses must not mark the order as paid.
+         * Validate amount before publishing any event.
          * -------------------------------------------------------
          */
 
-        if (status !== 'Complete') {
-            console.log(
-                'Ozow notification validated; no completion event required',
-                {
-                    tenantCode,
-                    transactionReference,
-                    status,
-                },
-            );
-
-            return new NextResponse(
-                null,
-                { status: 200 },
-            );
-        }
-
-        /*
-         * -------------------------------------------------------
-         * Publish the payment.completed domain event.
-         * -------------------------------------------------------
-         */
-
-        if (!EVENTS_SERVICE_URL) {
-            console.error(
-                'PULSEHIVE_EVENTS_SERVICE_URL is not configured',
-            );
-
-            return NextResponse.json(
-                {
-                    error:
-                        'Events service is not configured',
-                },
-                { status: 503 },
-            );
-        }
-
-        const numericAmount =
-            Number(amount);
-
+        const numericAmount = Number(amount);
         const amountCents =
             Math.round(numericAmount * 100);
 
@@ -742,13 +550,58 @@ export async function POST(
             amountCents <= 0
         ) {
             return NextResponse.json(
-                {
-                    error:
-                        'Invalid payment amount',
-                },
+                { error: 'Invalid payment amount' },
                 { status: 400 },
             );
         }
+
+        /*
+         * -------------------------------------------------------
+         * Publish a verified payment event.
+         *
+         * Complete:
+         *   payment.completed
+         *
+         * All other documented statuses:
+         *   payment.status_updated
+         *
+         * The consumer must apply the correct state transition.
+         * A non-Complete status must never mark an order as paid.
+         * -------------------------------------------------------
+         */
+
+        if (!EVENTS_SERVICE_URL) {
+            console.error(
+                'PULSEHIVE_EVENTS_SERVICE_URL is not configured',
+            );
+
+            return NextResponse.json(
+                { error: 'Events service is not configured' },
+                { status: 503 },
+            );
+        }
+
+        const eventType =
+            status === 'Complete'
+                ? 'payment.completed'
+                : 'payment.status_updated';
+
+        const eventData = {
+            tenantId,
+            transactionReference,
+            providerReference: transactionId,
+            provider: 'OZOW',
+            amount: numericAmount,
+            currency: currencyCode,
+            ozowStatus: status,
+            subStatus: subStatus || undefined,
+            statusMessage: statusMessage || undefined,
+            optional1: optional1 || undefined,
+            optional2: optional2 || undefined,
+            optional3: optional3 || undefined,
+            optional4: optional4 || undefined,
+            optional5: optional5 || undefined,
+        };
 
         try {
             const eventResponse = await fetch(
@@ -760,16 +613,9 @@ export async function POST(
                         Accept: 'application/json',
                     },
                     body: JSON.stringify({
-                        eventType: 'payment.completed',
+                        eventType,
                         version: 1,
-                        data: {
-                            tenantId,
-                            transactionReference,
-                            providerReference: transactionId,
-                            provider: 'OZOW',
-                            amount: numericAmount,
-                            currency: currencyCode,
-                        },
+                        data: eventData,
                     }),
                     cache: 'no-store',
                 },
@@ -782,20 +628,19 @@ export async function POST(
                         .catch(() => '');
 
                 console.error(
-                    'Failed to publish Ozow payment completion event',
+                    'Failed to publish Ozow notification event',
                     {
                         tenantCode,
                         transactionReference,
+                        status,
+                        eventType,
                         httpStatus: eventResponse.status,
                         response: responseText.slice(0, 500),
                     },
                 );
 
                 return NextResponse.json(
-                    {
-                        error:
-                            'Unable to publish payment completion event',
-                    },
+                    { error: 'Unable to publish payment notification event' },
                     { status: 503 },
                 );
             }
@@ -806,29 +651,26 @@ export async function POST(
             );
 
             return NextResponse.json(
-                {
-                    error:
-                        'Events service unavailable',
-                },
+                { error: 'Events service unavailable' },
                 { status: 503 },
             );
         }
 
         console.log(
-            'Ozow payment completion event accepted',
+            'Ozow notification event accepted',
             {
                 tenantCode,
                 transactionReference,
                 transactionId,
+                status,
+                subStatus: subStatus || undefined,
+                eventType,
                 amount,
                 currencyCode,
             },
         );
 
-        return new NextResponse(
-            null,
-            { status: 200 },
-        );
+        return new NextResponse(null, { status: 200 });
     } catch (error) {
         console.error(
             'Ozow notification error:',
@@ -836,10 +678,7 @@ export async function POST(
         );
 
         return NextResponse.json(
-            {
-                error:
-                    'Failed to process notification',
-            },
+            { error: 'Failed to process notification' },
             { status: 500 },
         );
     }

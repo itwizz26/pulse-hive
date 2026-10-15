@@ -2,7 +2,7 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
-const TENANT_CODE = 'GLV-001';
+const TENANT_CODE = 'GLV-000001';
 
 const products = 
 [
