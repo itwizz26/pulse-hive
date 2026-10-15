@@ -1,6 +1,9 @@
 import {
     Body,
     Controller,
+    ForbiddenException,
+    Get,
+    Headers,
     Param,
     Patch,
     Post,
@@ -12,6 +15,8 @@ import {
     CreatePendingOrderDto,
     SavePaymentRequestDto,
 } from './dto/create-pending-order.dto';
+
+import { OrderQueryService } from './services/order-query.service';
 import { OrdersService } from './orders.service';
 
 @Controller('orders')
@@ -19,7 +24,21 @@ import { OrdersService } from './orders.service';
 export class OrdersController {
     constructor(
         private readonly ordersService: OrdersService,
+        private readonly orderQueryService: OrderQueryService,
     ) {}
+
+    @Get()
+    async findOrders(
+        @Headers('x-tenant-id') tenantId?: string,
+    ) {
+        if (!tenantId?.trim()) {
+            throw new ForbiddenException(
+                'Authenticated tenant context is required',
+            );
+        }
+
+        return this.orderQueryService.findOrders(tenantId);
+    }
 
     @Post()
     async createPendingOrder(
