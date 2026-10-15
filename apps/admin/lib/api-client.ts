@@ -1,13 +1,13 @@
 import { UserProfile } from '@/types/user';
 
-const API_BASE =
-    process.env.NEXT_PUBLIC_API_URL ||
-    'http://localhost:4000/api/v1';
+const API_BASE = (
+    process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'
+).replace(/\/+$/, '');
 
 export async function apiCall<T>(
     endpoint: string,
     options: RequestInit = {},
-    isPublic: boolean = false
+    isPublic: boolean = false,
 ): Promise<T> {
     const token =
         !isPublic && typeof window !== 'undefined'
@@ -20,7 +20,11 @@ export async function apiCall<T>(
         ...options.headers,
     };
 
-    const res = await fetch(`${API_BASE}${endpoint}`, {
+    const normalizedEndpoint = endpoint.startsWith('/')
+        ? endpoint
+        : `/${endpoint}`;
+
+    const res = await fetch(`${API_BASE}${normalizedEndpoint}`, {
         ...options,
         headers,
     });
@@ -37,7 +41,7 @@ export async function apiCall<T>(
         const errorData = await res.json().catch(() => ({}));
 
         throw new Error(
-            errorData.message || `API error: ${res.statusText}`
+            errorData.message || `API error: ${res.statusText}`,
         );
     }
 

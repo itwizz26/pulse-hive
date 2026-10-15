@@ -3,7 +3,7 @@
  * Sends credentials with requests so cookies/sessions are correctly handled.
  */
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000/api/v1';
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000';
 
 interface RequestOptions extends RequestInit {
     params?: Record<string, string | number | boolean>;
