@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import crypto from 'node:crypto';
+import { randomUUID } from 'node:crypto';
 
 const OZOW_API_URL = 'https://api.ozow.com/PostPaymentRequest';
 const OZOW_OPTIONAL_FIELD_MAX_LENGTH = 50;
@@ -551,6 +552,7 @@ export async function POST(request: NextRequest) {
         let pendingOrder: unknown;
 
         try {
+            const idempotencyKey = randomUUID();
             const orderResponse = await fetch(
                 `${ordersServiceUrl}/orders`,
                 {
@@ -562,6 +564,7 @@ export async function POST(request: NextRequest) {
                             process.env.INTERNAL_SERVICE_KEY ?? '',
                     },
                     body: JSON.stringify({
+                        idempotencyKey,
                         tenantId: tenant.id,
                         customerName: customerName.trim(),
                         phoneNumber: phoneNumber.trim(),
