@@ -13,10 +13,7 @@ async function bootstrap() {
         transform: true,
     }));
 
-    app.setGlobalPrefix('api/v1');
-
     await app.listen(port, '0.0.0.0');
-
     logger.log(`Auth service running on: ${await app.getUrl()}`);
 }
 bootstrap();

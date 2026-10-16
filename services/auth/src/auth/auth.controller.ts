@@ -8,7 +8,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 /**
  * 💡 Base prefix. Together with the gateway,
- * this targets: /api/v1/auth/*
+ * this targets: /auth/*
  */
 @Controller('auth')
 export class AuthController {
@@ -16,7 +16,7 @@ export class AuthController {
 
     /**
      * Health Check Endpoint
-     * Route: GET /api/v1/auth/health
+     * Route: GET /auth/health
      */
     @Get('health')
     healthCheck() {
@@ -29,7 +29,7 @@ export class AuthController {
 
     /**
      * Public Registration Endpoint
-     * Route: POST /api/v1/auth/signup
+     * Route: POST /auth/signup
      */
     @Post('signup')
     async register(@Body() registerDto: RegisterDto) {
@@ -38,7 +38,7 @@ export class AuthController {
 
     /**
      * Public Login Endpoint
-     * Route: POST /api/v1/auth/signin
+     * Route: POST /auth/signin
      */
     @HttpCode(HttpStatus.OK)
     @Post('signin')
@@ -48,7 +48,7 @@ export class AuthController {
 
     /**
      * Protected Logout Endpoint
-     * Route: POST /api/v1/auth/signout
+     * Route: POST /auth/signout
      */
     @Post('signout')
     @UseGuards(AuthGuard('gateway'))
@@ -61,7 +61,7 @@ export class AuthController {
 
     /**
      * Protected Profile Endpoint
-     * Route: GET /api/v1/auth/profile
+     * Route: GET /auth/profile
      * 💡 UseGuards(AuthGuard('jwt')) automatically intercepts the request, runs your
      * JwtStrategy validation step, and populates the incoming request with a `user` footprint.
      */
@@ -72,7 +72,10 @@ export class AuthController {
         return await this.authService.getProfile(req.user.id);
     }
 
-    // auth.controller.ts
+    /**
+     * Protected Profile Update Endpoint
+     * Route: PATCH /auth/profile
+     */
     @Patch('profile')
     @UseGuards(AuthGuard('jwt'))
     async updateProfile(
@@ -84,10 +87,27 @@ export class AuthController {
     }
 
     /**
-     * Protected Company Onboarding Endpoint
-     * Route: GET /api/v1/auth/onboard
+     * Protected Endpoint to retrieve user memberships.
+     * Route: GET /auth/memberships
      */
-    // auth.controller.ts
+    @Get('memberships')
+    @UseGuards(AuthGuard('jwt'))
+    async getMemberships(@Req() req: Request) {
+        const user = (req as any).user as { id?: string };
+
+        if (!user?.id) {
+            throw new UnauthorizedException(
+                'Authenticated user identity is required',
+            );
+        }
+
+        return this.authService.getMemberships(user.id);
+    }
+
+    /**
+     * Protected Company Onboarding Endpoint
+     * Route: GET /auth/onboard
+     */
     @Post('onboard')
     @UseGuards(AuthGuard('gateway'))
     async onboard(@Req() req: Request, @Body() body: any) {

@@ -1,4 +1,3 @@
-
 import {
     Injectable,
     NotFoundException,
@@ -134,7 +133,7 @@ export class AuthService {
         );
 
         if (existingUser) {
-            throw new BadRequestException(
+            throw new ConflictException(
                 'A user account with this email address already exists.',
             );
         }
@@ -146,7 +145,6 @@ export class AuthService {
             body: JSON.stringify({
                 email,
                 password: hashedPassword,
-                role: 'user',
                 displayName:
                     dto.displayName?.trim() || email.split('@')[0],
             }),
@@ -170,6 +168,19 @@ export class AuthService {
                 body: JSON.stringify({
                     displayName: data.displayName,
                 }),
+            },
+        );
+    }
+
+    async getMemberships(userId: string) {
+        if (!userId?.trim()) {
+            throw new BadRequestException('User identity is required');
+        }
+
+        return this.dbRequest<any[]>(
+            `/internal/access/users/${encodeURIComponent(userId)}/memberships`,
+            {
+                method: 'GET',
             },
         );
     }
