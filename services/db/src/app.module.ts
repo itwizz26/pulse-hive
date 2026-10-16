@@ -6,7 +6,8 @@ import { DatabaseModule } from './database/database.module';
 import { HealthModule } from './health/health.module';
 import { ProductsModule } from './products/products.module';
 import { TenantsModule } from './tenants/tenants.module';
-import { UsersModule } from './users/users.module';
+import { IdentityModule } from './identity/identity.module';
+import { AccessModule } from './access/access.module';
 
 @Module({
     imports: [
@@ -20,6 +21,8 @@ import { UsersModule } from './users/users.module';
                 PORT: Joi.number().default(4003).required(),
 
                 DATABASE_URL: Joi.string().uri().required(),
+
+                INTERNAL_SERVICE_KEY: Joi.string().trim().min(1).required(),
             }),
         }),
 
@@ -27,7 +30,9 @@ import { UsersModule } from './users/users.module';
         HealthModule,
         TenantsModule,
         ProductsModule,
-        UsersModule,
+        IdentityModule,
+        AccessModule,
     ],
 })
+
 export class AppModule {}
