@@ -1,3 +1,4 @@
+
 import { Injectable, RawBodyRequest } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest, FastifyReply } from 'fastify';
@@ -15,48 +16,55 @@ export class ProxyService {
         this.routeMapping = {
             auth: this.configService.get<string>('AUTH_SERVICE_URL')!,
             orders: this.configService.get<string>('ORDER_SERVICE_URL')!,
+            tenants: this.configService.get<string>('DB_SERVICE_URL')!,
+            users: this.configService.get<string>('DB_SERVICE_URL')!,
+            products: this.configService.get<string>('DB_SERVICE_URL')!,
         };
     }
 
     async forward(req: FastifyRequest, reply: FastifyReply) {
-        const urlParts = req.url.split('?')[0].split('/').filter(Boolean);
-        const targetKey = urlParts[0];
+        const path = req.url.split('?')[0];
+        const segments = path.split('/').filter(Boolean);
+        const targetKey = segments[0];
         const baseTarget = this.routeMapping[targetKey];
 
         if (!baseTarget) {
             return reply.code(404).send({
                 statusCode: 404,
                 error: 'Not Found',
-                message: `No route for: '${targetKey}'`,
+                message: `No route for: '${targetKey ?? ''}'`,
             });
         }
 
-        const downstreamUrl = `${baseTarget}${req.url}`;
+        const downstreamUrl = `${baseTarget.replace(/\/+$/, '')}${req.url}`;
         const bodyBuffer = (req as RawBodyRequest<FastifyRequest>).rawBody;
 
         try {
             const forwardHeaders: Record<string, string> = {};
 
-            // Never trust client-supplied internal credentials or identity.
-            Object.entries(req.headers).forEach(([key, value]) => {
+            // Never trust identity or internal credentials supplied by clients.
+            const blockedHeaders = new Set([
+                'content-length',
+                'host',
+                'transfer-encoding',
+                'x-internal-service-key',
+                'x-user-id',
+                'x-user-role',
+                'x-tenant-id',
+                'x-authenticated-user-id',
+            ]);
+
+            for (const [key, value] of Object.entries(req.headers)) {
                 const normalizedKey = key.toLowerCase();
 
                 if (
-                    value &&
                     typeof value === 'string' &&
-                    ![
-                        'content-length',
-                        'host',
-                        'transfer-encoding',
-                        'x-internal-service-key',
-                        'x-user-id',
-                        'x-user-role',
-                        'x-tenant-id',
-                    ].includes(normalizedKey)
+                    value.length > 0 &&
+                    !blockedHeaders.has(normalizedKey)
                 ) {
                     forwardHeaders[normalizedKey] = value;
                 }
-            });
+            }
 
             const internalServiceKey =
                 this.configService.get<string>('INTERNAL_SERVICE_KEY');
@@ -69,22 +77,27 @@ export class ProxyService {
                 });
             }
 
-            // Authenticate the gateway to the downstream service.
             forwardHeaders['x-internal-service-key'] = internalServiceKey;
 
-            const authHeader = req.headers['authorization'];
+            const authHeader = req.headers.authorization;
             let userContext: IRequestUserContext | undefined;
 
-            if (typeof authHeader === 'string' && authHeader.startsWith('Bearer ')) {
+            if (
+                typeof authHeader === 'string' &&
+                authHeader.startsWith('Bearer ')
+            ) {
                 try {
                     const token = authHeader.slice('Bearer '.length);
+                    const verified = jwt.verify(token, this.jwtSecret);
 
-                    userContext = jwt.verify(
-                        token,
-                        this.jwtSecret,
-                    ) as IRequestUserContext;
-
-                    if (!userContext.id || !userContext.role) {
+                    if (
+                        typeof verified !== 'object' ||
+                        verified === null ||
+                        typeof verified.id !== 'string' ||
+                        !verified.id.trim() ||
+                        typeof verified.role !== 'string' ||
+                        !verified.role.trim()
+                    ) {
                         return reply.code(401).send({
                             statusCode: 401,
                             error: 'Unauthorized',
@@ -92,12 +105,14 @@ export class ProxyService {
                         });
                     }
 
+                    userContext = {
+                        id: verified.id,
+                        role: verified.role,
+                    };
+
                     forwardHeaders['x-user-id'] = userContext.id;
                     forwardHeaders['x-user-role'] = userContext.role;
-
-                    if (userContext.tenantId) {
-                        forwardHeaders['x-tenant-id'] = userContext.tenantId;
-                    }
+                    forwardHeaders['x-authenticated-user-id'] = userContext.id;
                 } catch {
                     return reply.code(401).send({
                         statusCode: 401,
@@ -105,26 +120,43 @@ export class ProxyService {
                         message: 'Invalid token',
                     });
                 }
-            } else if (targetKey !== 'auth') {
+            }
+
+            const isPublicAuthEndpoint =
+                targetKey === 'auth' &&
+                req.method === 'POST' &&
+                ['/auth/signup', '/auth/signin'].includes(path);
+
+            if (!userContext && !isPublicAuthEndpoint) {
                 return reply.code(401).send({
                     statusCode: 401,
                     error: 'Unauthorized',
-                    message: 'Missing token',
+                    message: 'A valid bearer token is required',
                 });
             }
 
-            // Order listing requires an authenticated tenant context.
-            // Other order routes retain their existing authorization behavior.
+            if (
+                targetKey === 'tenants' &&
+                path === '/tenants/onboard' &&
+                !userContext
+            ) {
+                return reply.code(401).send({
+                    statusCode: 401,
+                    error: 'Unauthorized',
+                    message: 'Sign in before onboarding a tenant',
+                });
+            }
+
             if (
                 targetKey === 'orders' &&
                 req.method === 'GET' &&
-                req.url.split('?')[0] === '/orders' &&
-                !userContext?.tenantId
+                path === '/orders' &&
+                !userContext
             ) {
-                return reply.code(403).send({
-                    statusCode: 403,
-                    error: 'Forbidden',
-                    message: 'Your account is not associated with a tenant',
+                return reply.code(401).send({
+                    statusCode: 401,
+                    error: 'Unauthorized',
+                    message: 'A valid bearer token is required',
                 });
             }
 
@@ -149,7 +181,17 @@ export class ProxyService {
             } as any);
 
             response.headers.forEach((value, key) => {
-                if (key.toLowerCase() !== 'transfer-encoding') {
+                const normalizedKey = key.toLowerCase();
+
+                if (
+                    ![
+                        'transfer-encoding',
+                        'connection',
+                        'keep-alive',
+                        'content-length',
+                        'set-cookie',
+                    ].includes(normalizedKey)
+                ) {
                     reply.header(key, value);
                 }
             });
@@ -161,9 +203,9 @@ export class ProxyService {
             } catch {
                 return reply.code(response.status).send(responseData);
             }
-        } catch (error: any) {
+        } catch (error) {
             console.error(
-                `[Gateway Routing Crash] to ${downstreamUrl}:`,
+                `[Gateway Routing Error] ${req.method} ${downstreamUrl}`,
                 error,
             );
 
