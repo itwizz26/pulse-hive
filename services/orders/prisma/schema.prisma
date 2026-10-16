@@ -1,4 +1,3 @@
-
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native"]
@@ -10,48 +9,75 @@ datasource db {
 }
 
 model Tenant {
-  id          String       @id @default(cuid())
+  id          String             @id @default(cuid())
   name        String
-  createdAt   DateTime     @default(now())
-  slug        String       @unique
-  updatedAt   DateTime     @updatedAt
-  tenantCode  String       @unique
+  createdAt   DateTime           @default(now())
+  slug        String             @unique
+  updatedAt   DateTime           @updatedAt
+  tenantCode  String             @unique
   customers   Customer[]
   orders      Order[]
   payments    Payment[]
   products    Product[]
   memberships UserTenant[]
+  invitations TenantInvitation[]
 
   @@index([slug])
 }
 
 model User {
-  id          String       @id @default(uuid())
-  email       String       @unique
-  password    String
-  role        String       @default("user")
-  displayName String?
-  bio         String?
-  createdAt   DateTime     @default(now())
-  updatedAt   DateTime     @updatedAt
-  memberships UserTenant[]
+  id                    String             @id @default(uuid())
+  email                 String             @unique
+  password              String
+  role                  String             @default("user")
+  emailVerifiedAt       DateTime?
+  displayName           String?
+  bio                   String?
+  createdAt             DateTime           @default(now())
+  updatedAt             DateTime           @updatedAt
+  memberships           UserTenant[]
+  sentTenantInvitations TenantInvitation[] @relation("TenantInvitationInviter")
 
   @@index([createdAt])
 }
 
 model UserTenant {
-  id        String   @id @default(cuid())
+  id        String           @id @default(cuid())
   userId    String
   tenantId  String
-  role      String   @default("member")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  tenant    Tenant   @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  role      TenantRole       @default(MEMBER)
+  status    MembershipStatus @default(ACTIVE)
+  createdAt DateTime         @default(now())
+  updatedAt DateTime         @updatedAt
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tenant Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
   @@unique([userId, tenantId])
   @@index([tenantId])
   @@index([userId])
+  @@index([tenantId, status])
+}
+
+model TenantInvitation {
+  id              String     @id @default(cuid())
+  tenantId        String
+  email           String
+  role            TenantRole @default(MEMBER)
+  tokenHash       String     @unique
+  expiresAt       DateTime
+  acceptedAt      DateTime?
+  revokedAt       DateTime?
+  invitedByUserId String
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  tenant    Tenant @relation(fields: [tenantId], references: [id], onDelete: Cascade)
+  invitedBy User   @relation("TenantInvitationInviter", fields: [invitedByUserId], references: [id], onDelete: Restrict)
+
+  @@index([tenantId, email])
+  @@index([expiresAt])
+  @@index([invitedByUserId])
 }
 
 model Customer {
@@ -113,12 +139,12 @@ model Order {
   payments        Payment[]
 
   @@unique([tenantId, reference])
+  @@unique([tenantId, idempotencyKey])
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([tenantId, paymentStatus])
   @@index([tenantId, createdAt])
   @@index([customerId])
-  @@unique([tenantId, idempotencyKey])
 }
 
 model OrderItem {
@@ -165,11 +191,11 @@ model Payment {
   order                 Order?          @relation(fields: [orderId], references: [id])
   tenant                Tenant          @relation(fields: [tenantId], references: [id], onDelete: Cascade)
 
+  @@unique([tenantId, provider, transactionReference])
   @@index([tenantId])
   @@index([tenantId, status])
   @@index([tenantId, createdAt])
   @@index([tenantId, orderId])
-  @@unique([tenantId, provider, transactionReference])
   @@index([providerReference])
 }
 
@@ -197,4 +223,17 @@ enum PaymentProvider {
   PAYFAST
   PAYSTACK
   MANUAL
+}
+
+enum MembershipStatus {
+  ACTIVE
+  SUSPENDED
+  REMOVED
+}
+
+enum TenantRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
 }
