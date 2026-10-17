@@ -4,9 +4,13 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { PulseHiveLogo } from '@/components/PulseHiveLogo';
 import { RegistrationData } from '@/types/onboarding';
-import { apiCall } from '@/lib/api-client';
+import {
+    apiCall,
+    setSelectedTenantId,
+    clearSelectedTenantId,
+} from '@/lib/api-client';
+
 import { useAuthGuard } from '@/lib/hooks/useAuthGuard';
-import { AuthResponse } from '@/types/auth';
 
 type OnboardingStep = 1 | 2 | 3;
 
@@ -46,31 +50,86 @@ export default function OnboardingPage() {
         }
     };
 
-    const handleSignOut = async () => {
-        try {
-            await apiCall<AuthResponse>('/auth/signout', { 
-                method: 'POST' 
-            }, true);
-        } finally {
-            localStorage.clear();
-            router.push('/');
-        }
+    const handleSignOut = () => {
+        localStorage.removeItem('token');
+        localStorage.removeItem('userEmail');
+        clearSelectedTenantId();
+
+        router.replace('/');
+        router.refresh();
     };
 
     const handleSubmit = async () => {
+        const name = formData.businessName.trim();
+
+        if (!name) {
+            return;
+        }
+
         setIsSubmitting(true);
+
         try {
-            // Send the full form data. Ensure 'isPublic' is false!
-            await apiCall<AuthResponse>('/auth/onboard', {
+            await apiCall<{
+                tenant: {
+                    id: string;
+                    name: string;
+                    slug: string;
+                    tenantCode: string;
+                };
+                membership: {
+                    id: string;
+                    role: string;
+                    status: string;
+                };
+            }>('/tenants/onboard', {
                 method: 'POST',
-                body: JSON.stringify(formData),
-            }, false); 
+                body: JSON.stringify({ name }),
+            });
+
+            const memberships = await apiCall<
+                Array<{
+                    id: string;
+                    role: string;
+                    status: string;
+                    tenant: {
+                        id: string;
+                        name: string;
+                        slug: string;
+                        tenantCode: string;
+                    };
+                }>
+            >('/auth/memberships');
+
+            const activeMemberships = memberships.filter(
+                (membership) => membership.status === 'ACTIVE',
+            );
+
+            if (activeMemberships.length === 0) {
+                clearSelectedTenantId();
+
+                throw new Error(
+                    'Workspace created, but no active membership was found. Please sign in again or contact support.',
+                );
+            }
+
+            if (activeMemberships.length === 1) {
+                setSelectedTenantId(activeMemberships[0].tenant.id);
+                router.replace('/dashboard');
+                return;
+            }
+
+            clearSelectedTenantId();
+            router.replace('/workspaces');
             
-            // This will only execute if the call above succeeds
-            router.push('/dashboard');
-        } catch (error) {
-            console.error('Submission error:', error);
-            // Do NOT redirect here, otherwise errors send them to login
+        } catch (error: unknown) {
+            console.error('Tenant onboarding failed:', error);
+
+            const errorMessage =
+                error instanceof Error
+                    ? error.message
+                    : 'Unable to create your workspace. Please try again.';
+
+            window.alert(errorMessage);
         } finally {
             setIsSubmitting(false);
         }
