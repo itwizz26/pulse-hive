@@ -22,7 +22,7 @@ async function bootstrap() {
 		origin: allowedOrigins === '*' ? true : allowedOrigins.split(','),
 		methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
 		credentials: true,
-		allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With, X-Correlation-ID',
+		allowedHeaders: 'Content-Type, Accept, Authorization, X-Requested-With, X-Correlation-ID, X-Tenant-ID',
 	});
 
 	// 💡 CRITICAL: Activate global distributed tracing across the ingress perimeter

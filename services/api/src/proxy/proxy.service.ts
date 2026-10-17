@@ -1,4 +1,3 @@
-
 import { Injectable, RawBodyRequest } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { FastifyRequest, FastifyReply } from 'fastify';
@@ -42,7 +41,7 @@ export class ProxyService {
         try {
             const forwardHeaders: Record<string, string> = {};
 
-            // Never trust identity or internal credentials supplied by clients.
+            // Client-supplied identity and internal credentials are never trusted.
             const blockedHeaders = new Set([
                 'content-length',
                 'host',
@@ -125,7 +124,12 @@ export class ProxyService {
             const isPublicAuthEndpoint =
                 targetKey === 'auth' &&
                 req.method === 'POST' &&
-                ['/auth/signup', '/auth/signin'].includes(path);
+                [
+                    '/auth/signup',
+                    '/auth/signin',
+                    '/auth/email/verify',
+                    '/auth/email/resend',
+                ].includes(path);
 
             if (!userContext && !isPublicAuthEndpoint) {
                 return reply.code(401).send({
@@ -147,17 +151,107 @@ export class ProxyService {
                 });
             }
 
+            // Establish trusted tenant context for the Orders listing.
             if (
                 targetKey === 'orders' &&
                 req.method === 'GET' &&
-                path === '/orders' &&
-                !userContext
+                path === '/orders'
             ) {
-                return reply.code(401).send({
-                    statusCode: 401,
-                    error: 'Unauthorized',
-                    message: 'A valid bearer token is required',
-                });
+                if (!userContext) {
+                    return reply.code(401).send({
+                        statusCode: 401,
+                        error: 'Unauthorized',
+                        message: 'A valid bearer token is required',
+                    });
+                }
+
+                const requestedTenantHeader = req.headers['x-tenant-id'];
+                const tenantId =
+                    typeof requestedTenantHeader === 'string'
+                        ? requestedTenantHeader.trim()
+                        : '';
+
+                if (!tenantId) {
+                    return reply.code(400).send({
+                        statusCode: 400,
+                        error: 'Bad Request',
+                        message: 'Select a tenant before requesting orders',
+                    });
+                }
+
+                const dbServiceUrl =
+                    this.configService.get<string>('DB_SERVICE_URL');
+
+                if (!dbServiceUrl) {
+                    return reply.code(503).send({
+                        statusCode: 503,
+                        error: 'Service Unavailable',
+                        message: 'Tenant authorization is not configured',
+                    });
+                }
+
+                let authorizationResponse: Response;
+
+                try {
+                    authorizationResponse = await fetch(
+                        `${dbServiceUrl.replace(/\/+$/, '')}/internal/access/authorize`,
+                        {
+                            method: 'POST',
+                            headers: {
+                                'content-type': 'application/json',
+                                'x-internal-service-key': internalServiceKey,
+                                'x-authenticated-user-id': userContext.id,
+                            },
+                            body: JSON.stringify({
+                                tenantId,
+                                permission: 'orders.read',
+                            }),
+                        },
+                    );
+                } catch (error) {
+                    console.error(
+                        '[Tenant Authorization Error] Unable to reach DB service',
+                        error,
+                    );
+
+                    return reply.code(503).send({
+                        statusCode: 503,
+                        error: 'Service Unavailable',
+                        message: 'Tenant authorization is temporarily unavailable',
+                    });
+                }
+
+                if (!authorizationResponse.ok) {
+                    if (authorizationResponse.status === 403) {
+                        return reply.code(403).send({
+                            statusCode: 403,
+                            error: 'Forbidden',
+                            message: 'You do not have permission to view orders for this tenant',
+                        });
+                    }
+
+                    if (authorizationResponse.status === 400) {
+                        return reply.code(400).send({
+                            statusCode: 400,
+                            error: 'Bad Request',
+                            message: 'The tenant authorization request was rejected',
+                        });
+                    }
+
+                    console.error(
+                        '[Tenant Authorization Error] DB service returned status',
+                        authorizationResponse.status,
+                    );
+
+                    return reply.code(503).send({
+                        statusCode: 503,
+                        error: 'Service Unavailable',
+                        message: 'Tenant authorization could not be completed',
+                    });
+                }
+
+                // Only inject the tenant header after authorization succeeds.
+                forwardHeaders['x-tenant-id'] = tenantId;
             }
 
             if (['POST', 'PUT', 'PATCH'].includes(req.method) && bodyBuffer) {
