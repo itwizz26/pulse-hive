@@ -48,8 +48,11 @@ body {
     min-height: 100%;
     width: 100%;
     overflow-x: hidden;
-    overflow-y: auto;
     background-color: #020617;
+}
+
+html {
+    scrollbar-gutter: auto;
 }
 
 /* Pointer cursor for interactive elements. */
@@ -65,4 +68,48 @@ a {
 /* Disabled buttons. */
 button:disabled {
     cursor: not-allowed;
+}
+
+/* Pointer cursor for interactive elements. */
+button,
+[role="button"],
+input[type="submit"],
+input[type="reset"],
+input[type="button"],
+a {
+    cursor: pointer;
+}
+
+/* Disabled buttons. */
+button:disabled {
+    cursor: not-allowed;
+}
+
+
+/* PulseHive — Global scrollbar styling */
+* {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255, 255, 255, 0.08) transparent;
+}
+
+::-webkit-scrollbar {
+    width: 5px;
+    height: 5px;
+}
+
+::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.16);
+}
+
+::-webkit-scrollbar-corner {
+    background: transparent;
 }

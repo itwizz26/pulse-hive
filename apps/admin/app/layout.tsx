@@ -2,7 +2,7 @@
 import './globals.css';
 import React from 'react';
 import { Inter } from 'next/font/google';
-import LayoutWrapper from './LayoutWrapper'; // Import the new wrapper
+import LayoutWrapper from './LayoutWrapper';
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {

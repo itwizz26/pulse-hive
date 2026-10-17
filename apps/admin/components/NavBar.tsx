@@ -4,14 +4,15 @@ import React, { useState, useEffect, useRef } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { PulseHiveLogo } from '@/components/PulseHiveLogo';
-import { apiCall } from '@/lib/api-client';
 import { useUser } from '@/lib/hooks/useUser';
+import { clearSelectedTenantId } from '@/lib/api-client';
 
 type IconName =
     | 'dashboard'
     | 'orders'
     | 'payments'
     | 'matcher'
+    | 'team'
     | 'profile'
     | 'billing'
     | 'notifications'
@@ -60,6 +61,15 @@ function MenuIcon({ name }: { name: IconName }) {
                 <svg {...common}>
                     <circle cx="10.5" cy="10.5" r="6.5" />
                     <path d="m16 16 4 4M7.5 10.5l2 2 4-4" />
+                </svg>
+            );
+        case 'team':
+            return (
+                <svg {...common}>
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                    <circle cx="10" cy="7" r="4" />
+                    <path d="M20 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
                 </svg>
             );
         case 'profile':
@@ -131,6 +141,12 @@ const workspaceLinks: {
         icon: 'matcher',
         description: 'Match payments against outstanding orders.',
     },
+    {
+        name: 'Team & Access',
+        path: '/team',
+        icon: 'team',
+        description: 'Manage workspace members and invitations.',
+    },
 ];
 
 const accountLinks: {
@@ -180,6 +196,8 @@ export default function Navbar() {
             '/billing': 'Billing & Subscription',
             '/notifications': 'Notifications',
             '/support': 'Support & Documentation',
+            '/auth/workspaces': 'Choose Workspace',
+            '/auth/onboarding': 'Workspace Onboarding',
         };
 
         document.title = `PulseHive // ${
@@ -187,13 +205,12 @@ export default function Navbar() {
         }`;
     }, [pathname]);
 
-    // Close the flyout after navigating to another route.
     useEffect(() => {
         setIsMenuOpen(false);
         setIsMenuPinned(false);
+        setIsSigningOut(false);
     }, [pathname]);
 
-    // Close on outside click or Escape.
     useEffect(() => {
         function handlePointerDown(event: PointerEvent) {
             if (
@@ -224,26 +241,26 @@ export default function Navbar() {
     if (isAuthPage) return null;
 
     const linkClass = (path: string) =>
-        `rounded-xl px-3 py-2 text-sm font-semibold transition-all ${
+        `rounded-xl border px-3 py-2 text-sm font-semibold transition-colors ${
             isActiveRoute(pathname, path)
-                ? 'bg-indigo-600 text-white'
-                : 'text-slate-400 hover:bg-white/5 hover:text-white'
+                ? 'border-white/10 bg-slate-800/80 text-white'
+                : 'border-transparent text-slate-400 hover:bg-white/5 hover:text-white'
         }`;
 
-    async function handleSignOut() {
+    function handleSignOut() {
         if (isSigningOut) return;
 
         setIsSigningOut(true);
+        setIsMenuOpen(false);
+        setIsMenuPinned(false);
 
-        try {
-            await apiCall('/auth/signout', { method: 'POST' });
-        } catch (error) {
-            console.error('Signout request failed:', error);
-        } finally {
-            localStorage.removeItem('token');
-            localStorage.removeItem('userEmail');
-            router.replace('/auth/login');
-        }
+        // Local JWT authentication: logout must not depend on an API request.
+        localStorage.removeItem('token');
+        localStorage.removeItem('userEmail');
+        clearSelectedTenantId();
+
+        router.replace('/auth/login');
+        router.refresh();
     }
 
     const flyoutLinkClass = (path: string) =>
@@ -290,9 +307,11 @@ export default function Navbar() {
             <div className="relative ml-auto shrink-0 md:ml-3">
                 {isLoading ? (
                     <div
-                        className="h-9 w-9 animate-pulse rounded-full bg-white/5"
+                        className="inline-flex h-9 w-22 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white"
                         aria-label="Checking session"
-                    />
+                    >
+                        Sign In
+                    </div>
                 ) : isLoggedIn ? (
                     <div
                         ref={accountMenuRef}
@@ -398,7 +417,7 @@ export default function Navbar() {
                 ) : (
                     <Link
                         href="/auth/login"
-                        className="rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white transition-all hover:bg-indigo-500"
+                        className="inline-flex h-9 w-22 items-center justify-center rounded-xl bg-indigo-600 px-5 py-2 text-sm font-bold text-white transition-colors hover:bg-indigo-500"
                     >
                         Sign In
                     </Link>
