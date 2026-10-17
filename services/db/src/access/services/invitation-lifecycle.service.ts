@@ -47,15 +47,22 @@ export class InvitationLifecycleService {
         }
 
         const email = input.email.trim().toLowerCase();
+
         if (!email || !email.includes('@')) {
-            throw new ConflictException('A valid invitation email is required');
+            throw new ConflictException(
+                'A valid invitation email is required',
+            );
         }
 
         const rawToken = randomBytes(32).toString('base64url');
         const tokenHash = this.hashToken(rawToken);
-        const expiresInMs = input.expiresInMs ?? DEFAULT_INVITATION_TTL_MS;
+        const expiresInMs =
+            input.expiresInMs ?? DEFAULT_INVITATION_TTL_MS;
 
-        if (expiresInMs <= 0 || expiresInMs > 30 * 24 * 60 * 60 * 1000) {
+        if (
+            expiresInMs <= 0 ||
+            expiresInMs > 30 * 24 * 60 * 60 * 1000
+        ) {
             throw new ConflictException(
                 'Invitation expiry must be within 30 days',
             );
@@ -80,12 +87,16 @@ export class InvitationLifecycleService {
             },
         });
 
-        // The raw token is returned once for delivery by the caller.
-        // Never persist or log it. The caller must deliver it securely.
-        return { invitation, token: rawToken };
+        return {
+            invitation,
+            token: rawToken,
+        };
     }
 
-    async revokeInvitation(actorUserId: string, invitationId: string) {
+    async revokeInvitation(
+        actorUserId: string,
+        invitationId: string,
+    ) {
         const invitation = await this.prisma.tenantInvitation.findUnique({
             where: { id: invitationId },
         });
@@ -120,6 +131,7 @@ export class InvitationLifecycleService {
 
     async acceptInvitation(userId: string, rawToken: string) {
         const token = rawToken.trim();
+
         if (!token) {
             throw new NotFoundException('Invitation not found');
         }
@@ -133,16 +145,6 @@ export class InvitationLifecycleService {
 
             if (!invitation) {
                 throw new NotFoundException('Invitation not found');
-            }
-
-            if (
-                invitation.acceptedAt ||
-                invitation.revokedAt ||
-                invitation.expiresAt <= new Date()
-            ) {
-                throw new ConflictException(
-                    'Invitation is no longer valid',
-                );
             }
 
             const user = await tx.user.findUnique({
@@ -173,10 +175,52 @@ export class InvitationLifecycleService {
                 );
             }
 
+            // Reject revoked and expired invitations, even if previously used.
+            if (
+                invitation.revokedAt ||
+                invitation.expiresAt <= new Date()
+            ) {
+                throw new ConflictException(
+                    'Invitation is no longer valid',
+                );
+            }
+
+            // Idempotent recovery: the same verified user can safely retry
+            // an invitation that was already accepted successfully.
+            if (invitation.acceptedAt) {
+                const existingMembership = await tx.userTenant.findUnique({
+                    where: {
+                        userId_tenantId: {
+                            userId: user.id,
+                            tenantId: invitation.tenantId,
+                        },
+                    },
+                });
+
+                if (
+                    existingMembership &&
+                    existingMembership.status === MembershipStatus.ACTIVE
+                ) {
+                    return {
+                        membership: {
+                            id: existingMembership.id,
+                            userId: existingMembership.userId,
+                            tenantId: existingMembership.tenantId,
+                            role: existingMembership.role,
+                            status: existingMembership.status,
+                        },
+                    };
+                }
+
+                throw new ConflictException(
+                    'Invitation has already been used',
+                );
+            }
+
             const existing = await tx.userTenant.findUnique({
                 where: {
                     userId_tenantId: {
-                        userId,
+                        userId: user.id,
                         tenantId: invitation.tenantId,
                     },
                 },
@@ -191,7 +235,10 @@ export class InvitationLifecycleService {
                 );
             }
 
-            if (!isTenantRole(invitation.role) || invitation.role === 'OWNER') {
+            if (
+                !isTenantRole(invitation.role) ||
+                invitation.role === 'OWNER'
+            ) {
                 throw new ForbiddenException(
                     'Invitation contains an invalid role',
                 );
@@ -207,7 +254,7 @@ export class InvitationLifecycleService {
                 })
                 : await tx.userTenant.create({
                     data: {
-                        userId,
+                        userId: user.id,
                         tenantId: invitation.tenantId,
                         role: invitation.role as PrismaTenantRole,
                         status: MembershipStatus.ACTIVE,
@@ -221,7 +268,9 @@ export class InvitationLifecycleService {
                     revokedAt: null,
                     expiresAt: { gt: new Date() },
                 },
-                data: { acceptedAt: new Date() },
+                data: {
+                    acceptedAt: new Date(),
+                },
             });
 
             if (claimed.count !== 1) {
@@ -238,6 +287,63 @@ export class InvitationLifecycleService {
                     role: membership.role,
                     status: membership.status,
                 },
+            };
+        });
+    }
+
+    async listTenantInvitations(
+        actorUserId: string,
+        tenantId: string,
+    ) {
+        await this.memberships.requirePermission(
+            actorUserId,
+            tenantId,
+            'members.read',
+        );
+
+        const now = new Date();
+
+        const invitations = await this.prisma.tenantInvitation.findMany({
+            where: { tenantId },
+            select: {
+                id: true,
+                tenantId: true,
+                email: true,
+                role: true,
+                expiresAt: true,
+                acceptedAt: true,
+                revokedAt: true,
+                createdAt: true,
+                invitedBy: {
+                    select: {
+                        email: true,
+                        displayName: true,
+                    },
+                },
+            },
+            orderBy: {
+                createdAt: 'desc',
+            },
+        });
+
+        return invitations.map((invitation) => {
+            const status = invitation.acceptedAt
+                ? 'ACCEPTED'
+                : invitation.revokedAt
+                    ? 'REVOKED'
+                    : invitation.expiresAt <= now
+                        ? 'EXPIRED'
+                        : 'PENDING';
+
+            return {
+                id: invitation.id,
+                tenantId: invitation.tenantId,
+                email: invitation.email,
+                role: invitation.role,
+                expiresAt: invitation.expiresAt,
+                createdAt: invitation.createdAt,
+                status,
+                invitedBy: invitation.invitedBy,
             };
         });
     }

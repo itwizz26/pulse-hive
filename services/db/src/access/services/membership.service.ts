@@ -319,4 +319,39 @@ export class MembershipService {
             throw new NotFoundException('Tenant not found');
         }
     }
+
+    async listTenantMembers(actorUserId: string, tenantId: string) {
+        await this.requirePermission(actorUserId, tenantId, 'members.read');
+
+        const memberships = await this.prisma.userTenant.findMany({
+            where: {
+            tenantId,
+            status: {
+                not: 'REMOVED',
+            },
+            },
+            select: {
+            id: true,
+            userId: true,
+            role: true,
+            status: true,
+            createdAt: true,
+            user: {
+                select: {
+                email: true,
+                displayName: true,
+                },
+            },
+            },
+            orderBy: {
+            createdAt: 'asc',
+            },
+        });
+
+        return memberships.map(({ user, ...membership }) => ({
+            ...membership,
+            email: user.email,
+            displayName: user.displayName,
+        }));
+    }
 }

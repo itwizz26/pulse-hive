@@ -151,6 +151,22 @@ export class InternalAccessController {
         );
     }
 
+    @Get('tenants/:tenantId/members')
+    listTenantMembers(
+    @Headers('x-authenticated-user-id') actorUserId: string,
+    @Param('tenantId') tenantId: string,
+    ) {
+        return this.memberships.listTenantMembers(actorUserId, tenantId);
+    }
+
+    @Get('tenants/:tenantId/invitations')
+    listTenantInvitations(
+    @Headers('x-authenticated-user-id') actorUserId: string,
+    @Param('tenantId') tenantId: string,
+    ) {
+        return this.invitations.listTenantInvitations(actorUserId, tenantId);
+    }
+
     private requireActor(value: string | undefined): string {
         return this.requireString(value, 'authenticated user identity');
     }

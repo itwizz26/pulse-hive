@@ -36,6 +36,7 @@ model User {
   createdAt             DateTime           @default(now())
   updatedAt             DateTime           @updatedAt
   memberships           UserTenant[]
+  emailVerificationTokens EmailVerificationToken[]
   sentTenantInvitations TenantInvitation[] @relation("TenantInvitationInviter")
 
   @@index([createdAt])
@@ -78,6 +79,19 @@ model TenantInvitation {
   @@index([tenantId, email])
   @@index([expiresAt])
   @@index([invitedByUserId])
+}
+
+model EmailVerificationToken {
+  id        String    @id @default(cuid())
+  userId    String
+  tokenHash String    @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, expiresAt])
 }
 
 model Customer {

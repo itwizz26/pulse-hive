@@ -45,4 +45,27 @@ export class IdentityController {
     ) {
         return this.userProfile.updateProfile(id, body);
     }
+
+    @Post(':id/email-verification-tokens')
+    issueEmailVerificationToken(
+        @Param('id') id: string,
+        @Body()
+        body: {
+            tokenHash: string;
+            expiresAt: string;
+        },
+    ) {
+        return this.userIdentity.issueEmailVerificationToken(
+            id,
+            body.tokenHash,
+            body.expiresAt,
+        );
+    }
+
+    @Post('email-verification/verify')
+    verifyEmailToken(
+        @Body() body: { tokenHash: string },
+    ) {
+        return this.userIdentity.verifyEmailToken(body.tokenHash);
+    }
 }
